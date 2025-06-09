@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  linpde-gp:
+    build: .
+    container_name: linpde-gp-dev
+    volumes:
+      # Mount the current directory to /app in the container
+      - .:/app
+      # Mount a volume for pip cache to speed up rebuilds
+      - pip-cache:/root/.cache/pip
+    ports:
+      # Map port 8888 for Jupyter notebook
+      - "8888:8888"
+      # Map port 8000 for potential web servers
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app/src
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+    working_dir: /app
+
+volumes:
+  pip-cache: 
