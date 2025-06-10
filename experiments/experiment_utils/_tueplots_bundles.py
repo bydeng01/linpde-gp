@@ -23,6 +23,29 @@ def jmlr(*, rel_width=1.0, rel_height=None, nrows=1, ncols=1, family="serif", **
     return tueplots_rcparams
 
 
+def jmlr_docker(*, rel_width=1.0, rel_height=None, nrows=1, ncols=1, family="serif", **kwargs):
+    """Docker-compatible version of jmlr bundle that doesn't use LaTeX."""
+    if rel_height is not None:
+        warnings.warn("The `rel_height` argument is not supported for the JMLR bundle")
+
+    size = figsizes.jmlr2001(
+        rel_width=rel_width,
+        nrows=nrows,
+        ncols=ncols,
+        **kwargs,
+    )
+    # Use a similar non-TeX font configuration (neurips2021 has similar styling)
+    font_config = fonts.neurips2021(family=family)
+    fontsize_config = fontsizes.jmlr2001()
+
+    tueplots_rcparams = {**font_config, **size, **fontsize_config}
+
+    # Explicitly disable LaTeX
+    tueplots_rcparams["text.usetex"] = False
+
+    return tueplots_rcparams
+
+
 def beamer_moml(*, rel_width=1.0, rel_height=0.8, nrows=1):
     tueplots_rcparams = bundles.beamer_moml(
         rel_width=rel_width,

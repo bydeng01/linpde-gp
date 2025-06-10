@@ -14,7 +14,17 @@ RUN apt-get update && apt-get install -y \
     libopenblas-dev \
     liblapack-dev \
     gfortran \
-    && rm -rf /var/lib/apt/lists/*
+    fontconfig \
+    fonts-freefont-ttf \
+    texlive-latex-base \
+    texlive-fonts-recommended \
+    texlive-latex-extra \
+    texlive-science \
+    cm-super \
+    dvipng \
+    ghostscript \
+    && rm -rf /var/lib/apt/lists/* \
+    && fc-cache -fv
 
 # Copy the requirements files first for better Docker layer caching
 COPY dev-requirements.txt ./

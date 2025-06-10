@@ -381,32 +381,38 @@ def _plot_line_zbuffered_wrt_surface(
         return matplotlib.collections.LineCollection(chunks, **kwargs)
 
     # Line chunks below the surface
-    ax.add_collection3d(
-        line_chunks(
-            xs,
-            ys_line,
-            ys_surf,
-            above=False,
-            zorder=zorder_below_surf,
-            **kwargs,
-        ),
-        zs=z,
-        zdir=zdir,
+    below_collection = line_chunks(
+        xs,
+        ys_line,
+        ys_surf,
+        above=False,
+        zorder=zorder_below_surf,
+        **kwargs,
     )
+    
+    if len(below_collection.get_segments()) > 0:
+        ax.add_collection3d(
+            below_collection,
+            zs=z,
+            zdir=zdir,
+        )
 
     # Line chunks above the surface
-    ax.add_collection3d(
-        line_chunks(
-            xs,
-            ys_line,
-            ys_surf,
-            above=True,
-            zorder=zorder_above_surf,
-            **kwargs,
-        ),
-        zs=z,
-        zdir=zdir,
+    above_collection = line_chunks(
+        xs,
+        ys_line,
+        ys_surf,
+        above=True,
+        zorder=zorder_above_surf,
+        **kwargs,
     )
+    
+    if len(above_collection.get_segments()) > 0:
+        ax.add_collection3d(
+            above_collection,
+            zs=z,
+            zdir=zdir,
+        )
 
 
 def plot_gaussian_pdf(

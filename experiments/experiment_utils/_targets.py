@@ -1,10 +1,11 @@
 from tueplots import bundles
 
-from ._tueplots_bundles import beamer_moml as beamer_moml_bundle, jmlr as jmlr_bundle
+from ._tueplots_bundles import beamer_moml as beamer_moml_bundle, jmlr as jmlr_bundle, jmlr_docker as jmlr_docker_bundle
 
 _tueplots_bundles = {
     "imprs_2022": bundles.beamer_moml,
     "jmlr": jmlr_bundle,
+    "jmlr_docker": jmlr_docker_bundle,
     "research_project": jmlr_bundle,
     "thesis_talk": beamer_moml_bundle,
     "uk_2023": beamer_moml_bundle,
@@ -12,6 +13,13 @@ _tueplots_bundles = {
 
 _colors = {
     "jmlr": {
+        "u": "C0",
+        "sol": "C1",
+        "bc": "C2",
+        "pde": "C3",
+        "u_meas": "C4",
+    },
+    "jmlr_docker": {
         "u": "C0",
         "sol": "C1",
         "bc": "C2",
