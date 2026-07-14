@@ -1,0 +1,6 @@
+[submodule "probnum"]
+	path = probnum
+	url = https://github.com/bydeng01/probnum.git
+[submodule "gp_constr"]
+	path = gp_constr
+	url = https://github.com/bydeng01/gp_constr.git

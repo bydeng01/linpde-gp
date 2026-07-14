@@ -1,0 +1,6 @@
+matplotlib>=3.4.3
+tueplots>=0.0.6
+
+# For the interactive visualizations
+ipympl==0.8.8
+ipywidgets==7.6.5

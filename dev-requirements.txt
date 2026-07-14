@@ -1,0 +1,13 @@
+# Editable install of `linpde-gp`
+-e .
+
+-r tests/requirements.txt
+-r ./formatting-requirements.txt
+-r ./linting-requirements.txt
+
+-r experiments/requirements.txt
+
+pre-commit>=3.1,<4
+
+# Editable install of `probnum`
+-e ./probnum

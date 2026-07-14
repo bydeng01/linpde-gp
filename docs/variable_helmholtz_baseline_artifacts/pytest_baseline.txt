@@ -1,0 +1,29 @@
+============================= test session starts ==============================
+collecting ... collected 23 items
+
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_getitem PASSED [  4%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_partial_derivative_coefficients_len PASSED [  8%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_num_coefficients PASSED [ 13%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_neg PASSED [ 17%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_add PASSED [ 21%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_rmul PASSED [ 26%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_input_domain_shape_mismatch PASSED [ 30%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_input_codomain_shape_mismatch PASSED [ 34%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_add_codomain_shape_mismatch PASSED [ 39%]
+tests/linpde_gp/linfuncops/diffops/test_coefficients.py::test_add_domain_shape_mismatch PASSED [ 43%]
+tests/linpde_gp/linfuncops/diffops/test_directional_derivative.py::test_coefficients PASSED [ 47%]
+tests/linpde_gp/linfuncops/diffops/test_helmholtz_operator.py::test_helmholtz_real2_operator_matches_manual_split PASSED [ 52%]
+tests/linpde_gp/linfuncops/diffops/test_laplacian.py::test_coefficients PASSED [ 56%]
+tests/linpde_gp/linfuncops/diffops/test_laplacian.py::test_jax_fallback_respects_batch_shape PASSED [ 60%]
+tests/linpde_gp/linfuncops/diffops/test_lindiffop.py::test_coefficients_domain_shape_mismatch PASSED [ 65%]
+tests/linpde_gp/linfuncops/diffops/test_lindiffop.py::test_coefficients_codomain_shape_mismatch PASSED [ 69%]
+tests/linpde_gp/problems/test_heat.py::test_compare_solutions PASSED     [ 73%]
+tests/linpde_gp/problems/test_helmholtz.py::test_compare_solutions PASSED [ 78%]
+tests/linpde_gp/problems/test_helmholtz.py::test_helmholtz_with_zero_boundary_conditions PASSED [ 82%]
+tests/linpde_gp/problems/test_helmholtz.py::test_helmholtz_with_analytical_solution PASSED [ 86%]
+tests/linpde_gp/problems/test_helmholtz.py::test_helmholtz_complex_wave_number PASSED [ 91%]
+tests/linpde_gp/problems/test_helmholtz.py::test_pde_residual_validation PASSED [ 95%]
+tests/linpde_gp/problems/test_helmholtz.py::test_helmholtz_real2_representation_matches_complex_solution SKIPPEDPs with multi-point
+observations)                                                            [100%]
+
+======================== 22 passed, 1 skipped in 8.11s =========================

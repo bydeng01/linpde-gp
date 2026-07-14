@@ -1,0 +1,34 @@
+# Variable-Coefficient Helmholtz Extension — Phase 0 Baseline
+# Captured: 2026-05-12
+
+## Test counts (all passing before any source changes)
+
+V1  tests/linpde_gp/linfuncops/diffops/test_helmholtz_operator.py  : 1 passed
+V2  tests/linpde_gp/problems/test_helmholtz.py                     : 5 passed, 1 skipped
+V3  tests/linpde_gp/linfuncops/diffops/                            : 16 passed
+V4  tests/linpde_gp/problems/                                      : 6 passed, 1 skipped
+
+V7  python -c "import linpde_gp; print(linpde_gp.linfuncops.diffops.HelmholtzOperator(domain_shape=(2,), k_squared=1.0))"
+    -> PASS, prints "HelmholtzOperator(domain_shape=(2,), k_squared=1.0)"
+
+## Importers of HelmholtzOperator / HelmholtzEquation
+(grep -r "HelmholtzOperator\|HelmholtzEquation" --include='*.py' src tests experiments)
+
+src/linpde_gp/linfuncops/diffops/__init__.py        -- re-export
+src/linpde_gp/linfuncops/diffops/_functions.py      -- internal kernel use
+src/linpde_gp/linfuncops/diffops/_helmholtz_operator.py -- defining file
+src/linpde_gp/problems/pde/__init__.py              -- re-export
+src/linpde_gp/problems/pde/_helmholtz.py            -- defining file
+tests/linpde_gp/problems/test_helmholtz.py          -- test fixture
+
+No file under experiments/ currently imports either symbol, so V5's external-
+artifact set is empty. Instead the V5 baseline is encoded as
+`docs/variable_helmholtz_baseline_artifacts/operator_baseline.txt`, a
+deterministic record of HelmholtzOperator/HelmholtzReal2Operator outputs on a
+fixed set of test inputs. Phase 2 and 3 must reproduce these values to within
+atol=1e-10 to pass V5.
+
+## Files in docs/variable_helmholtz_baseline_artifacts/
+- pytest_baseline.txt    -- verbose pytest output for diffops + problems
+- operator_baseline.txt  -- deterministic numerical baseline (re-run after each
+                            patch and diff to detect regressions)
