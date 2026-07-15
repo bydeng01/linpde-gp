@@ -63,19 +63,19 @@ done
 ANCHOR="--subject U01_UDEL_0001_01 --freq 70 --component 0 \
   --observable curl --output-scale 2e-4 --bc-noise-rel 1e-6 --sparse-figures"
 
-# IID, single scale 15 mm  -> 0.684 / 0.454 / 0.470
+# IID, single scale 15 mm  -> 0.686 / 0.448 / 0.474
 python "$DRIVER" $ANCHOR --prior iid --lengthscale-mm 15 \
   2>&1 | tee "$OUT/ablation_iid_15.log"
 
-# LMC 3/16 mm, rho = 0      -> 0.746 / 0.389 / 0.365
+# LMC 3/16 mm, rho = 0      -> 0.747 / 0.389 / 0.364
 python "$DRIVER" $ANCHOR --prior lmc --lmc-lengthscales 3,16 \
   2>&1 | tee "$OUT/ablation_lmc_3_16_rho0.log"
 
-# LMC 4/16 mm, rho = 0      -> 0.766 / 0.377 / 0.348  (champion / anchor)
+# LMC 4/16 mm, rho = 0      -> 0.767 / 0.375 / 0.347  (champion / anchor)
 python "$DRIVER" $ANCHOR --prior lmc --lmc-lengthscales 4,16 \
   2>&1 | tee "$OUT/ablation_lmc_4_16_rho0.log"
 
-# LMC 4/16 mm, rho = 0.6    -> 0.761 / 0.380 / 0.352
+# LMC 4/16 mm, rho = 0.6    -> 0.761 / 0.379 / 0.352
 python "$DRIVER" $ANCHOR --prior lmc --lmc-lengthscales 4,16 --coreg-corr 0.6 \
   2>&1 | tee "$OUT/ablation_lmc_4_16_rho0.6.log"
 
