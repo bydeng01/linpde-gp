@@ -158,3 +158,5 @@ experiments/linpde_gp_constrained/
 
 # Local-only: constrained-GP source package (not part of the open-sourced paper)
 src/linpde_gp_constrained/
+.DS_Store
+experiments/.DS_Store
