@@ -64,9 +64,11 @@ class DirichletBoundaryCondition(BoundaryCondition):
             boundary=boundary,
             operator=linfuncops.Identity(
                 boundary.shape,
-                values.output_shape
-                if isinstance(values, pn.functions.Function)
-                else np.shape(values),
+                (
+                    values.output_shape
+                    if isinstance(values, pn.functions.Function)
+                    else np.shape(values)
+                ),
             ),
             values=values,
         )

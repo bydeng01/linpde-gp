@@ -11,6 +11,7 @@ that the existing machinery suffices:
 * the operator-conditioned LMC Gram equals the sum of the two operator-
   conditioned ICM Grams (the defining LMC linearity, Acceptance 8c).
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -64,7 +65,8 @@ def test_lmc_is_jaxsum_of_icm():
     np.testing.assert_allclose(
         np.asarray(lmc(X0, X1)),
         np.asarray(icm1(X0, X1)) + np.asarray(icm2(X0, X1)),
-        rtol=1e-12, atol=1e-14,
+        rtol=1e-12,
+        atol=1e-14,
     )
 
 

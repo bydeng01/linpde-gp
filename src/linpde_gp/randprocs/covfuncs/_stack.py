@@ -88,18 +88,14 @@ class StackCovarianceFunction(
     def output_idx(self) -> int:
         return self._output_idx
 
-    def matrix(
-        self, x0: np.ndarray, x1: np.ndarray | None = None
-    ) -> np.ndarray:
+    def matrix(self, x0: np.ndarray, x1: np.ndarray | None = None) -> np.ndarray:
         """Evaluate the covariance matrix and enforce symmetry when appropriate."""
         K = super().matrix(x0, x1)
 
         # When evaluating a square Gram matrix (x1 is None or identical to x0),
         # symmetrize to guard against tiny asymmetries introduced by nested
         # operator compositions.
-        if x1 is None or (
-            x0.shape == x1.shape and np.allclose(x0, x1)
-        ):
+        if x1 is None or (x0.shape == x1.shape and np.allclose(x0, x1)):
             K = 0.5 * (K + K.T)
 
             # Numerical safeguard: ensure positive semidefiniteness.
@@ -111,6 +107,7 @@ class StackCovarianceFunction(
 
         return K
 
+    # pylint: disable=too-complex,too-many-locals,too-many-statements,protected-access
     def _evaluate(self, x0: np.ndarray, x1: np.ndarray | None) -> np.ndarray:
         evals = np.empty_like(self._covfuncs, dtype=np.object_)
         batch_shape = None
@@ -122,7 +119,10 @@ class StackCovarianceFunction(
             # arithmetic wrappers explicitly.
             if isinstance(covfunc, pn_cov_arith.SumCovarianceFunction):
                 return functools.reduce(
-                    operator.add, (_safe_eval(s) for s in covfunc._summands)  # pylint: disable=protected-access
+                    operator.add,
+                    (
+                        _safe_eval(s) for s in covfunc._summands
+                    ),  # pylint: disable=protected-access
                 )
             if isinstance(covfunc, pn_cov_arith.ScaledCovarianceFunction):
                 return covfunc._scalar * _safe_eval(  # pylint: disable=protected-access
@@ -131,17 +131,23 @@ class StackCovarianceFunction(
             # Special case for SelectOutput-produced covariance wrappers to avoid
             # invoking their `__call__` (which re-enters ProbNum assertions).
             if hasattr(covfunc, "_base_k") and hasattr(covfunc, "_argnum"):
-                base_eval = _safe_eval(covfunc._base_k)  # pylint: disable=protected-access
+                base_eval = _safe_eval(
+                    covfunc._base_k
+                )  # pylint: disable=protected-access
                 if covfunc._argnum == 0:  # pylint: disable=protected-access
                     slicer = (
                         Ellipsis,
                         covfunc._idx,  # pylint: disable=protected-access
-                        *([slice(None)] * len(covfunc._base_k.output_shape_1)),  # pylint: disable=protected-access
+                        *(
+                            [slice(None)] * len(covfunc._base_k.output_shape_1)
+                        ),  # pylint: disable=protected-access
                     )
                 else:
                     slicer = (
                         Ellipsis,
-                        *([slice(None)] * len(covfunc._base_k.output_shape_0)),  # pylint: disable=protected-access
+                        *(
+                            [slice(None)] * len(covfunc._base_k.output_shape_0)
+                        ),  # pylint: disable=protected-access
                         covfunc._idx,  # pylint: disable=protected-access
                     )
                 return base_eval[slicer]
@@ -150,13 +156,13 @@ class StackCovarianceFunction(
 
         for idx, covfunc in np.ndenumerate(self._covfuncs):
             # Compute expected shape once; use safe evaluation to bypass assertions.
-            bcast_batch_shape = covfunc._check_shapes(  # pylint: disable=protected-access
-                x0.shape, x1.shape if x1 is not None else None
+            bcast_batch_shape = (
+                covfunc._check_shapes(  # pylint: disable=protected-access
+                    x0.shape, x1.shape if x1 is not None else None
+                )
             )
             expected_shape = (
-                bcast_batch_shape
-                + covfunc.output_shape_0
-                + covfunc.output_shape_1
+                bcast_batch_shape + covfunc.output_shape_0 + covfunc.output_shape_1
             )
             eval_result = _safe_eval(covfunc)
 
@@ -268,6 +274,7 @@ class StackCovarianceFunction(
                 res[batch_slice + output_shape_0_slice + idx] = eval_at_idx
         return res
 
+    # pylint: disable=too-complex,too-many-locals,protected-access
     def _evaluate_jax(self, x0: jnp.ndarray, x1: jnp.ndarray | None) -> jnp.ndarray:
         evals = np.empty_like(self._covfuncs, dtype=np.object_)
         batch_shape = None
@@ -277,17 +284,23 @@ class StackCovarianceFunction(
         def _safe_eval_jax(covfunc):
             # Handle SelectOutput-wrapped kernels without triggering ProbNum assertions.
             if hasattr(covfunc, "_base_k") and hasattr(covfunc, "_argnum"):
-                base_eval = _safe_eval_jax(covfunc._base_k)  # pylint: disable=protected-access
+                base_eval = _safe_eval_jax(
+                    covfunc._base_k
+                )  # pylint: disable=protected-access
                 if covfunc._argnum == 0:  # pylint: disable=protected-access
                     slicer = (
                         Ellipsis,
                         covfunc._idx,  # pylint: disable=protected-access
-                        *([slice(None)] * len(covfunc._base_k.output_shape_1)),  # pylint: disable=protected-access
+                        *(
+                            [slice(None)] * len(covfunc._base_k.output_shape_1)
+                        ),  # pylint: disable=protected-access
                     )
                 else:
                     slicer = (
                         Ellipsis,
-                        *([slice(None)] * len(covfunc._base_k.output_shape_0)),  # pylint: disable=protected-access
+                        *(
+                            [slice(None)] * len(covfunc._base_k.output_shape_0)
+                        ),  # pylint: disable=protected-access
                         covfunc._idx,  # pylint: disable=protected-access
                     )
                 return base_eval[slicer]
@@ -295,16 +308,23 @@ class StackCovarianceFunction(
                 return covfunc.jax(x0, x1)
             except AssertionError:
                 try:
-                    return covfunc._evaluate_jax(x0, x1)  # pylint: disable=protected-access
+                    return covfunc._evaluate_jax(
+                        x0, x1
+                    )  # pylint: disable=protected-access
                 except AssertionError:
                     if isinstance(covfunc, pn_cov_arith.SumCovarianceFunction):
                         return functools.reduce(
                             operator.add,
-                            (_safe_eval_jax(s) for s in covfunc._summands),  # pylint: disable=protected-access
+                            (
+                                _safe_eval_jax(s) for s in covfunc._summands
+                            ),  # pylint: disable=protected-access
                         )
                     if isinstance(covfunc, pn_cov_arith.ScaledCovarianceFunction):
-                        return covfunc._scalar * _safe_eval_jax(  # pylint: disable=protected-access
-                            covfunc._covfunc  # pylint: disable=protected-access
+                        return (
+                            covfunc._scalar
+                            * _safe_eval_jax(  # pylint: disable=protected-access
+                                covfunc._covfunc  # pylint: disable=protected-access
+                            )
                         )
                     raise
 
@@ -312,15 +332,17 @@ class StackCovarianceFunction(
             eval_result = _safe_eval_jax(covfunc)
 
             output_shape_not_stacked = (
-                covfunc.output_shape_1 if self._output_idx == 0 else covfunc.output_shape_0
+                covfunc.output_shape_1
+                if self._output_idx == 0
+                else covfunc.output_shape_0
             )
-            bcast_batch_shape = covfunc._check_shapes(  # pylint: disable=protected-access
-                x0.shape, x1.shape if x1 is not None else None
+            bcast_batch_shape = (
+                covfunc._check_shapes(  # pylint: disable=protected-access
+                    x0.shape, x1.shape if x1 is not None else None
+                )
             )
             expected_shape = (
-                bcast_batch_shape
-                + covfunc.output_shape_0
-                + covfunc.output_shape_1
+                bcast_batch_shape + covfunc.output_shape_0 + covfunc.output_shape_1
             )
             if eval_result.shape != expected_shape:
                 if (

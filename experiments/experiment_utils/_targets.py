@@ -1,6 +1,10 @@
 from tueplots import bundles
 
-from ._tueplots_bundles import beamer_moml as beamer_moml_bundle, jmlr as jmlr_bundle, jmlr_docker as jmlr_docker_bundle
+from ._tueplots_bundles import (
+    beamer_moml as beamer_moml_bundle,
+    jmlr as jmlr_bundle,
+    jmlr_docker as jmlr_docker_bundle,
+)
 
 _tueplots_bundles = {
     "imprs_2022": bundles.beamer_moml,

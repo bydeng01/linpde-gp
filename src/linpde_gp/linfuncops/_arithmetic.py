@@ -111,7 +111,9 @@ class SumLinearFunctionOperator(LinearFunctionOperator, Generic[T]):
         return super().__call__(randproc)
 
     def adjoint(self):
-        return SumLinearFunctionOperator(*(summand.adjoint() for summand in self._summands))
+        return SumLinearFunctionOperator(
+            *(summand.adjoint() for summand in self._summands)
+        )
 
     def __repr__(self):
         return " + ".join(str(summand) for summand in self._summands)

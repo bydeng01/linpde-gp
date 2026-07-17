@@ -18,6 +18,7 @@ Cover two pieces of the variable-Helmholtz 2-component pipeline:
   failure mode that motivated the closed-form weighted-Laplacian work in
   Phase 6a).
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -37,7 +38,6 @@ from linpde_gp.randprocs.covfuncs import (
     StackCovarianceFunction,
     Zero,
 )
-
 
 # --------------------------------------------------------------------------- #
 # Phase 7a — GP wiring                                                        #
@@ -135,9 +135,9 @@ def test_helmholtz_real2_double_application_is_structured(real2_setup_3d):
     assert kL0L1.output_shape_0 == (2,)
     assert kL0L1.output_shape_1 == (2,)
     lambdas = _find_jax_lambdas(kL0L1)
-    assert lambdas == [], (
-        "Phase 7b dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
-    )
+    assert (
+        lambdas == []
+    ), "Phase 7b dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
 
 
 def test_helmholtz_real2_gram_diagonal_finite(real2_setup_3d):
@@ -173,9 +173,9 @@ def test_helmholtz_real2_gram_symmetric(real2_setup_3d):
     abs_err = float(np.max(np.abs(G - G_swapped)))
     # Exact symmetry expected for the closed-form path; allow a tiny rel tolerance
     # for floating-point reductions in the JAX summation order.
-    assert abs_err <= 1e-9 * max(abs_max, 1.0), (
-        f"Gram symmetry violated: abs_err={abs_err:.4g}, abs_max={abs_max:.4g}"
-    )
+    assert abs_err <= 1e-9 * max(
+        abs_max, 1.0
+    ), f"Gram symmetry violated: abs_err={abs_err:.4g}, abs_max={abs_max:.4g}"
 
 
 def test_helmholtz_real2_variable_coefficient_double_application_is_structured():
@@ -187,7 +187,8 @@ def test_helmholtz_real2_variable_coefficient_double_application_is_structured()
     def k2(x):
         # Smooth complex k²(x) with non-trivial dissipation. Use jax-compatible ops.
         from jax import numpy as jnp
-        r2 = jnp.sum(x ** 2, axis=-1)
+
+        r2 = jnp.sum(x**2, axis=-1)
         return (4.0 + 12.0 * r2) - 1j * (1.0 + 2.0 * r2)
 
     k2_field = lp_functions.JaxLambdaFunction(
@@ -201,8 +202,10 @@ def test_helmholtz_real2_variable_coefficient_double_application_is_structured()
     kL0L1 = op(kL, argnum=0)
 
     lambdas = _find_jax_lambdas(kL0L1)
-    assert lambdas == [], (
-        "Variable-coefficient HelmholtzReal2Operator leaked JaxLambda: " + ", ".join(lambdas)
+    assert (
+        lambdas == []
+    ), "Variable-coefficient HelmholtzReal2Operator leaked JaxLambda: " + ", ".join(
+        lambdas
     )
 
     rng = np.random.default_rng(4)

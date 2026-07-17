@@ -9,6 +9,11 @@ from ._heat import (
     HeatEquationDirichletProblem,
     Solution_HeatEquation_DirichletProblem_1D_InitialTruncatedSineSeries_BoundaryZero,
 )
+from ._helmholtz import (
+    HelmholtzEquation,
+    HelmholtzEquationDirichletProblem,
+    Solution_HelmholtzEquation_DirichletProblem_1D_ComplexExponential,
+)
 from ._linear_pde import LinearPDE
 from ._poisson import (
     PoissonEquation,
@@ -16,9 +21,4 @@ from ._poisson import (
     Solution_PoissonEquation_DirichletProblem_1D_RHSConstant,
     Solution_PoissonEquation_IVP_1D_RHSPiecewisePolynomial,
     Solution_PoissonEquation_IVP_1D_RHSPolynomial,
-)
-from ._helmholtz import (
-    HelmholtzEquation,
-    HelmholtzEquationDirichletProblem,
-    Solution_HelmholtzEquation_DirichletProblem_1D_ComplexExponential,
 )

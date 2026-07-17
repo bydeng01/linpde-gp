@@ -98,9 +98,11 @@ class ConditionalGaussianProcess(pn.randprocs.GaussianProcess):
         if self._representer_weights is None:
             y = np.concatenate(
                 [
-                    (Y - L(self._prior.mean))
-                    if b is None
-                    else (Y - L(self._prior.mean) - b.mean.reshape(-1, order="C"))
+                    (
+                        (Y - L(self._prior.mean))
+                        if b is None
+                        else (Y - L(self._prior.mean) - b.mean.reshape(-1, order="C"))
+                    )
                     for Y, L, b in zip(self._Ys, self._Ls, self._bs)
                 ],
                 axis=-1,
@@ -252,9 +254,7 @@ class ConditionalGaussianProcess(pn.randprocs.GaussianProcess):
             cov = k_xx - cov_update
 
             if x1 is None or (
-                x0 is not None
-                and x0.shape == x1.shape
-                and np.allclose(x0, x1)
+                x0 is not None and x0.shape == x1.shape and np.allclose(x0, x1)
             ):
                 cov_reshaped = np.reshape(
                     cov,
@@ -262,9 +262,7 @@ class ConditionalGaussianProcess(pn.randprocs.GaussianProcess):
                     order="C",
                 )
 
-                cov_reshaped = 0.5 * (
-                    cov_reshaped + np.swapaxes(cov_reshaped, -2, -1)
-                )
+                cov_reshaped = 0.5 * (cov_reshaped + np.swapaxes(cov_reshaped, -2, -1))
                 eigvals, eigvecs = np.linalg.eigh(cov_reshaped)
                 eigvals = np.clip(eigvals, 0.0, None)
                 cov_reshaped = (eigvecs * eigvals[..., None, :]) @ np.swapaxes(
@@ -315,9 +313,7 @@ class ConditionalGaussianProcess(pn.randprocs.GaussianProcess):
             kLas_x1 = self._kLas.evaluate_linop(x1) if x1 is not None else kLas_x0
             return k_xx - kLas_x0 @ self._gram_matrix.solve(kLas_x1.T)
 
-        def matrix(
-            self, x0: np.ndarray, x1: np.ndarray | None = None
-        ) -> np.ndarray:
+        def matrix(self, x0: np.ndarray, x1: np.ndarray | None = None) -> np.ndarray:
             """Return a PSD covariance matrix (guards numerical drift).
 
             Conditioning and repeated linear operator applications can introduce tiny
@@ -326,9 +322,7 @@ class ConditionalGaussianProcess(pn.randprocs.GaussianProcess):
             """
             K = super().matrix(x0, x1)
 
-            if x1 is None or (
-                np.shape(x0) == np.shape(x1) and np.allclose(x0, x1)
-            ):
+            if x1 is None or (np.shape(x0) == np.shape(x1) and np.allclose(x0, x1)):
                 K = 0.5 * (K + K.T)
 
                 eigvals, eigvecs = np.linalg.eigh(K)
@@ -383,6 +377,7 @@ class ConditionalGaussianProcess(pn.randprocs.GaussianProcess):
         )
 
     @classmethod
+    # pylint: disable=too-complex,too-many-branches,protected-access
     def _preprocess_observations(
         cls,
         *,
@@ -470,9 +465,8 @@ class ConditionalGaussianProcess(pn.randprocs.GaussianProcess):
                 -prior.mean.output_ndim + np.arange(prior.mean.output_ndim),
                 np.arange(prior.mean.output_ndim),
             )
-        elif (
-            isinstance(L, linfunctls.CompositeLinearFunctional)
-            and isinstance(L.linfunctl, linfunctls._EvaluationFunctional)
+        elif isinstance(L, linfunctls.CompositeLinearFunctional) and isinstance(
+            L.linfunctl, linfunctls._EvaluationFunctional
         ):
             eval_functl = L.linfunctl
             output_ndim = len(eval_functl.input_codomain_shape)
@@ -586,7 +580,7 @@ def _(
 
 def cho_solve(L, b):
     """Fixes a bug in scipy.linalg.cho_solve"""
-    (L, lower) = L
+    L, lower = L
 
     if L.shape == (1, 1) and b.shape[0] == 1:
         return b / L[0, 0] ** 2

@@ -80,7 +80,7 @@ def test_helmholtz_real2_covariance_matches_analytical_block_structure():
 
     # --- Independent analytical reference ---
     def k_scalar(x0, x1):
-        return jnp.exp(-((x0 - x1) ** 2) / (2.0 * ell ** 2))
+        return jnp.exp(-((x0 - x1) ** 2) / (2.0 * ell**2))
 
     d2_x = jax.grad(jax.grad(k_scalar, argnums=0), argnums=0)
     d2_y = jax.grad(jax.grad(k_scalar, argnums=1), argnums=1)
@@ -97,7 +97,7 @@ def test_helmholtz_real2_covariance_matches_analytical_block_structure():
                 d2_d2(X_jax[i], X_jax[j])
                 + alpha * d2_x(X_jax[i], X_jax[j])
                 + alpha * d2_y(X_jax[i], X_jax[j])
-                + (alpha ** 2 + beta ** 2) * k_scalar(X_jax[i], X_jax[j])
+                + (alpha**2 + beta**2) * k_scalar(X_jax[i], X_jax[j])
             )
     K_diag *= 0.5
 

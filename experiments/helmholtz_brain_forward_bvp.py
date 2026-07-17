@@ -58,15 +58,16 @@ from __future__ import annotations
 import argparse
 import itertools
 import os
+from pathlib import Path
 import sys
 import time
-from pathlib import Path
 
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/mplcache")
 
 import matplotlib
 
 matplotlib.use("Agg")
+from jax import numpy as jnp
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
@@ -80,9 +81,6 @@ from linpde_gp.randprocs.covfuncs import (
     CoregionalizedMultiOutputCovarianceFunction,
     IndependentMultiOutputCovarianceFunction,
 )
-
-from jax import numpy as jnp
-
 
 RHO = 1040.0  # kg/m^3 (brain tissue; was 1000.0)
 COMPONENT_NAME = {0: "x", 1: "y", 2: "z"}
@@ -116,9 +114,7 @@ def load_subject_frequency(
     is recorded under ``data["observable"]``.
     """
     if observable not in ("disp", "curl"):
-        raise ValueError(
-            f"observable must be 'disp' or 'curl', got {observable!r}"
-        )
+        raise ValueError(f"observable must be 'disp' or 'curl', got {observable!r}")
 
     freq_dir = root / f"{subject}_v4" / f"{subject}_MRE_AP_{freq_hz}Hz"
     reg_dir = root / f"{subject}_v4" / f"{subject}_register_to_MRE"
@@ -142,9 +138,9 @@ def load_subject_frequency(
     zooms = mask_img.header.get_zooms()[:3]  # in mm
 
     return {
-        "u": field_re + 1j * field_im,       # microns, shape (X,Y,Z,3)
-        "G": G_re + 1j * G_im,               # Pa, shape (X,Y,Z)
-        "mask": mask,                         # bool, shape (X,Y,Z)
+        "u": field_re + 1j * field_im,  # microns, shape (X,Y,Z,3)
+        "G": G_re + 1j * G_im,  # Pa, shape (X,Y,Z)
+        "mask": mask,  # bool, shape (X,Y,Z)
         "zooms_mm": tuple(float(z) for z in zooms),
         "observable": observable,
     }
@@ -162,16 +158,16 @@ def laplacian_3d(field: np.ndarray, dx: float, dy: float, dz: float) -> np.ndarr
     artifact does not contaminate the diagnostic.
     """
     out = np.zeros_like(field)
-    out += (np.roll(field, -1, axis=0) - 2 * field + np.roll(field, 1, axis=0)) / dx ** 2
-    out += (np.roll(field, -1, axis=1) - 2 * field + np.roll(field, 1, axis=1)) / dy ** 2
-    out += (np.roll(field, -1, axis=2) - 2 * field + np.roll(field, 1, axis=2)) / dz ** 2
+    out += (np.roll(field, -1, axis=0) - 2 * field + np.roll(field, 1, axis=0)) / dx**2
+    out += (np.roll(field, -1, axis=1) - 2 * field + np.roll(field, 1, axis=1)) / dy**2
+    out += (np.roll(field, -1, axis=2) - 2 * field + np.roll(field, 1, axis=2)) / dz**2
     return out
 
 
 def empirical_residual(
-    u_meas: np.ndarray,           # complex, shape (X,Y,Z,3)
-    k2: np.ndarray,                # complex, shape (X,Y,Z), NaN outside mask
-    mask: np.ndarray,              # bool, shape (X,Y,Z)
+    u_meas: np.ndarray,  # complex, shape (X,Y,Z,3)
+    k2: np.ndarray,  # complex, shape (X,Y,Z), NaN outside mask
+    mask: np.ndarray,  # bool, shape (X,Y,Z)
     spacing_mm: tuple,
 ):
     """Return per-voxel residual r and forcing magnitude |k^2 u|.
@@ -201,7 +197,7 @@ def empirical_residual(
 
 
 def build_real_k2_field_from_grid(
-    k2_volume: np.ndarray,      # real-valued field (Re or Im of full k^2)
+    k2_volume: np.ndarray,  # real-valued field (Re or Im of full k^2)
     origin_mm: np.ndarray,
     spacing_mm: np.ndarray,
     fill_value: float = 0.0,
@@ -216,25 +212,27 @@ def build_real_k2_field_from_grid(
     origin_m = origin_mm * 1e-3
     nx, ny, nz = k2_volume.shape
 
-    k2_np = np.where(np.isfinite(k2_volume), k2_volume, fill_value).astype(
-        np.float64
-    )
+    k2_np = np.where(np.isfinite(k2_volume), k2_volume, fill_value).astype(np.float64)
     k2_jax = jnp.asarray(k2_np.reshape(-1))
 
     def _lookup(x):
-        ix = jnp.clip(((x[0] - origin_m[0]) / spacing_m[0]).astype(jnp.int32), 0, nx - 1)
-        iy = jnp.clip(((x[1] - origin_m[1]) / spacing_m[1]).astype(jnp.int32), 0, ny - 1)
-        iz = jnp.clip(((x[2] - origin_m[2]) / spacing_m[2]).astype(jnp.int32), 0, nz - 1)
+        ix = jnp.clip(
+            ((x[0] - origin_m[0]) / spacing_m[0]).astype(jnp.int32), 0, nx - 1
+        )
+        iy = jnp.clip(
+            ((x[1] - origin_m[1]) / spacing_m[1]).astype(jnp.int32), 0, ny - 1
+        )
+        iz = jnp.clip(
+            ((x[2] - origin_m[2]) / spacing_m[2]).astype(jnp.int32), 0, nz - 1
+        )
         idx = ix * (ny * nz) + iy * nz + iz
         return k2_jax[idx]
 
-    return JaxLambdaFunction(
-        _lookup, input_shape=(3,), output_shape=(), vectorize=True
-    )
+    return JaxLambdaFunction(_lookup, input_shape=(3,), output_shape=(), vectorize=True)
 
 
 def build_complex_k2_field_from_grid(
-    k2_volume: np.ndarray,     # complex-valued field
+    k2_volume: np.ndarray,  # complex-valued field
     origin_mm: np.ndarray,
     spacing_mm: np.ndarray,
     fill_value: complex = 0.0,
@@ -258,15 +256,19 @@ def build_complex_k2_field_from_grid(
     k2_jax = jnp.asarray(k2_np.reshape(-1))
 
     def _lookup(x):
-        ix = jnp.clip(((x[0] - origin_m[0]) / spacing_m[0]).astype(jnp.int32), 0, nx - 1)
-        iy = jnp.clip(((x[1] - origin_m[1]) / spacing_m[1]).astype(jnp.int32), 0, ny - 1)
-        iz = jnp.clip(((x[2] - origin_m[2]) / spacing_m[2]).astype(jnp.int32), 0, nz - 1)
+        ix = jnp.clip(
+            ((x[0] - origin_m[0]) / spacing_m[0]).astype(jnp.int32), 0, nx - 1
+        )
+        iy = jnp.clip(
+            ((x[1] - origin_m[1]) / spacing_m[1]).astype(jnp.int32), 0, ny - 1
+        )
+        iz = jnp.clip(
+            ((x[2] - origin_m[2]) / spacing_m[2]).astype(jnp.int32), 0, nz - 1
+        )
         idx = ix * (ny * nz) + iy * nz + iz
         return k2_jax[idx]
 
-    return JaxLambdaFunction(
-        _lookup, input_shape=(3,), output_shape=(), vectorize=True
-    )
+    return JaxLambdaFunction(_lookup, input_shape=(3,), output_shape=(), vectorize=True)
 
 
 # ---------------------------------------------------------------------------
@@ -296,22 +298,23 @@ def _solve_real_bvp(
     cov_base,
     output_scale: float,
     X_bc: np.ndarray,
-    Y_bc: np.ndarray,           # real-valued shell observations
+    Y_bc: np.ndarray,  # real-valued shell observations
     X_pde: np.ndarray,
-    Y_pde: np.ndarray,           # real-valued PDE forcing (typically zeros)
+    Y_pde: np.ndarray,  # real-valued PDE forcing (typically zeros)
     bc_noise: float,
-    pde_noise_rel: float,        # PDE noise as a fraction of trace(K)/N
-    cov_jitter_rel: float,        # jitter for PD-ness of conditional Gram
+    pde_noise_rel: float,  # PDE noise as a fraction of trace(K)/N
+    cov_jitter_rel: float,  # jitter for PD-ness of conditional Gram
 ):
     """Run a single scalar BVP and return (post, info)."""
     prior = pn.randprocs.GaussianProcess(
         mean=linpde_gp.functions.Zero(input_shape=(3,)),
-        cov=output_scale ** 2 * cov_base,
+        cov=output_scale**2 * cov_base,
     )
 
     # BC observations
     bc_post = prior.condition_on_observations(
-        Y_bc, X=X_bc,
+        Y_bc,
+        X=X_bc,
         b=pn.randvars.Normal(
             np.zeros(X_bc.shape[0]),
             bc_noise * np.eye(X_bc.shape[0]),
@@ -334,7 +337,9 @@ def _solve_real_bvp(
     trace_avg = float(np.mean(bvp_var))
     pde_noise = pde_noise_rel * trace_avg + cov_jitter_rel * trace_avg
     post = bc_post.condition_on_observations(
-        Y_pde, X=X_pde, L=helmholtz_op_real,
+        Y_pde,
+        X=X_pde,
+        L=helmholtz_op_real,
         b=pn.randvars.Normal(
             np.zeros(X_pde.shape[0]),
             pde_noise * np.eye(X_pde.shape[0]),
@@ -346,7 +351,7 @@ def _solve_real_bvp(
 def gp_forward_solve(
     *,
     u_meas: np.ndarray,
-    k2_volume: np.ndarray,        # complex, shape (X,Y,Z)
+    k2_volume: np.ndarray,  # complex, shape (X,Y,Z)
     mask: np.ndarray,
     spacing_mm: tuple,
     component: int,
@@ -427,8 +432,13 @@ def gp_forward_solve(
         print(f"  Re BVP OK in {t_R:.1f} s, pde_noise={info_R['pde_noise']:.3e}")
     except (ValueError, RuntimeError, np.linalg.LinAlgError) as exc:
         print(f"  Re BVP FAILED: {type(exc).__name__}: {exc}")
-        return {"status": "failed", "phase": "real", "error": str(exc),
-                "shell_idx": shell_idx, "interior_idx": interior_idx}
+        return {
+            "status": "failed",
+            "phase": "real",
+            "error": str(exc),
+            "shell_idx": shell_idx,
+            "interior_idx": interior_idx,
+        }
 
     # --- Solve Im ---
     t1 = time.time()
@@ -449,8 +459,13 @@ def gp_forward_solve(
         print(f"  Im BVP OK in {t_I:.1f} s, pde_noise={info_I['pde_noise']:.3e}")
     except (ValueError, RuntimeError, np.linalg.LinAlgError) as exc:
         print(f"  Im BVP FAILED: {type(exc).__name__}: {exc}")
-        return {"status": "failed", "phase": "imag", "error": str(exc),
-                "shell_idx": shell_idx, "interior_idx": interior_idx}
+        return {
+            "status": "failed",
+            "phase": "imag",
+            "error": str(exc),
+            "shell_idx": shell_idx,
+            "interior_idx": interior_idx,
+        }
 
     return {
         "status": "ok",
@@ -497,6 +512,7 @@ def _build_real2_multi_cov(
       correlation ``rho``; ``output_scale**2`` is split evenly across the Q
       terms so the marginal variance again matches the IID/ICM scale.
     """
+
     def _base(ls_mm):
         if kernel == "matern":
             return linpde_gp.randprocs.covfuncs.Matern(
@@ -510,22 +526,16 @@ def _build_real2_multi_cov(
 
     if prior_kind == "iid":
         base = _base(lengthscale_mm)
-        return output_scale ** 2 * IndependentMultiOutputCovarianceFunction(
-            base, base
-        )
+        return output_scale**2 * IndependentMultiOutputCovarianceFunction(base, base)
 
     rho = 0.0 if coreg_corr is None else float(coreg_corr)
     if not -1.0 < rho < 1.0:
-        raise ValueError(
-            f"--coreg-corr must lie in (-1, 1) for a PSD B; got {rho}"
-        )
+        raise ValueError(f"--coreg-corr must lie in (-1, 1) for a PSD B; got {rho}")
     corr = np.array([[1.0, rho], [rho, 1.0]])
 
     if prior_kind == "icm":
         base = _base(lengthscale_mm)
-        return CoregionalizedMultiOutputCovarianceFunction(
-            base, output_scale ** 2 * corr
-        )
+        return CoregionalizedMultiOutputCovarianceFunction(base, output_scale**2 * corr)
 
     if prior_kind == "lmc":
         if lmc_lengthscales_mm:
@@ -534,7 +544,7 @@ def _build_real2_multi_cov(
             # Default Q=2: one short, one long lengthscale around the base.
             ls_list = [lengthscale_mm * 0.5, lengthscale_mm * 2.0]
         n_terms = len(ls_list)
-        B_q = (output_scale ** 2 / n_terms) * corr
+        B_q = (output_scale**2 / n_terms) * corr
         terms = [
             CoregionalizedMultiOutputCovarianceFunction(_base(ls), B_q)
             for ls in ls_list
@@ -553,7 +563,7 @@ def _solve_real2_bvp(
     cov_base,
     output_scale: float,
     X_bc: np.ndarray,
-    Y_bc_complex: np.ndarray,    # complex shell observations
+    Y_bc_complex: np.ndarray,  # complex shell observations
     X_pde: np.ndarray,
     bc_noise: float,
     pde_noise_rel: float,
@@ -580,7 +590,7 @@ def _solve_real2_bvp(
     # Phase 8d injects an ICM/LMC prior via ``multi_cov`` (output_scale**2 is
     # already folded into that object by ``_build_real2_multi_cov``).
     if multi_cov is None:
-        multi_cov = output_scale ** 2 * IndependentMultiOutputCovarianceFunction(
+        multi_cov = output_scale**2 * IndependentMultiOutputCovarianceFunction(
             cov_base, cov_base
         )
     prior = pn.randprocs.GaussianProcess(
@@ -700,8 +710,11 @@ def gp_forward_solve_real2(
     )
     print(
         f"  prior         : {prior_kind}"
-        + (f" (rho={float(coreg_corr):+.2f})" if coreg_corr is not None
-           and prior_kind in ("icm", "lmc") else "")
+        + (
+            f" (rho={float(coreg_corr):+.2f})"
+            if coreg_corr is not None and prior_kind in ("icm", "lmc")
+            else ""
+        )
     )
 
     t0 = time.time()
@@ -719,9 +732,7 @@ def gp_forward_solve_real2(
             multi_cov=multi_cov,
         )
         t_solve = time.time() - t0
-        print(
-            f"  Real2 BVP OK in {t_solve:.1f} s, pde_noise={info['pde_noise']:.3e}"
-        )
+        print(f"  Real2 BVP OK in {t_solve:.1f} s, pde_noise={info['pde_noise']:.3e}")
     except (ValueError, RuntimeError, np.linalg.LinAlgError) as exc:
         print(f"  Real2 BVP FAILED: {type(exc).__name__}: {exc}")
         return {
@@ -788,7 +799,7 @@ def _dense_slice_predictions(
           full slice to well under the colormap quantization. Cost ~3-5 s.
     """
     slice_mask = np.take(mask, z_slice, axis=2)  # (X, Y)
-    slice_idx = np.argwhere(slice_mask)            # (M, 2) of (x, y) indices
+    slice_idx = np.argwhere(slice_mask)  # (M, 2) of (x, y) indices
     M = slice_idx.shape[0]
 
     nan2d = np.full(slice_mask.shape, np.nan, dtype=np.float64)
@@ -796,9 +807,7 @@ def _dense_slice_predictions(
         return nan2d.copy(), nan2d.copy(), nan2d.copy(), nan2d.copy()
 
     # Build (M, 3) physical coordinates for the dense in-mask voxels.
-    full_idx = np.column_stack(
-        [slice_idx, np.full(M, z_slice, dtype=slice_idx.dtype)]
-    )
+    full_idx = np.column_stack([slice_idx, np.full(M, z_slice, dtype=slice_idx.dtype)])
     X_query = full_idx.astype(np.float64) * spacing_m
 
     # ---- mean (always full M) ----
@@ -809,7 +818,7 @@ def _dense_slice_predictions(
         mean_I_flat = np.asarray(post_I.mean(X_query)).flatten()
     elif res["mode"] == "real2":
         post = res["post"]
-        mean_vec = np.asarray(post.mean(X_query))    # (M, 2)
+        mean_vec = np.asarray(post.mean(X_query))  # (M, 2)
         mean_R_flat = mean_vec[..., 0].flatten()
         mean_I_flat = mean_vec[..., 1].flatten()
     else:
@@ -834,9 +843,10 @@ def _dense_slice_predictions(
             # Cheap path: exact std on a random subsample, interpolate the
             # rest. The std field is smooth on the kernel lengthscale.
             from scipy.interpolate import griddata as _griddata
+
             rng_local = np.random.default_rng(seed)
             sub_sel = rng_local.choice(M, size=std_subsample, replace=False)
-            std_sub = _std_at(X_query[sub_sel])          # (S, 2)
+            std_sub = _std_at(X_query[sub_sel])  # (S, 2)
             std_flat = np.empty((M, 2), dtype=np.float64)
             for ch in range(2):
                 col = _griddata(
@@ -894,22 +904,35 @@ def _add_scale_bar(ax, n_cols, mm_per_col, bar_mm=20.0):
     n_rows = max(ylim) if ylim else n_cols
     x0 = n_cols * 0.06
     y0 = n_rows * 0.93
-    ax.plot([x0, x0 + n_pix], [y0, y0], color="k", lw=1.5,
-            solid_capstyle="butt", clip_on=False)
-    ax.text(x0 + n_pix / 2.0, y0 - n_rows * 0.025, f"{bar_mm:.0f} mm",
-            ha="center", va="bottom", fontsize=6, color="k")
+    ax.plot(
+        [x0, x0 + n_pix],
+        [y0, y0],
+        color="k",
+        lw=1.5,
+        solid_capstyle="butt",
+        clip_on=False,
+    )
+    ax.text(
+        x0 + n_pix / 2.0,
+        y0 - n_rows * 0.025,
+        f"{bar_mm:.0f} mm",
+        ha="center",
+        va="bottom",
+        fontsize=6,
+        color="k",
+    )
 
 
 def save_main_figure(
     out_path: Path,
-    u_meas_c: np.ndarray,        # complex, (X,Y,Z)
-    u_pred_c: np.ndarray,        # complex, (X,Y,Z); legacy sparse-overlay path
-    std_c: np.ndarray,            # real, (X,Y,Z); Re-channel std, legacy path
+    u_meas_c: np.ndarray,  # complex, (X,Y,Z)
+    u_pred_c: np.ndarray,  # complex, (X,Y,Z); legacy sparse-overlay path
+    std_c: np.ndarray,  # real, (X,Y,Z); Re-channel std, legacy path
     interior: np.ndarray,
     z_slice: int,
     title: str,
     *,
-    std_c_im: np.ndarray | None = None,   # real, (X,Y,Z); Im-channel std, legacy path
+    std_c_im: np.ndarray | None = None,  # real, (X,Y,Z); Im-channel std, legacy path
     dense_slice_pred_R: np.ndarray | None = None,
     dense_slice_pred_I: np.ndarray | None = None,
     dense_slice_std: np.ndarray | None = None,
@@ -975,7 +998,7 @@ def save_main_figure(
     if dense_slice_std is not None:
         std_R = np.rot90(dense_slice_std)
     else:
-        std_R = take(std_c)              # Re-channel posterior std
+        std_R = take(std_c)  # Re-channel posterior std
 
     # Im-channel posterior std. Falls back to the Re channel only if the caller
     # supplied no Im std (older call sites), so the panel is still populated.
@@ -996,8 +1019,8 @@ def save_main_figure(
     rc = {
         "font.family": "sans-serif",
         "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans", "sans-serif"],
-        "svg.fonttype": "none",     # editable text in SVG
-        "pdf.fonttype": 42,         # editable TrueType text in PDF
+        "svg.fonttype": "none",  # editable text in SVG
+        "pdf.fonttype": 42,  # editable TrueType text in PDF
         "font.size": 8,
         "axes.linewidth": 0.6,
     }
@@ -1011,8 +1034,11 @@ def save_main_figure(
         # colorbar labels — the Re/|.| rows survive only because the centred
         # image does not reach their height.
         gs = fig.add_gridspec(
-            3, 6, width_ratios=[1.0, 1.0, 0.06, 0.45, 1.0, 0.06],
-            wspace=0.06, hspace=0.06,
+            3,
+            6,
+            width_ratios=[1.0, 1.0, 0.06, 0.45, 1.0, 0.06],
+            wspace=0.06,
+            hspace=0.06,
         )
 
         rows = [
@@ -1048,8 +1074,14 @@ def save_main_figure(
                 for spine in ax.spines.values():
                     spine.set_visible(False)
 
-            ax_m.set_ylabel(label, fontsize=11, fontweight="bold",
-                            rotation=0, labelpad=14, va="center")
+            ax_m.set_ylabel(
+                label,
+                fontsize=11,
+                fontweight="bold",
+                rotation=0,
+                labelpad=14,
+                va="center",
+            )
             if r == 0:
                 ax_m.set_title("Measured", fontsize=10, fontweight="bold")
                 ax_p.set_title("Predicted", fontsize=10, fontweight="bold")
@@ -1070,9 +1102,12 @@ def save_main_figure(
         # misleading propagated estimate.
         std_R_v = np.where(interior_slice & np.isfinite(std_R), std_R, np.nan)
         std_I_v = np.where(interior_slice & np.isfinite(std_I), std_I, np.nan)
-        finite_std = np.concatenate([
-            std_R_v[np.isfinite(std_R_v)], std_I_v[np.isfinite(std_I_v)],
-        ])
+        finite_std = np.concatenate(
+            [
+                std_R_v[np.isfinite(std_R_v)],
+                std_I_v[np.isfinite(std_I_v)],
+            ]
+        )
 
         if finite_std.size:
             s_vmax = max(float(np.nanpercentile(finite_std, 99)), 1e-12)
@@ -1092,9 +1127,15 @@ def save_main_figure(
             # it aligns with the Measured / Predicted headers regardless of the
             # aspect-driven vertical centring of the images.
             cell = gs[0, 4].get_position(fig)
-            fig.text((cell.x0 + cell.x1) / 2.0, cell.y1 + 0.005,
-                     "Posterior s.d.", ha="center", va="bottom",
-                     fontsize=10, fontweight="bold")
+            fig.text(
+                (cell.x0 + cell.x1) / 2.0,
+                cell.y1 + 0.005,
+                "Posterior s.d.",
+                ha="center",
+                va="bottom",
+                fontsize=10,
+                fontweight="bold",
+            )
 
             # One shared colorbar spanning the Re+Im s.d. rows.
             cax_s = fig.add_subplot(gs[0:2, 5])
@@ -1120,7 +1161,7 @@ def save_main_figure(
 def save_mismatch_figure(
     out_path: Path,
     std_c: np.ndarray,
-    rel_residual: np.ndarray,    # |r|/|k^2 u|, (X,Y,Z)
+    rel_residual: np.ndarray,  # |r|/|k^2 u|, (X,Y,Z)
     interior: np.ndarray,
     z_slice: int,
     title: str,
@@ -1204,8 +1245,10 @@ def run_one_case(args, subject: str, freq: int, component: int):
     # the user retunes --output-scale for a different observable / magnitude.
     bc_noise_abs = args.bc_noise
     if args.bc_noise_rel is not None:
-        bc_noise_abs = args.bc_noise_rel * args.output_scale ** 2
-    args._bc_noise_resolved = bc_noise_abs  # consumed below; not modifying args.bc_noise
+        bc_noise_abs = args.bc_noise_rel * args.output_scale**2
+    args._bc_noise_resolved = (
+        bc_noise_abs  # consumed below; not modifying args.bc_noise
+    )
 
     print(
         f"\n== Subject {subject} @ {freq} Hz, component "
@@ -1214,12 +1257,15 @@ def run_one_case(args, subject: str, freq: int, component: int):
     print(
         f"  scales: output_scale={args.output_scale:.3e}  "
         f"bc_noise={bc_noise_abs:.3e}"
-        + (f" (=bc_noise_rel {args.bc_noise_rel:.3e} * output_scale^2)"
-           if args.bc_noise_rel is not None else " (absolute)")
+        + (
+            f" (=bc_noise_rel {args.bc_noise_rel:.3e} * output_scale^2)"
+            if args.bc_noise_rel is not None
+            else " (absolute)"
+        )
     )
     data = load_subject_frequency(args.root, subject, freq, observable=obs)
     omega = 2.0 * np.pi * freq
-    rho_omega2 = RHO * omega ** 2
+    rho_omega2 = RHO * omega**2
 
     # k^2 on the full grid (NaN outside mask, 0 for the solver lookup)
     safe_G = np.where(np.abs(data["G"]) > 0, data["G"], np.nan)
@@ -1228,8 +1274,10 @@ def run_one_case(args, subject: str, freq: int, component: int):
 
     # ---- Empirical f^emp diagnostic (always) ----
     f_emp, k2u, interior_diag = empirical_residual(
-        data["u"], np.where(data["mask"], k2_full, np.nan),
-        data["mask"], data["zooms_mm"],
+        data["u"],
+        np.where(data["mask"], k2_full, np.nan),
+        data["mask"],
+        data["zooms_mm"],
     )
     f_mag = np.sqrt(np.sum(np.abs(f_emp) ** 2, axis=-1))
     k2u_mag = np.sqrt(np.sum(np.abs(k2u) ** 2, axis=-1))
@@ -1247,7 +1295,9 @@ def run_one_case(args, subject: str, freq: int, component: int):
 
     if args.skip_gp:
         return {
-            "subject": subject, "freq": freq, "component": component,
+            "subject": subject,
+            "freq": freq,
+            "component": component,
             "diag_rel_median": float(np.nanmedian(rr_int)),
             "status": "skipped_gp",
         }
@@ -1295,9 +1345,12 @@ def run_one_case(args, subject: str, freq: int, component: int):
     if res["status"] != "ok":
         print(f"  GP forward solve FAILED ({res.get('phase')})")
         return {
-            "subject": subject, "freq": freq, "component": component,
+            "subject": subject,
+            "freq": freq,
+            "component": component,
             "diag_rel_median": float(np.nanmedian(rr_int)),
-            "status": res["status"], "error": res.get("error", ""),
+            "status": res["status"],
+            "error": res.get("error", ""),
         }
 
     spacing_m = np.array(data["zooms_mm"]) * 1e-3
@@ -1315,7 +1368,7 @@ def run_one_case(args, subject: str, freq: int, component: int):
             std_R = np.full_like(mean_R, np.nan)
             std_I = std_R
     elif res["mode"] == "real2":
-        mean_vec = np.asarray(res["post"].mean(X_eval))   # (N, 2)
+        mean_vec = np.asarray(res["post"].mean(X_eval))  # (N, 2)
         mean_R = mean_vec[..., 0].flatten()
         mean_I = mean_vec[..., 1].flatten()
         try:
@@ -1338,8 +1391,8 @@ def run_one_case(args, subject: str, freq: int, component: int):
     u_true_I = data["u"][..., component].imag[
         interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]
     ]
-    mag_pred = np.sqrt(mean_R ** 2 + mean_I ** 2)
-    mag_true = np.sqrt(u_true_R ** 2 + u_true_I ** 2)
+    mag_pred = np.sqrt(mean_R**2 + mean_I**2)
+    mag_true = np.sqrt(u_true_R**2 + u_true_I**2)
     err_mag = mag_pred - mag_true
     rel_err = np.abs(err_mag) / np.maximum(mag_true, 1e-9)
 
@@ -1353,11 +1406,15 @@ def run_one_case(args, subject: str, freq: int, component: int):
     print(f"\n  GP forward solve metrics on n={mag_pred.size}:")
     print(f"    Pearson |{obs_sym}_pred| vs |{obs_sym}_meas|       = {pearson:.3f}")
     print(f"    median |err|/|{obs_sym}| (all)             = {median_rel:.3f}")
-    print(f"    median |err|/|{obs_sym}| (confident std<25%) = {median_rel_conf:.3f}  "
-          f"(n_confident={int(confident.sum())})")
+    print(
+        f"    median |err|/|{obs_sym}| (confident std<25%) = {median_rel_conf:.3f}  "
+        f"(n_confident={int(confident.sum())})"
+    )
 
     # ---- Build full-grid maps for the figures ----
-    u_pred_full = np.full(data["u"].shape[:3], np.nan + 1j * np.nan, dtype=np.complex128)
+    u_pred_full = np.full(
+        data["u"].shape[:3], np.nan + 1j * np.nan, dtype=np.complex128
+    )
     std_full = np.full(data["u"].shape[:3], np.nan, dtype=np.float64)
     std_I_full = np.full(data["u"].shape[:3], np.nan, dtype=np.float64)
     u_pred_full[interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]] = (
@@ -1367,7 +1424,9 @@ def run_one_case(args, subject: str, freq: int, component: int):
     std_I_full[interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]] = std_I
 
     # std vs |f^emp|: voxel-wise Pearson over the subsample, in the interior
-    rel_at_eval = rel_residual[interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]]
+    rel_at_eval = rel_residual[
+        interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]
+    ]
     finite_pair = np.isfinite(std_R) & np.isfinite(rel_at_eval) & (rel_at_eval > 0)
     if finite_pair.sum() > 5:
         pearson_std_resid = float(
@@ -1381,8 +1440,13 @@ def run_one_case(args, subject: str, freq: int, component: int):
     z_slice = data["u"].shape[2] // 2
     cn = COMPONENT_NAME[component]
     obs_tag = "" if obs == "disp" else f"_{obs}"
-    fig_main = args.out_dir / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}_main.png"
-    fig_mis = args.out_dir / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}_mismatch.png"
+    fig_main = (
+        args.out_dir / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}_main.png"
+    )
+    fig_mis = (
+        args.out_dir
+        / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}_mismatch.png"
+    )
     # Short, professional on-figure title (suppress entirely for the paper
     # version via --no-suptitle; full metadata belongs in the figure caption).
     title = f"GP wavefield reconstruction — {subject}, {freq} Hz, comp {cn} ({obs})"
@@ -1410,7 +1474,10 @@ def run_one_case(args, subject: str, freq: int, component: int):
         std_mode_str = "exact"
     t_dense = time.time()
     dense_R, dense_I, dense_std, dense_std_I = _dense_slice_predictions(
-        res, mask=data["mask"], spacing_m=spacing_m, z_slice=z_slice,
+        res,
+        mask=data["mask"],
+        spacing_m=spacing_m,
+        z_slice=z_slice,
         std_subsample=std_sub_eff,
     )
     M_slice = int(np.take(data["mask"], z_slice, axis=2).sum())
@@ -1450,7 +1517,9 @@ def run_one_case(args, subject: str, freq: int, component: int):
     print(f"  saved {fig_mis.name}")
 
     return {
-        "subject": subject, "freq": freq, "component": component,
+        "subject": subject,
+        "freq": freq,
+        "component": component,
         "observable": obs,
         "diag_rel_median": float(np.nanmedian(rr_int)),
         "pearson_mag": float(pearson),
@@ -1469,103 +1538,169 @@ def run_one_case(args, subject: str, freq: int, component: int):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", type=Path,
-                    default=Path(__file__).resolve().parent.parent
-                    / "data" / "brain_experiment_data" / "mre_udel")
+    ap.add_argument(
+        "--root",
+        type=Path,
+        default=Path(__file__).resolve().parent.parent
+        / "data"
+        / "brain_experiment_data"
+        / "mre_udel",
+    )
     ap.add_argument("--subject", default="U01_UDEL_0001_01")
     ap.add_argument("--freq", type=int, default=50)
-    ap.add_argument("--component", type=int, default=1,
-                    help="0=x, 1=y (AP-aligned in LPS), 2=z")
-    ap.add_argument("--observable", default="disp", choices=["disp", "curl"],
-                    help="Which vector field to fit: 'disp' (legacy, the "
-                         "measured displacement u) or 'curl' (the curl-"
-                         "filtered field q = ∇×u). Both satisfy the same "
-                         "scalar Helmholtz equation (Δ + k^2(x)) f = 0 under "
-                         "local-homogeneity; curl removes the irrotational "
-                         "compressional part and any constant / rigid-body "
-                         "bias, classical MRE direct-inversion convention.")
+    ap.add_argument(
+        "--component", type=int, default=1, help="0=x, 1=y (AP-aligned in LPS), 2=z"
+    )
+    ap.add_argument(
+        "--observable",
+        default="disp",
+        choices=["disp", "curl"],
+        help="Which vector field to fit: 'disp' (legacy, the "
+        "measured displacement u) or 'curl' (the curl-"
+        "filtered field q = ∇×u). Both satisfy the same "
+        "scalar Helmholtz equation (Δ + k^2(x)) f = 0 under "
+        "local-homogeneity; curl removes the irrotational "
+        "compressional part and any constant / rigid-body "
+        "bias, classical MRE direct-inversion convention.",
+    )
     ap.add_argument("--n-shell", type=int, default=2000)
     ap.add_argument("--n-interior", type=int, default=2000)
     ap.add_argument("--kernel", default="matern", choices=["matern", "expquad"])
     ap.add_argument("--matern-nu", type=float, default=2.5)
     ap.add_argument("--lengthscale-mm", type=float, default=15.0)
-    ap.add_argument("--output-scale", type=float, default=1.0,
-                    help="GP prior output scale (sigma). Prior variance scales "
-                         "as output_scale^2. Default 1.0 is implicitly tuned to "
-                         "the displacement magnitude (~20 microns). When using "
-                         "--observable curl the natural scale is ~median(|q|) "
-                         "over the mask (~2e-4 on Subject 0001/50 Hz), "
-                         "otherwise the prior is too loose and n_confident → 0.")
-    ap.add_argument("--bc-noise", type=float, default=1e-6,
-                    help="Absolute BC observation noise *variance*. Default "
-                         "1e-6 is implicitly tuned to disp magnitude (~20 "
-                         "microns), giving noise/signal std ratio ~5e-5. "
-                         "Override via --bc-noise-rel for scale-aware tuning.")
-    ap.add_argument("--bc-noise-rel", type=float, default=None,
-                    help="BC noise variance relative to output_scale^2. When "
-                         "set, overrides --bc-noise with "
-                         "bc_noise = bc_noise_rel * output_scale^2. Use this "
-                         "(e.g. 1e-6) when changing --output-scale so the BC "
-                         "noise-to-signal ratio stays in the same regime.")
-    ap.add_argument("--pde-noise-rel", type=float, default=1e-4,
-                    help="PDE noise as a fraction of trace(K)/N")
-    ap.add_argument("--cov-jitter-rel", type=float, default=1e-7,
-                    help="Diagonal jitter to keep conditional Gram PD")
-    ap.add_argument("--skip-gp", action="store_true",
-                    help="Only run the empirical residual diagnostic.")
-    ap.add_argument("--sparse-figures", action="store_true",
-                    help="Use the fast subsample-and-interpolate path for the "
-                         "posterior std (--std-subsample exact evals + linear "
-                         "griddata; ~3-5 s for an 8 k-voxel slice at N ~ 2 k) "
-                         "instead of the full chunked back-substitution "
-                         "(~70 s). Mean is rendered densely either way. Use "
-                         "this for sweeps; drop it for publication-quality "
-                         "headline figures where you want the exact std map.")
-    ap.add_argument("--std-subsample", type=int, default=400,
-                    help="Number of exact std evaluations to do on the slice "
-                         "when --sparse-figures is on; the rest are linearly "
-                         "interpolated. Default 400 is sufficient for the "
-                         "kernel lengthscale ~15 mm vs slice extent ~100 mm. "
-                         "Ignored if --sparse-figures is not set.")
-    ap.add_argument("--no-suptitle", action="store_true",
-                    help="Suppress the on-figure title in the main figure. Use "
-                         "for the paper version, where the subject id, "
-                         "frequency, component and observable belong in the "
-                         "figure caption rather than on the panel.")
-    ap.add_argument("--prior", default="iid", choices=["iid", "icm", "lmc"],
-                    help="Cross-channel (Re/Im) prior for the real2 path. "
-                         "'iid' (default) reproduces the pre-Phase-8 "
-                         "IndependentMultiOutput prior bit-for-bit. 'icm' "
-                         "couples Re/Im via a single coregionalization matrix "
-                         "B = output_scale^2 * [[1,rho],[rho,1]] (see "
-                         "--coreg-corr). 'lmc' sums Q ICM terms with distinct "
-                         "lengthscales (see --lmc-lengthscales). Ignored on the "
-                         "--legacy-real-only path.")
-    ap.add_argument("--coreg-corr", type=float, default=None,
-                    help="Re/Im prior correlation rho in (-1, 1) for "
-                         "--prior icm/lmc. Default None == rho=0, which makes "
-                         "ICM reduce exactly to the IID prior (a sanity check). "
-                         "Sweep e.g. 0.3, 0.6, 0.9 to couple the channels.")
-    ap.add_argument("--lmc-lengthscales", type=lambda s: [float(v) for v in s.split(",")],
-                    default=None,
-                    help="Comma-separated base-kernel lengthscales (mm) for "
-                         "--prior lmc, e.g. '7.5,30'. Default None uses two "
-                         "terms at 0.5x and 2x --lengthscale-mm.")
-    ap.add_argument("--legacy-real-only", action="store_true",
-                    help="Legacy Re-only path: solve Re and Im as two scalar "
-                         "BVPs against (Delta + Re k^2) and drop Im k^2. The "
-                         "default solves the FULL complex Helmholtz block via "
-                         "HelmholtzReal2Operator on a 2-component GP prior "
-                         "built from IndependentMultiOutputCovarianceFunction.")
-    ap.add_argument("--sweep", action="store_true",
-                    help="Run the spec's 3x3x3 sweep (3 subjects, 3 freqs, 3 components). "
-                         "Single-case unless this is set.")
-    ap.add_argument("--sweep-subjects", nargs="+",
-                    default=["U01_UDEL_0001_01", "U01_UDEL_0002_01", "U01_UDEL_0003_01"])
+    ap.add_argument(
+        "--output-scale",
+        type=float,
+        default=1.0,
+        help="GP prior output scale (sigma). Prior variance scales "
+        "as output_scale^2. Default 1.0 is implicitly tuned to "
+        "the displacement magnitude (~20 microns). When using "
+        "--observable curl the natural scale is ~median(|q|) "
+        "over the mask (~2e-4 on Subject 0001/50 Hz), "
+        "otherwise the prior is too loose and n_confident → 0.",
+    )
+    ap.add_argument(
+        "--bc-noise",
+        type=float,
+        default=1e-6,
+        help="Absolute BC observation noise *variance*. Default "
+        "1e-6 is implicitly tuned to disp magnitude (~20 "
+        "microns), giving noise/signal std ratio ~5e-5. "
+        "Override via --bc-noise-rel for scale-aware tuning.",
+    )
+    ap.add_argument(
+        "--bc-noise-rel",
+        type=float,
+        default=None,
+        help="BC noise variance relative to output_scale^2. When "
+        "set, overrides --bc-noise with "
+        "bc_noise = bc_noise_rel * output_scale^2. Use this "
+        "(e.g. 1e-6) when changing --output-scale so the BC "
+        "noise-to-signal ratio stays in the same regime.",
+    )
+    ap.add_argument(
+        "--pde-noise-rel",
+        type=float,
+        default=1e-4,
+        help="PDE noise as a fraction of trace(K)/N",
+    )
+    ap.add_argument(
+        "--cov-jitter-rel",
+        type=float,
+        default=1e-7,
+        help="Diagonal jitter to keep conditional Gram PD",
+    )
+    ap.add_argument(
+        "--skip-gp",
+        action="store_true",
+        help="Only run the empirical residual diagnostic.",
+    )
+    ap.add_argument(
+        "--sparse-figures",
+        action="store_true",
+        help="Use the fast subsample-and-interpolate path for the "
+        "posterior std (--std-subsample exact evals + linear "
+        "griddata; ~3-5 s for an 8 k-voxel slice at N ~ 2 k) "
+        "instead of the full chunked back-substitution "
+        "(~70 s). Mean is rendered densely either way. Use "
+        "this for sweeps; drop it for publication-quality "
+        "headline figures where you want the exact std map.",
+    )
+    ap.add_argument(
+        "--std-subsample",
+        type=int,
+        default=400,
+        help="Number of exact std evaluations to do on the slice "
+        "when --sparse-figures is on; the rest are linearly "
+        "interpolated. Default 400 is sufficient for the "
+        "kernel lengthscale ~15 mm vs slice extent ~100 mm. "
+        "Ignored if --sparse-figures is not set.",
+    )
+    ap.add_argument(
+        "--no-suptitle",
+        action="store_true",
+        help="Suppress the on-figure title in the main figure. Use "
+        "for the paper version, where the subject id, "
+        "frequency, component and observable belong in the "
+        "figure caption rather than on the panel.",
+    )
+    ap.add_argument(
+        "--prior",
+        default="iid",
+        choices=["iid", "icm", "lmc"],
+        help="Cross-channel (Re/Im) prior for the real2 path. "
+        "'iid' (default) reproduces the pre-Phase-8 "
+        "IndependentMultiOutput prior bit-for-bit. 'icm' "
+        "couples Re/Im via a single coregionalization matrix "
+        "B = output_scale^2 * [[1,rho],[rho,1]] (see "
+        "--coreg-corr). 'lmc' sums Q ICM terms with distinct "
+        "lengthscales (see --lmc-lengthscales). Ignored on the "
+        "--legacy-real-only path.",
+    )
+    ap.add_argument(
+        "--coreg-corr",
+        type=float,
+        default=None,
+        help="Re/Im prior correlation rho in (-1, 1) for "
+        "--prior icm/lmc. Default None == rho=0, which makes "
+        "ICM reduce exactly to the IID prior (a sanity check). "
+        "Sweep e.g. 0.3, 0.6, 0.9 to couple the channels.",
+    )
+    ap.add_argument(
+        "--lmc-lengthscales",
+        type=lambda s: [float(v) for v in s.split(",")],
+        default=None,
+        help="Comma-separated base-kernel lengthscales (mm) for "
+        "--prior lmc, e.g. '7.5,30'. Default None uses two "
+        "terms at 0.5x and 2x --lengthscale-mm.",
+    )
+    ap.add_argument(
+        "--legacy-real-only",
+        action="store_true",
+        help="Legacy Re-only path: solve Re and Im as two scalar "
+        "BVPs against (Delta + Re k^2) and drop Im k^2. The "
+        "default solves the FULL complex Helmholtz block via "
+        "HelmholtzReal2Operator on a 2-component GP prior "
+        "built from IndependentMultiOutputCovarianceFunction.",
+    )
+    ap.add_argument(
+        "--sweep",
+        action="store_true",
+        help="Run the spec's 3x3x3 sweep (3 subjects, 3 freqs, 3 components). "
+        "Single-case unless this is set.",
+    )
+    ap.add_argument(
+        "--sweep-subjects",
+        nargs="+",
+        default=["U01_UDEL_0001_01", "U01_UDEL_0002_01", "U01_UDEL_0003_01"],
+    )
     ap.add_argument("--sweep-freqs", nargs="+", type=int, default=[30, 50, 70])
     ap.add_argument("--sweep-components", nargs="+", type=int, default=[0, 1, 2])
-    ap.add_argument("--out-dir", type=Path,
-                    default=Path(__file__).resolve().parent / "helmholtz_brain_outputs")
+    ap.add_argument(
+        "--out-dir",
+        type=Path,
+        default=Path(__file__).resolve().parent / "helmholtz_brain_outputs",
+    )
     args = ap.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1585,23 +1720,32 @@ def main():
                 results.append(run_one_case(args, subj, freq, comp))
             except Exception as exc:  # pylint: disable=broad-except
                 print(f"  CASE FAILED: {type(exc).__name__}: {exc}")
-                results.append({
-                    "subject": subj, "freq": freq, "component": comp,
-                    "status": "failed", "error": str(exc),
-                })
+                results.append(
+                    {
+                        "subject": subj,
+                        "freq": freq,
+                        "component": comp,
+                        "status": "failed",
+                        "error": str(exc),
+                    }
+                )
         # Summary table
         print(f"\n=== Sweep summary (observable={args.observable}) ===")
         obs_sym = "u" if args.observable == "disp" else "q"
         for r in results:
             if r.get("status") == "ok":
-                print(f"  {r['subject']} @ {r['freq']}Hz comp{COMPONENT_NAME[r['component']]} "
-                      f"diag={r['diag_rel_median']:.2f}  "
-                      f"Pearson(|{obs_sym}|)={r['pearson_mag']:+.2f}  "
-                      f"median rel err={r['median_rel_err']:.2f}  "
-                      f"Pearson(std,res)={r['pearson_std_resid']:+.2f}")
+                print(
+                    f"  {r['subject']} @ {r['freq']}Hz comp{COMPONENT_NAME[r['component']]} "
+                    f"diag={r['diag_rel_median']:.2f}  "
+                    f"Pearson(|{obs_sym}|)={r['pearson_mag']:+.2f}  "
+                    f"median rel err={r['median_rel_err']:.2f}  "
+                    f"Pearson(std,res)={r['pearson_std_resid']:+.2f}"
+                )
             else:
-                print(f"  {r['subject']} @ {r['freq']}Hz comp{COMPONENT_NAME[r['component']]} "
-                      f"-- {r.get('status')} {r.get('error','')[:80]}")
+                print(
+                    f"  {r['subject']} @ {r['freq']}Hz comp{COMPONENT_NAME[r['component']]} "
+                    f"-- {r.get('status')} {r.get('error','')[:80]}"
+                )
         return 0
 
     res = run_one_case(args, args.subject, args.freq, args.component)

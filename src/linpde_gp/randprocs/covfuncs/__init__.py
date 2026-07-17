@@ -1,6 +1,4 @@
-from ._coregionalized_multi_output import (
-    CoregionalizedMultiOutputCovarianceFunction,
-)
+from ._coregionalized_multi_output import CoregionalizedMultiOutputCovarianceFunction
 from ._expquad import ExpQuad
 from ._galerkin import GalerkinCovarianceFunction
 from ._independent_multi_output import IndependentMultiOutputCovarianceFunction

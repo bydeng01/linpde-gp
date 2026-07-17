@@ -389,7 +389,7 @@ def _plot_line_zbuffered_wrt_surface(
         zorder=zorder_below_surf,
         **kwargs,
     )
-    
+
     if len(below_collection.get_segments()) > 0:
         ax.add_collection3d(
             below_collection,
@@ -406,7 +406,7 @@ def _plot_line_zbuffered_wrt_surface(
         zorder=zorder_above_surf,
         **kwargs,
     )
-    
+
     if len(above_collection.get_segments()) > 0:
         ax.add_collection3d(
             above_collection,
@@ -451,6 +451,7 @@ def fill_between_3d(
     color: str | None = None,
     **kwargs,
 ) -> matplotlib.collections.PolyCollection:
+    # pylint: disable=protected-access
     if axis not in ("x", "y"):
         raise ValueError()
 
@@ -476,9 +477,9 @@ def fill_between_3d(
             ),
         ),
         facecolors=(
-            color
-            if color is not None
-            else ax._get_lines.get_next_color(),  # pylint: disable=protected-access
+            (
+                color if color is not None else ax._get_lines.get_next_color()
+            ),  # pylint: disable=protected-access
         ),
         **kwargs,
     )

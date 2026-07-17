@@ -46,13 +46,10 @@ class FieldScaledCovarianceFunction(JaxCovarianceFunction):
         scaled_argnum: int,
     ) -> None:
         if scaled_argnum not in (0, 1):
-            raise ValueError(
-                f"scaled_argnum must be 0 or 1, got {scaled_argnum}."
-            )
+            raise ValueError(f"scaled_argnum must be 0 or 1, got {scaled_argnum}.")
         if coefficient_field.input_shape != base_kernel.input_shape:
             raise ValueError(
-                "coefficient_field.input_shape must match "
-                "base_kernel.input_shape."
+                "coefficient_field.input_shape must match base_kernel.input_shape."
             )
         if coefficient_field.output_shape != ():
             raise ValueError(
@@ -97,9 +94,7 @@ class FieldScaledCovarianceFunction(JaxCovarianceFunction):
             cvals = np.asarray(self._coefficient_field(x1))
         return cvals * self._base_kernel(x0, x1)
 
-    def _evaluate_jax(
-        self, x0: jnp.ndarray, x1: Optional[jnp.ndarray]
-    ) -> jnp.ndarray:
+    def _evaluate_jax(self, x0: jnp.ndarray, x1: Optional[jnp.ndarray]) -> jnp.ndarray:
         if x1 is None:
             x1 = x0
         if self._scaled_argnum == 0:

@@ -11,6 +11,7 @@ kernel's closed-form handlers), the Gram is finite, and joint-swap symmetry
 holds. The variable-coefficient (``CoefficientFieldOperator``) path is checked
 too.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -103,9 +104,9 @@ def test_icm_double_application_is_structured(icm_setup_3d):
     assert kL0L1.output_shape_0 == (2,)
     assert kL0L1.output_shape_1 == (2,)
     lambdas = _find_jax_lambdas(kL0L1)
-    assert lambdas == [], (
-        "Phase 8b dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
-    )
+    assert (
+        lambdas == []
+    ), "Phase 8b dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
 
 
 def test_icm_gram_diagonal_finite(icm_setup_3d):
@@ -138,9 +139,9 @@ def test_icm_gram_symmetric(icm_setup_3d):
     G_swapped = G.transpose(1, 0, 3, 2)
     abs_max = float(np.max(np.abs(G)))
     abs_err = float(np.max(np.abs(G - G_swapped)))
-    assert abs_err <= 1e-9 * max(abs_max, 1.0), (
-        f"Gram symmetry violated: abs_err={abs_err:.4g}, abs_max={abs_max:.4g}"
-    )
+    assert abs_err <= 1e-9 * max(
+        abs_max, 1.0
+    ), f"Gram symmetry violated: abs_err={abs_err:.4g}, abs_max={abs_max:.4g}"
 
 
 def test_icm_variable_coefficient_double_application_is_structured():
@@ -152,7 +153,8 @@ def test_icm_variable_coefficient_double_application_is_structured():
 
     def k2(x):
         from jax import numpy as jnp
-        r2 = jnp.sum(x ** 2, axis=-1)
+
+        r2 = jnp.sum(x**2, axis=-1)
         return (4.0 + 12.0 * r2) - 1j * (1.0 + 2.0 * r2)
 
     k2_field = lp_functions.JaxLambdaFunction(
@@ -175,14 +177,14 @@ def test_icm_variable_coefficient_double_application_is_structured():
     X = rng.uniform(0.0, 1.0, size=(5, 3))
     diag = np.asarray(kL0L1(X, X))
     assert diag.shape == (5, 2, 2)
-    assert np.all(np.isfinite(diag)), "Variable-coefficient ICM kL0L1 diagonal has NaN/Inf"
+    assert np.all(
+        np.isfinite(diag)
+    ), "Variable-coefficient ICM kL0L1 diagonal has NaN/Inf"
 
 
 def test_icm_reduces_to_iid_under_operator():
     """With B = I, the operator-conditioned ICM Gram matches the IID prior's."""
-    from linpde_gp.randprocs.covfuncs import (
-        IndependentMultiOutputCovarianceFunction,
-    )
+    from linpde_gp.randprocs.covfuncs import IndependentMultiOutputCovarianceFunction
 
     domain_shape = (3,)
     matern = Matern(input_shape=domain_shape, nu=2.5, lengthscales=0.05)

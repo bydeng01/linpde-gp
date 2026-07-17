@@ -16,6 +16,7 @@ properties the parametrized framework does not exercise directly:
 """
 
 import numpy as np
+
 import pytest
 
 from linpde_gp.linfuncops import diffops
@@ -44,9 +45,7 @@ def test_identity_weighted_laplacian_fd_matches(nu):
     L = diffops.WeightedLaplacian(weights)
     kL = L(k, argnum=1)
 
-    assert isinstance(
-        kL, covfuncs_diffops.HalfIntegerMatern_Identity_WeightedLaplacian
-    )
+    assert isinstance(kL, covfuncs_diffops.HalfIntegerMatern_Identity_WeightedLaplacian)
 
     # FD at several point pairs with non-trivial separations.
     h = 2e-3  # FD step
@@ -57,9 +56,9 @@ def test_identity_weighted_laplacian_fd_matches(nu):
         closed = float(kL(x0, x1))
         fd = _weighted_laplace_fd(lambda y: float(k(x0, y)), x1, weights, h)
         assert np.isfinite(closed)
-        assert abs(closed - fd) < atol, (
-            f"trial {trial}: |closed-fd|={abs(closed-fd):.3e} > {atol:.3e}"
-        )
+        assert (
+            abs(closed - fd) < atol
+        ), f"trial {trial}: |closed-fd|={abs(closed-fd):.3e} > {atol:.3e}"
 
 
 @pytest.mark.parametrize("nu", [2.5, 3.5])
@@ -86,17 +85,13 @@ def test_double_weighted_laplacian_fd_matches(nu):
         closed = float(kL0L1(x0, x1))
 
         def L1_k_of_xb(xa, xb):
-            return _weighted_laplace_fd(
-                lambda y: float(k(xa, y)), xb, w1, h
-            )
+            return _weighted_laplace_fd(lambda y: float(k(xa, y)), xb, w1, h)
 
-        fd = _weighted_laplace_fd(
-            lambda x: L1_k_of_xb(x, x1), x0, w0, h
-        )
+        fd = _weighted_laplace_fd(lambda x: L1_k_of_xb(x, x1), x0, w0, h)
         assert np.isfinite(closed)
-        assert abs(closed - fd) < atol, (
-            f"trial {trial}: |closed-fd|={abs(closed-fd):.3e} > {atol:.3e}"
-        )
+        assert (
+            abs(closed - fd) < atol
+        ), f"trial {trial}: |closed-fd|={abs(closed-fd):.3e} > {atol:.3e}"
 
 
 @pytest.mark.parametrize("nu", [2.5, 3.5])
@@ -135,8 +130,10 @@ def test_double_weighted_laplacian_finite_at_diagonal(nu):
         val = float(kL0L1(x, x))
         assert np.isfinite(val), f"Diagonal value at {x} is not finite: {val}"
         np.testing.assert_allclose(
-            val, expected, rtol=1e-12,
-            err_msg=f"Diagonal value at {x} does not match analytical limit"
+            val,
+            expected,
+            rtol=1e-12,
+            err_msg=f"Diagonal value at {x} does not match analytical limit",
         )
 
 

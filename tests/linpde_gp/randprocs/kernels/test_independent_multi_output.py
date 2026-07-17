@@ -101,7 +101,7 @@ def test_batched_input(random_product_materns, inputs_batched):
 
 def test_linop_same_input(random_product_materns, inputs_batched):
     mo = IndependentMultiOutputCovarianceFunction(*random_product_materns)
-    (x0, _) = inputs_batched
+    x0, _ = inputs_batched
     num_outputs = mo.output_size_0
     num_input = np.prod(x0.shape[:-1])
     res = mo.linop(x0, x0)
@@ -117,7 +117,7 @@ def test_linop_different_inputs(random_product_materns, inputs_batched):
     """In particular, this test case will have non-square blocks on the
     diagonal."""
     mo = IndependentMultiOutputCovarianceFunction(*random_product_materns)
-    (x0, x1) = inputs_batched
+    x0, x1 = inputs_batched
     num_outputs = mo.output_size_0
     num_input_0 = np.prod(x0.shape[:-1])
     num_input_1 = np.prod(x1.shape[:-1])

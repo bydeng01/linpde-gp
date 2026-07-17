@@ -139,7 +139,9 @@ jobs:
           pip install -r .github/workflows/experiment-requirements.txt
       - name: Run all experiment notebooks with `nbconvert`
         run: |
-          for file in $(find -wholename "./experiments/*.ipynb")
+          # Skip helmholtz_equation_baselines/: PINN baselines need the deepxde
+          # PyTorch backend, which is not installed in CI.
+          for file in $(find -wholename "./experiments/*.ipynb" -not -path "./experiments/helmholtz_equation_baselines/*")
           do
               echo "Running ${file}..."
               jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 $file

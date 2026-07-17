@@ -41,9 +41,11 @@ class Box(CartesianProduct):
 
         super().__init__(
             *(
-                Interval(lower_bound, upper_bound, dtype=self._bounds.dtype)
-                if lower_bound != upper_bound
-                else Point(lower_bound)
+                (
+                    Interval(lower_bound, upper_bound, dtype=self._bounds.dtype)
+                    if lower_bound != upper_bound
+                    else Point(lower_bound)
+                )
                 for (lower_bound, upper_bound) in self._bounds
             )
         )
