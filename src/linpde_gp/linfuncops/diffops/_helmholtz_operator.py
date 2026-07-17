@@ -3,11 +3,10 @@ from __future__ import annotations
 import functools
 from typing import TYPE_CHECKING, Union
 
+from jax import numpy as jnp
 import numpy as np
 import probnum as pn
 from probnum.typing import ScalarLike, ShapeLike
-
-from jax import numpy as jnp
 
 from linpde_gp import functions as _functions  # for JaxLambdaFunction wrapping
 
@@ -24,15 +23,15 @@ if TYPE_CHECKING:
 
 class IdentityOperator(LinearDifferentialOperator):
     r"""Identity operator (zero-order differential operator).
-    
+
     This operator represents multiplication by a scalar, which corresponds
     to a differential operator with no derivatives. It is defined as:
-    
+
     .. math::
         \mathcal{I}[f] = \alpha f
-    
+
     where :math:`\alpha` is a scalar coefficient.
-    
+
     Parameters
     ----------
     domain_shape : ShapeLike
@@ -40,73 +39,71 @@ class IdentityOperator(LinearDifferentialOperator):
     scalar : Union[float, complex], optional
         The scalar multiplier. Default is 1.0.
     """
-    
+
     def __init__(
-        self, 
-        domain_shape: ShapeLike, 
-        scalar: Union[float, complex] = 1.0
+        self, domain_shape: ShapeLike, scalar: Union[float, complex] = 1.0
     ) -> None:
         domain_shape = pn.utils.as_shape(domain_shape)
-        
+
         # Determine appropriate dtype based on scalar type
         dtype = np.complex128 if np.iscomplex(scalar) else np.double
-        
+
         # Zero-order derivative (no differentiation) with given coefficient
         zero_multi_index = MultiIndex(np.zeros(domain_shape, dtype=int))
-        
+
         coefficients = PartialDerivativeCoefficients(
             {(): {zero_multi_index: np.asarray(scalar, dtype=dtype)}},
             input_domain_shape=domain_shape,
             input_codomain_shape=(),
         )
-        
-        super().__init__(
-            coefficients=coefficients,
-            input_shapes=(domain_shape, ())
-        )
-        
+
+        super().__init__(coefficients=coefficients, input_shapes=(domain_shape, ()))
+
         self._scalar = np.asarray(scalar, dtype=dtype)
         self._domain_shape = domain_shape
-    
+
     @property
     def scalar(self) -> Union[float, complex, np.number]:
         """The scalar multiplier."""
         return self._scalar
-    
+
     @property
     def domain_shape(self) -> tuple:
         """Shape of the domain."""
         return self._domain_shape
-    
+
     @functools.singledispatchmethod
     def weak_form(
         self, test_basis: pn.functions.Function, /
     ) -> "linpde_gp.linfunctls.LinearFunctional":
         raise NotImplementedError()
-    
+
     def __repr__(self) -> str:
-        return f"IdentityOperator(domain_shape={self._domain_shape}, scalar={self._scalar})"
+        return (
+            f"IdentityOperator(domain_shape={self._domain_shape}, "
+            f"scalar={self._scalar})"
+        )
 
 
 class HelmholtzOperator(SumLinearFunctionOperator):
     r"""Helmholtz operator: ∇² + k²I.
-    
-    The Helmholtz equation arises in many physical contexts including 
+
+    The Helmholtz equation arises in many physical contexts including
     acoustics, electromagnetics, and quantum mechanics. The operator
     is defined as:
-    
+
     .. math::
         \mathcal{H} = \nabla^2 + k^2 I
-    
+
     where :math:`k` is the wave number and :math:`I` is the identity operator.
-    
+
     The Helmholtz equation :math:`(\nabla^2 + k^2)u = f` appears in:
-    
+
     * Acoustics: sound wave propagation
     * Electromagnetics: time-harmonic Maxwell's equations
     * Quantum mechanics: time-independent Schrödinger equation
     * Seismology: elastic wave propagation
-    
+
     Parameters
     ----------
     domain_shape : ShapeLike
@@ -114,42 +111,36 @@ class HelmholtzOperator(SumLinearFunctionOperator):
     k_squared : ScalarLike
         The wave number squared (k²). Can be real or complex.
         Complex values model lossy media with attenuation.
-        
+
     Examples
     --------
     >>> # Create a 2D Helmholtz operator with k² = 2.5
     >>> helmholtz = HelmholtzOperator(domain_shape=(2,), k_squared=2.5)
-    
+
     >>> # Complex wave number for lossy media
     >>> helmholtz_complex = HelmholtzOperator(domain_shape=(3,), k_squared=1+0.5j)
-    
+
     >>> # Using the factory method with wave number k
     >>> helmholtz = HelmholtzOperator.from_wave_number(domain_shape=(2,), k=1.58)
     """
-    
-    def __init__(
-        self, 
-        domain_shape: ShapeLike, 
-        k_squared: ScalarLike
-    ) -> None:
+
+    def __init__(self, domain_shape: ShapeLike, k_squared: ScalarLike) -> None:
         domain_shape = pn.utils.as_shape(domain_shape)
-        
+
         # Preserve the type of k_squared (real or complex)
         self._k_squared = k_squared
         self._domain_shape = domain_shape
-        
+
         # Create the two components: Laplacian and k²*Identity
         laplacian = Laplacian(domain_shape)
         k_squared_identity = IdentityOperator(domain_shape, scalar=self._k_squared)
-        
+
         # Helmholtz operator is the sum: ∇² + k²I
         super().__init__(laplacian, k_squared_identity)
-    
+
     @classmethod
     def from_wave_number(
-        cls,
-        domain_shape: ShapeLike,
-        k: ScalarLike
+        cls, domain_shape: ShapeLike, k: ScalarLike
     ) -> "HelmholtzOperator":
         """Create a Helmholtz operator from the wave number k.
 
@@ -271,11 +262,11 @@ class HelmholtzOperator(SumLinearFunctionOperator):
                 "`np.sqrt(op.k_squared(x))` at the point of interest."
             )
         return np.sqrt(self._k_squared)
-    
+
     @functools.singledispatchmethod
     def __call__(self, f, /, **kwargs):
         return super().__call__(f, **kwargs)
-    
+
     @functools.singledispatchmethod
     def weak_form(
         self, test_basis: pn.functions.Function, /
@@ -285,13 +276,13 @@ class HelmholtzOperator(SumLinearFunctionOperator):
         The weak form is obtained by integration by parts:
 
         .. math::
-            \langle \mathcal{H}u, v \rangle = -\langle \nabla u, \nabla v \rangle 
+            \langle \mathcal{H}u, v \rangle = -\langle \nabla u, \nabla v \rangle
             + k^2 \langle u, v \rangle
 
         for suitable test functions v with appropriate boundary conditions.
         """
         raise NotImplementedError()
-    
+
     def __repr__(self) -> str:
         if self.is_variable_coefficient:
             return (
@@ -315,7 +306,7 @@ class HelmholtzReal2Operator(StackedLinearDifferentialOperator):
         self._k_squared = k_squared
 
         alpha = np.real(k_squared)
-        beta = np.imag(k_squared)
+        beta = float(np.imag(k_squared))
 
         laplacian = Laplacian(domain_shape)
         identity = IdentityOperator(domain_shape, scalar=1.0)
@@ -457,18 +448,15 @@ class HelmholtzReal2Operator(StackedLinearDifferentialOperator):
         diag_real = lap_plus_alpha @ selector_real
         diag_imag = lap_plus_alpha @ selector_imag
 
-        row_real = SumLinearFunctionOperator(
-            diag_real, neg_beta_op @ selector_imag
-        )
-        row_imag = SumLinearFunctionOperator(
-            diag_imag, beta_op @ selector_real
-        )
+        row_real = SumLinearFunctionOperator(diag_real, neg_beta_op @ selector_imag)
+        row_imag = SumLinearFunctionOperator(diag_imag, beta_op @ selector_real)
 
         # Construct without invoking the scalar __init__: mirror the spec's
         # pattern from Phase 2.
         instance = cls.__new__(cls)
         instance._domain_shape = domain_shape
         instance._k_squared = k_squared_field
+        # pylint: disable=attribute-defined-outside-init
         instance._alpha_field = alpha_field
         instance._beta_field = beta_field
         StackedLinearDifferentialOperator.__init__(instance, row_real, row_imag)
@@ -512,9 +500,7 @@ class HelmholtzReal2Operator(StackedLinearDifferentialOperator):
                 )
             else:
                 conj_field = _functions.JaxLambdaFunction(
-                    lambda x, _f=k_field: jnp.conjugate(
-                        jnp.asarray(_f(np.asarray(x)))
-                    ),
+                    lambda x, _f=k_field: jnp.conjugate(jnp.asarray(_f(np.asarray(x)))),
                     input_shape=self._domain_shape,
                     output_shape=(),
                     vectorize=True,

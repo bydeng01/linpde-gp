@@ -182,6 +182,7 @@ class CoefficientFieldOperator(LinearDifferentialOperator):
         if isinstance(f, functions.JaxFunction) and isinstance(
             c_field, functions.JaxFunction
         ):
+
             def _product(x):
                 return c_field.jax(x) * f.jax(x)
 
@@ -233,7 +234,7 @@ def _(self, f: functions.Constant, /) -> pn.functions.Function:
             output_shape=self.output_codomain_shape,
         )
 
-    return self._call_on_function(f)
+    return self._call_on_function(f)  # pylint: disable=protected-access
 
 
 # NOTE: the CovarianceFunction-input handler for CoefficientFieldOperator is

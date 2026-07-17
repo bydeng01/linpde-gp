@@ -4,6 +4,7 @@ import numpy as np
 
 try:
     import jax.numpy as jnp
+# pylint: disable=broad-exception-caught
 except Exception:  # pragma: no cover - JAX optional
     jnp = None
 

@@ -102,9 +102,11 @@ def Ys_err(
         ),
         cov=scipy.linalg.block_diag(
             *(
-                batch_noise.cov
-                if batch_noise is not None
-                else np.zeros((batch_size, batch_size))
+                (
+                    batch_noise.cov
+                    if batch_noise is not None
+                    else np.zeros((batch_size, batch_size))
+                )
                 for batch_noise, batch_size in zip(Y_errs_batched, batch_sizes)
             )
         ),

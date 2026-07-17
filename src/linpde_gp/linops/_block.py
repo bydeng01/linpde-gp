@@ -197,9 +197,13 @@ class BlockMatrix2x2(pn.linops.LinearOperator):
     def schur(self) -> pn.linops.LinearOperator:
         if self._schur is None:
             # if self._is_symmetric and self._is_positive_definite:
-            # MODIFICATION: for complex matrices, always use the general path, not the SPD-specific path
-            if (self._is_symmetric and self._is_positive_definite and 
-                not np.issubdtype(self._A.dtype, np.complexfloating)):
+            # MODIFICATION: for complex matrices, always use the general path,
+            # not the SPD-specific path
+            if (
+                self._is_symmetric
+                and self._is_positive_definite
+                and not np.issubdtype(self._A.dtype, np.complexfloating)
+            ):
                 # END MODIFICATION
                 L_A_inv_B = self.L_A_inv_B
                 self._schur = self.D - L_A_inv_B.T @ L_A_inv_B
@@ -255,8 +259,8 @@ class BlockMatrix2x2(pn.linops.LinearOperator):
         b0, b1 = self._split_input(B, axis=-2)
         if self.is_block_diagonal:
             return np.concatenate((self.A.inv() @ b0, self.D.inv() @ b1), axis=-2)
-        #if self.is_symmetric:
-        # MODIFICATION: 
+        # if self.is_symmetric:
+        # MODIFICATION:
         if self.is_symmetric and not np.issubdtype(self.dtype, np.complexfloating):
             # END MODIFICATION
             L = self.cholesky(True)

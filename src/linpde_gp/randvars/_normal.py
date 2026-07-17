@@ -56,9 +56,11 @@ def condition_normal_on_observations(
     # Compute gain
     gain = scipy.linalg.cho_solve(
         (gram_cho, True),
-        crosscov_pred_prior.todense()
-        if isinstance(crosscov_pred_prior, pn.linops.LinearOperator)
-        else crosscov_pred_prior,
+        (
+            crosscov_pred_prior.todense()
+            if isinstance(crosscov_pred_prior, pn.linops.LinearOperator)
+            else crosscov_pred_prior
+        ),
     ).T
 
     # Construct posterior distribution

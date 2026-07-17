@@ -15,7 +15,7 @@ class ScaledLinearDifferentialOperator(LinearDifferentialOperator):
 
         if not np.ndim(scalar) == 0:
             raise ValueError()
-        
+
         # Handle complex scalars
         if np.iscomplex(scalar) or np.iscomplexobj(scalar):
             self._scalar = np.asarray(scalar, dtype=np.complex128)
@@ -23,7 +23,11 @@ class ScaledLinearDifferentialOperator(LinearDifferentialOperator):
             self._scalar = np.asarray(scalar, dtype=np.double)
 
         # Convert scalar to appropriate type for coefficient multiplication
-        scalar_for_coeffs = complex(self._scalar) if np.iscomplexobj(self._scalar) else float(self._scalar)
+        scalar_for_coeffs = (
+            complex(self._scalar)
+            if np.iscomplexobj(self._scalar)
+            else float(self._scalar)
+        )
 
         super().__init__(
             coefficients=scalar_for_coeffs * self._lindiffop.coefficients,

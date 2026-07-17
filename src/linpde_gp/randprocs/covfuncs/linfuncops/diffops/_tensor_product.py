@@ -137,6 +137,7 @@ class TensorProduct_LinDiffOp_LinDiffOp(JaxSumCovarianceFunction[TensorProduct])
             )
         )
 
+    # pylint: disable=too-many-nested-blocks
     def linop(
         self, x0: ArrayLike, x1: Optional[ArrayLike] = None
     ) -> pn.linops.LinearOperator:
@@ -170,7 +171,9 @@ class TensorProduct_LinDiffOp_LinDiffOp(JaxSumCovarianceFunction[TensorProduct])
                         )
                         if orders_idx not in L0kL1_evals[domain_idx]:
                             k = self._L0kL1s[domain_idx][orders_idx]
-                            linop = k.linop(x0.factors[domain_idx[0]], x1_factors[domain_idx[0]])
+                            linop = k.linop(
+                                x0.factors[domain_idx[0]], x1_factors[domain_idx[0]]
+                            )
                             # Set symmetry flags when x1 is None or same as x0
                             if x1 is None or x1 is x0:
                                 linop.is_symmetric = True

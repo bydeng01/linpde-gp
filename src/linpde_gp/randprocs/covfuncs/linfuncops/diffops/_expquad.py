@@ -176,9 +176,7 @@ class ExpQuad_Identity_WeightedLaplacian(_jax.JaxCovarianceFunction):
 
     @functools.cached_property
     def _scale_factors_sq(self) -> np.ndarray:
-        return (
-            2.0 * self._weighted_inv_lengthscales_sq * self._expquad_scale_factors**2
-        )
+        return 2.0 * self._weighted_inv_lengthscales_sq * self._expquad_scale_factors**2
 
     @functools.cached_property
     def _trace_term(self):
@@ -294,15 +292,11 @@ class ExpQuad_WeightedLaplacian_WeightedLaplacian(_jax.JaxCovarianceFunction):
 
         return (
             (
-                self._batched_sum(
-                    self._expquad_laplacian_0_scale_factors_sq * diffs**2
-                )
+                self._batched_sum(self._expquad_laplacian_0_scale_factors_sq * diffs**2)
                 - self._expquad_laplacian_0_trace_term
             )
             * (
-                self._batched_sum(
-                    self._expquad_laplacian_1_scale_factors_sq * diffs**2
-                )
+                self._batched_sum(self._expquad_laplacian_1_scale_factors_sq * diffs**2)
                 - self._expquad_laplacian_1_trace_term
             )
             - 4 * self._batched_sum(self._scale_factors_sq * diffs**2)

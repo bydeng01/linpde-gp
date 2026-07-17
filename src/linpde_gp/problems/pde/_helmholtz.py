@@ -1,4 +1,3 @@
-import functools
 from typing import Literal, Union
 import warnings
 
@@ -10,9 +9,9 @@ from probnum.typing import FloatLike, ScalarLike
 from linpde_gp import domains, functions
 from linpde_gp.linfuncops import diffops
 from linpde_gp.typing import DomainLike
-from linpde_gp.utils import to_real2, from_real2
+from linpde_gp.utils import from_real2, to_real2
 
-from ._bvp import DirichletBoundaryCondition, BoundaryValueProblem
+from ._bvp import BoundaryValueProblem, DirichletBoundaryCondition
 from ._linear_pde import LinearPDE
 
 
@@ -67,16 +66,17 @@ def _ensure_array_real2(values: Union[float, complex, np.ndarray]) -> np.ndarray
 
 class HelmholtzEquation(LinearPDE):
     """(In)homogeneous Helmholtz equation.
-    
+
     The equation takes the form:
     (G' + iG'') * ∇²u(f) = -ρω²u(f)
-    
+
     Which can be rewritten as:
     ∇²u + k²u = 0
-    
+
     where k² = ρω²/(G' + iG'') is the wave number squared.
     """
-    
+
+    # pylint: disable=too-many-locals,too-many-branches
     def __init__(
         self,
         domain: DomainLike,
@@ -161,7 +161,7 @@ class HelmholtzEquation(LinearPDE):
             G_real_field = _coerce_G_to_field(G_real, domain.shape)
             G_imag_field = _coerce_G_to_field(G_imag, domain.shape)
 
-            rho_omega2 = self._rho * (self._omega ** 2)
+            rho_omega2 = self._rho * (self._omega**2)
 
             # Probe to decide whether the resulting k²(x) is real or complex
             try:
@@ -181,8 +181,10 @@ class HelmholtzEquation(LinearPDE):
             if _is_pure_real_probe:
                 # Real-valued k²(x) field: just rho_omega2 / G_real(x)
                 def _k2(x, _Gr=G_real_field, _rho_w2=rho_omega2):
-                    return _rho_w2 / _Gr.jax(x) if hasattr(_Gr, "jax") else (
-                        _rho_w2 / jnp.asarray(np.asarray(_Gr(np.asarray(x))))
+                    return (
+                        _rho_w2 / _Gr.jax(x)
+                        if hasattr(_Gr, "jax")
+                        else (_rho_w2 / jnp.asarray(np.asarray(_Gr(np.asarray(x)))))
                     )
 
                 k_squared_field = functions.JaxLambdaFunction(
@@ -199,11 +201,15 @@ class HelmholtzEquation(LinearPDE):
                     _Gi=G_imag_field,
                     _rho_w2=rho_omega2,
                 ):
-                    gr = _Gr.jax(x) if hasattr(_Gr, "jax") else jnp.asarray(
-                        np.asarray(_Gr(np.asarray(x)))
+                    gr = (
+                        _Gr.jax(x)
+                        if hasattr(_Gr, "jax")
+                        else jnp.asarray(np.asarray(_Gr(np.asarray(x))))
                     )
-                    gi = _Gi.jax(x) if hasattr(_Gi, "jax") else jnp.asarray(
-                        np.asarray(_Gi(np.asarray(x)))
+                    gi = (
+                        _Gi.jax(x)
+                        if hasattr(_Gi, "jax")
+                        else jnp.asarray(np.asarray(_Gi(np.asarray(x))))
                     )
                     return _rho_w2 / (gr + 1j * gi)
 
@@ -226,32 +232,34 @@ class HelmholtzEquation(LinearPDE):
                     domain_shape=domain.shape,
                     k_squared_field=k_squared_field,
                 )
-        
+
         # Homogeneous equation, rhs should be zero with correct output shape
         if rhs is None:
-            rhs = functions.Zero(domain.shape, output_shape=helmholtz_op.output_codomain_shape)
-        
+            rhs = functions.Zero(
+                domain.shape, output_shape=helmholtz_op.output_codomain_shape
+            )
+
         super().__init__(
             domain=domain,
             diffop=helmholtz_op,
             rhs=rhs,
         )
-    
+
     @property
     def k_squared(self) -> Union[float, complex]:
         """Wave number squared."""
         return self._k_squared
-    
+
     @property
     def rho(self) -> float:
         """Density parameter."""
         return self._rho
-    
+
     @property
     def omega(self) -> float:
         """Angular frequency."""
         return self._omega
-    
+
     @property
     def G_complex(self):
         """Complex modulus G' + iG''.
@@ -267,14 +275,16 @@ class HelmholtzEquation(LinearPDE):
         G_real_field = _coerce_G_to_field(self._G_real, self.domain.shape)
         G_imag_field = _coerce_G_to_field(self._G_imag, self.domain.shape)
 
-        def _g_complex(
-            x, _Gr=G_real_field, _Gi=G_imag_field
-        ):
-            gr = _Gr.jax(x) if hasattr(_Gr, "jax") else jnp.asarray(
-                np.asarray(_Gr(np.asarray(x)))
+        def _g_complex(x, _Gr=G_real_field, _Gi=G_imag_field):
+            gr = (
+                _Gr.jax(x)
+                if hasattr(_Gr, "jax")
+                else jnp.asarray(np.asarray(_Gr(np.asarray(x))))
             )
-            gi = _Gi.jax(x) if hasattr(_Gi, "jax") else jnp.asarray(
-                np.asarray(_Gi(np.asarray(x)))
+            gi = (
+                _Gi.jax(x)
+                if hasattr(_Gi, "jax")
+                else jnp.asarray(np.asarray(_Gi(np.asarray(x))))
             )
             return gr + 1j * gi
 
@@ -297,7 +307,8 @@ class HelmholtzEquation(LinearPDE):
 
 class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
     """Helmholtz equation with Dirichlet boundary conditions."""
-    
+
+    # pylint: disable=too-complex,too-many-locals,too-many-branches,too-many-statements
     def __init__(
         self,
         domain: DomainLike,
@@ -312,7 +323,7 @@ class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
         complex_representation: Literal["none", "real2"] = "none",
     ):
         """Initialize the Helmholtz Dirichlet problem.
-        
+
         Parameters
         ----------
         domain : DomainLike
@@ -351,7 +362,7 @@ class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
         )
 
         is_real2 = pde.complex_representation == "real2"
-        
+
         # Set boundary conditions
         if boundary_values is None:
             boundary_values = functions.Zero(
@@ -370,17 +381,17 @@ class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
                 boundary_values = tuple(converted)
             else:
                 boundary_values = _ensure_array_real2(boundary_values)
-        
+
         if isinstance(boundary_values, (tuple, list)) and len(boundary_values) == 2:
             # For 1D domains with 2 boundary values, interpret as (left, right)
             if len(pde.domain.boundary) != 2:
                 raise ValueError(
-                    f"Tuple boundary values only supported for 1D domains with 2 boundaries, "
-                    f"but got {len(pde.domain.boundary)} boundaries"
+                    "Tuple boundary values only supported for 1D domains with "
+                    f"2 boundaries, but got {len(pde.domain.boundary)} boundaries"
                 )
-            
+
             left_value, right_value = boundary_values
-            
+
             # Create separate boundary conditions for each boundary point
             boundary_conditions = []
             for i, boundary_part in enumerate(pde.domain.boundary):
@@ -389,12 +400,12 @@ class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
 
                 bc = DirichletBoundaryCondition(boundary_part, bc_value)
                 boundary_conditions.append(bc)
-            
+
             boundary_conditions = tuple(boundary_conditions)
-            
+
             # Store the original boundary values for reference
             self._boundary_values = boundary_values
-        
+
         elif isinstance(boundary_values, (tuple, list)):
             if len(boundary_values) != len(pde.domain.boundary):
                 raise ValueError(
@@ -405,17 +416,18 @@ class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
                 DirichletBoundaryCondition(boundary_part, value)
                 for boundary_part, value in zip(pde.domain.boundary, boundary_values)
             )
-            
+
         else:
             boundary_conditions = tuple(
                 DirichletBoundaryCondition(boundary_part, boundary_values)
                 for boundary_part in pde.domain.boundary
             )
-            
+
             # Store the boundary values
             self._boundary_values = boundary_values
-        
+
         # For 1D interval domains, try to find analytical solutions
+        # pylint: disable=too-many-nested-blocks
         if solution is None and isinstance(domain, domains.Interval):
             if pde.is_variable_coefficient:
                 # The closed-form complex-exponential branch assumes constant
@@ -437,7 +449,9 @@ class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
                 # Try to construct analytical solution for non-zero boundary conditions
                 try:
                     # Extract boundary values for analytical solution
-                    if hasattr(self, '_boundary_values') and isinstance(self._boundary_values, (tuple, list)):
+                    if hasattr(self, "_boundary_values") and isinstance(
+                        self._boundary_values, (tuple, list)
+                    ):
                         # Use the stored tuple values directly
                         bc_values = tuple(self._boundary_values)
                     elif isinstance(boundary_values, pn.functions.Function):
@@ -461,21 +475,22 @@ class HelmholtzEquationDirichletProblem(BoundaryValueProblem):
                             else:
                                 converted_bc_values.append(value)
                         bc_values = tuple(converted_bc_values)
-                    
+
                     # Only create analytical solution for homogeneous equation (rhs = 0)
                     if rhs is None or isinstance(rhs, functions.Zero):
+                        # pylint: disable=line-too-long
                         solution = Solution_HelmholtzEquation_DirichletProblem_1D_ComplexExponential(
                             domain=domain,
                             k_squared=pde.k_squared,
                             boundary_values=bc_values,
                         )
-                except ValueError as e:
+                except ValueError:
                     # Singular system or other issue - no analytical solution available
                     pass
 
         if is_real2 and solution is not None:
             solution = _ensure_function_real2(solution)
-        
+
         super().__init__(
             pde=pde,
             boundary_conditions=boundary_conditions,
@@ -488,13 +503,13 @@ class Solution_HelmholtzEquation_DirichletProblem_1D_ComplexExponential(
     functions.JaxFunction
 ):
     """Analytical solution for 1D Helmholtz equation with complex exponential form.
-    
+
     For the equation ∇²u + k²u = 0 on [a, b], the general solution is:
     u(x) = A*exp(ikx) + B*exp(-ikx)
-    
+
     where A and B are determined by boundary conditions.
     """
-    
+
     def __init__(
         self,
         domain: domains.Interval,
@@ -505,41 +520,40 @@ class Solution_HelmholtzEquation_DirichletProblem_1D_ComplexExponential(
         self._k_squared = k_squared
         self._k = np.sqrt(np.complex128(k_squared))
         self._u_a, self._u_b = boundary_values
-        
+
         a, b = domain
-        
+
         # Solve for coefficients A and B from boundary conditions
         # u(a) = A*exp(ika) + B*exp(-ika) = u_a
         # u(b) = A*exp(ikb) + B*exp(-ikb) = u_b
-        
+
         exp_ika = np.exp(1j * self._k * a)
         exp_neg_ika = np.exp(-1j * self._k * a)
         exp_ikb = np.exp(1j * self._k * b)
         exp_neg_ikb = np.exp(-1j * self._k * b)
-        
+
         # Matrix form: [exp(ika), exp(-ika)] [A] = [u_a]
         #              [exp(ikb), exp(-ikb)] [B]   [u_b]
-        
+
         det = exp_ika * exp_neg_ikb - exp_ikb * exp_neg_ika
-        
+
         if np.abs(det) < 1e-10:
-            raise ValueError("Singular system - boundary conditions may be incompatible")
-        
+            raise ValueError(
+                "Singular system - boundary conditions may be incompatible"
+            )
+
         self._A = (self._u_a * exp_neg_ikb - self._u_b * exp_neg_ika) / det
         self._B = (self._u_b * exp_ika - self._u_a * exp_ikb) / det
-        
+
         # Store domain bounds for JAX computation
         self._a = a
         self._b = b
-        
+
         super().__init__(input_shape=(), output_shape=())
-    
+
     def _evaluate(self, x: np.ndarray) -> np.ndarray:
-        return (
-            self._A * np.exp(1j * self._k * x) + 
-            self._B * np.exp(-1j * self._k * x)
-        )
-    
+        return self._A * np.exp(1j * self._k * x) + self._B * np.exp(-1j * self._k * x)
+
     def _evaluate_jax(self, x: jnp.ndarray) -> jnp.ndarray:
         k = jnp.sqrt(jnp.asarray(self._k_squared, dtype=jnp.complex128))
         A = jnp.asarray(self._A, dtype=jnp.complex128)

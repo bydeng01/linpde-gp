@@ -412,21 +412,21 @@ class HalfIntegerMatern_Identity_WeightedLaplacian(JaxCovarianceFunction):
         self._L = L
         self._reverse = bool(reverse)
 
-        self._matern_scale_factors = np.broadcast_to(
-            matern._scale_factors, matern.input_shape
-        ).astype(np.float64).copy()
+        self._matern_scale_factors = (
+            np.broadcast_to(matern._scale_factors, matern.input_shape)
+            .astype(np.float64)
+            .copy()
+        )
 
         # phi'(r)/r = q_1(r) e^{-r}
-        self._q1 = half_integer_matern_derivative_polynomial(
-            matern.p, 1
-        ) // Monomial(1)
+        self._q1 = half_integer_matern_derivative_polynomial(matern.p, 1) // Monomial(1)
         # tilde_gamma(r) = (phi''(r) - phi'(r)/r) / r^2 = tilde_p_0(r) e^{-r}
         p2 = half_integer_matern_derivative_polynomial(matern.p, 2)
         self._tp0 = (p2 - self._q1) // Monomial(2)
 
-        weights = np.broadcast_to(L.weights, matern.input_shape).astype(
-            np.float64
-        ).copy()
+        weights = (
+            np.broadcast_to(L.weights, matern.input_shape).astype(np.float64).copy()
+        )
         s = self._matern_scale_factors
         # bar_w_i = w_i * s_i^2
         self._bar_w = weights * s * s
@@ -459,8 +459,7 @@ class HalfIntegerMatern_Identity_WeightedLaplacian(JaxCovarianceFunction):
         Q_u = self._batched_sum(self._bar_w * scaled_diffs * scaled_diffs)
 
         return np.exp(-scaled_dists) * (
-            self._tp0(scaled_dists) * Q_u
-            + self._W * self._q1(scaled_dists)
+            self._tp0(scaled_dists) * Q_u + self._W * self._q1(scaled_dists)
         )
 
     def _evaluate_jax(self, x0: jnp.ndarray, x1: jnp.ndarray | None) -> jnp.ndarray:
@@ -477,8 +476,7 @@ class HalfIntegerMatern_Identity_WeightedLaplacian(JaxCovarianceFunction):
         Q_u = self._batched_sum_jax(self._bar_w * scaled_diffs * scaled_diffs)
 
         return jnp.exp(-scaled_dists) * (
-            self._tp0.jax(scaled_dists) * Q_u
-            + self._W * self._q1.jax(scaled_dists)
+            self._tp0.jax(scaled_dists) * Q_u + self._W * self._q1.jax(scaled_dists)
         )
 
 
@@ -631,9 +629,11 @@ class HalfIntegerMatern_WeightedLaplacian_WeightedLaplacian(JaxCovarianceFunctio
         self._L0 = L0
         self._L1 = L1
 
-        self._matern_scale_factors = np.broadcast_to(
-            matern._scale_factors, matern.input_shape
-        ).astype(np.float64).copy()
+        self._matern_scale_factors = (
+            np.broadcast_to(matern._scale_factors, matern.input_shape)
+            .astype(np.float64)
+            .copy()
+        )
 
         # Polynomials for tilde_gamma(r), tilde_gamma'(r), tilde_gamma''(r)
         p2 = half_integer_matern_derivative_polynomial(matern.p, 2)
@@ -644,12 +644,8 @@ class HalfIntegerMatern_WeightedLaplacian_WeightedLaplacian(JaxCovarianceFunctio
 
         s = self._matern_scale_factors
         s2 = s * s
-        w0 = np.broadcast_to(L0.weights, matern.input_shape).astype(
-            np.float64
-        ).copy()
-        w1 = np.broadcast_to(L1.weights, matern.input_shape).astype(
-            np.float64
-        ).copy()
+        w0 = np.broadcast_to(L0.weights, matern.input_shape).astype(np.float64).copy()
+        w1 = np.broadcast_to(L1.weights, matern.input_shape).astype(np.float64).copy()
 
         self._bar_w0 = w0 * s2  # shape (d,)
         self._bar_w1 = w1 * s2
@@ -663,9 +659,7 @@ class HalfIntegerMatern_WeightedLaplacian_WeightedLaplacian(JaxCovarianceFunctio
         return self._matern
 
     def _diagonal_value(self) -> float:
-        return (2.0 * self._M + self._W0 * self._W1) * float(
-            self._tp0.coefficients[0]
-        )
+        return (2.0 * self._M + self._W0 * self._W1) * float(self._tp0.coefficients[0])
 
     def _evaluate(self, x0: np.ndarray, x1: np.ndarray | None) -> np.ndarray:
         if x1 is None:
@@ -703,6 +697,7 @@ class HalfIntegerMatern_WeightedLaplacian_WeightedLaplacian(JaxCovarianceFunctio
         )
         return np.exp(-r) * bracket
 
+    # pylint: disable=too-many-locals
     def _evaluate_jax(self, x0: jnp.ndarray, x1: jnp.ndarray | None) -> jnp.ndarray:
         if x1 is None:
             return jnp.full_like(  # pylint: disable=unexpected-keyword-arg

@@ -96,8 +96,8 @@ class JaxCovarianceFunctionMixin(abc.ABC):
         return super().__rmul__(self, other)
 
 
-class JaxCovarianceFunction(JaxCovarianceFunctionMixin, CovarianceFunction):
-    ...
+# pylint: disable=multiple-statements
+class JaxCovarianceFunction(JaxCovarianceFunctionMixin, CovarianceFunction): ...
 
 
 class JaxIsotropicMixin:  # pylint: disable=too-few-public-methods
@@ -181,9 +181,7 @@ class JaxLambdaCovarianceFunction(JaxCovarianceFunction):
             x1 = x0
 
             batch_shape = self._check_shapes(x0.shape, None)
-            expected_shape = (
-                batch_shape + self.output_shape_0 + self.output_shape_1
-            )
+            expected_shape = batch_shape + self.output_shape_0 + self.output_shape_1
 
             k_x0_x0 = np.array(self._k(x0, x1))
             if k_x0_x0.shape == expected_shape:
@@ -211,9 +209,7 @@ class JaxLambdaCovarianceFunction(JaxCovarianceFunction):
             x1 = x0
 
             batch_shape = self._check_shapes(x0.shape, None)
-            expected_shape = (
-                batch_shape + self.output_shape_0 + self.output_shape_1
-            )
+            expected_shape = batch_shape + self.output_shape_0 + self.output_shape_1
 
             k_x0_x0 = self._k(x0, x1)
             if k_x0_x0.shape == expected_shape:

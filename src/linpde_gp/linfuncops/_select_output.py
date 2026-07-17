@@ -1,12 +1,17 @@
 import functools
 
+from jax import numpy as jnp
 import numpy as np
 import probnum as pn
 from probnum.typing import ShapeLike
 
-from jax import numpy as jnp
 from linpde_gp import functions
+
 from ._linfuncop import LinearFunctionOperator
+
+# Nested helper classes in this module use ``inner_self`` as the receiver name
+# (to avoid shadowing the enclosing ``self``); silence pylint's self-name checks.
+# pylint: disable=no-self-argument,arguments-renamed
 
 
 class SelectOutput(LinearFunctionOperator):
@@ -21,7 +26,9 @@ class SelectOutput(LinearFunctionOperator):
         input_codomain_shape = pn.utils.as_shape(input_shapes[1])
 
         # Shape of the selected output after applying `idx`
-        output_codomain_shape = np.empty(input_codomain_shape, dtype=int)[self._idx].shape
+        output_codomain_shape = np.empty(input_codomain_shape, dtype=int)[
+            self._idx
+        ].shape
 
         super().__init__(
             (input_domain_shape, input_codomain_shape),
@@ -32,6 +39,7 @@ class SelectOutput(LinearFunctionOperator):
     def idx(self) -> tuple[int, ...] | int:
         return self._idx
 
+    # pylint: disable=too-complex
     def adjoint(self):
         """Adjoint inserts the selected component back into the full output."""
 
@@ -105,9 +113,9 @@ class SelectOutput(LinearFunctionOperator):
                 *,
                 argnum: int = 0,
             ):
-                from linpde_gp.randprocs import (
+                from linpde_gp.randprocs import (  # pylint: disable=import-outside-toplevel
                     covfuncs as rp_covfuncs,
-                )  # pylint: disable=import-outside-toplevel
+                )
 
                 output_shape_0 = (
                     inner_self.output_codomain_shape
@@ -234,7 +242,9 @@ class SelectOutput(LinearFunctionOperator):
     @__call__.register
     def _(self, k: pn.randprocs.covfuncs.CovarianceFunction, /, *, argnum: int = 0):
         """Select an output component of a covariance function."""
-        from linpde_gp.randprocs import covfuncs as rp_covfuncs  # pylint: disable=import-outside-toplevel
+        from linpde_gp.randprocs import (  # pylint: disable=import-outside-toplevel
+            covfuncs as rp_covfuncs,
+        )
 
         # If the selected side is scalar-valued already, selection is a no-op.
         if (argnum == 0 and len(k.output_shape_0) == 0) or (
@@ -243,12 +253,8 @@ class SelectOutput(LinearFunctionOperator):
             return k
 
         # Determine new output shapes depending on which argument we act on
-        output_shape_0 = (
-            self.output_codomain_shape if argnum == 0 else k.output_shape_0
-        )
-        output_shape_1 = (
-            self.output_codomain_shape if argnum == 1 else k.output_shape_1
-        )
+        output_shape_0 = self.output_codomain_shape if argnum == 0 else k.output_shape_0
+        output_shape_1 = self.output_codomain_shape if argnum == 1 else k.output_shape_1
 
         input_shape = k.input_shape_0 if argnum == 0 else k.input_shape_1
 

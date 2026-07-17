@@ -7,8 +7,8 @@ from linpde_gp.linfuncops import diffops
 from linpde_gp.randprocs import covfuncs
 
 from . import _expquad, _matern, _tensor_product
-from ._field_scaled import FieldScaledCovarianceFunction
 from ..._utils import validate_covfunc_transformation
+from ._field_scaled import FieldScaledCovarianceFunction
 
 ########################################################################################
 # General `LinearFunctionOperators` ####################################################
@@ -82,7 +82,7 @@ def _(self, k: covfuncs.JaxScaledCovarianceFunction, /, *, argnum: int = 0):
 
 @diffops.LinearDifferentialOperator.__call__.register  # pylint: disable=no-member
 def _(self, k: covfuncs.Zero, /, *, argnum: int = 0):
-    """Apply an LDO to :class:`Zero`: return another Zero with the operator's codomain."""
+    """Apply an LDO to :class:`Zero`: return a Zero with the operator's codomain."""
     return covfuncs.Zero(
         input_shape_0=self.output_domain_shape if argnum == 0 else k.input_shape_0,
         input_shape_1=self.output_domain_shape if argnum == 1 else k.input_shape_1,
@@ -169,6 +169,7 @@ def _(
 # priors: without it the JaxCovarianceFunctionMixin handler above is applied to
 # a (2,)-output covariance and downstream LDO applications fail validation.
 
+
 @diffops.CoefficientFieldOperator.__call__.register  # pylint: disable=no-member
 def _(self, k: covfuncs.StackCovarianceFunction, /, *, argnum: int = 0):
     L_covfuncs = np.copy(k.covfuncs)
@@ -190,6 +191,7 @@ def _(self, k: covfuncs.JaxScaledCovarianceFunction, /, *, argnum: int = 0):
 
 
 @diffops.CoefficientFieldOperator.__call__.register  # pylint: disable=no-member
+# pylint: disable=unused-argument
 def _(self, k: covfuncs.Zero, /, *, argnum: int = 0):
     # Multiplication by c(x) leaves Zero a Zero, with the same shapes.
     return covfuncs.Zero(
@@ -277,15 +279,22 @@ def _(
     if isinstance(c_outer, _functions.JaxFunction) and isinstance(
         c_inner, _functions.JaxFunction
     ):
+
         def _prod(x, _co=c_outer, _ci=c_inner):
             return _co.jax(x) * _ci.jax(x)
+
     else:
+
         def _prod(x, _co=c_outer, _ci=c_inner):
-            co = _co.jax(x) if hasattr(_co, "jax") else jnp.asarray(
-                np.asarray(_co(np.asarray(x)))
+            co = (
+                _co.jax(x)
+                if hasattr(_co, "jax")
+                else jnp.asarray(np.asarray(_co(np.asarray(x))))
             )
-            ci = _ci.jax(x) if hasattr(_ci, "jax") else jnp.asarray(
-                np.asarray(_ci(np.asarray(x)))
+            ci = (
+                _ci.jax(x)
+                if hasattr(_ci, "jax")
+                else jnp.asarray(np.asarray(_ci(np.asarray(x))))
             )
             return co * ci
 

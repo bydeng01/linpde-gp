@@ -190,7 +190,7 @@ class StackedLinearDifferentialOperator(LinearFunctionOperator):
             input_shapes=input_shapes,
             output_shapes=(output_domain_shape, (len(self._row_operators),)),
         )
-        
+
         # Register handlers for types that would cause circular imports
         self._register_covariance_handler()
         self._register_crosscov_handler()
@@ -200,8 +200,9 @@ class StackedLinearDifferentialOperator(LinearFunctionOperator):
         return self._row_operators
 
     def adjoint(self):
-        from .._arithmetic import SumLinearFunctionOperator  # pylint: disable=import-outside-toplevel
-        from .._select_output import SelectOutput  # pylint: disable=import-outside-toplevel
+        # pylint: disable=import-outside-toplevel,redefined-outer-name
+        from .._arithmetic import SumLinearFunctionOperator
+        from .._select_output import SelectOutput
 
         selectors = [
             SelectOutput(self.output_shapes, idx)
@@ -231,17 +232,25 @@ class StackedLinearDifferentialOperator(LinearFunctionOperator):
 
     def _register_covariance_handler(self):
         """Deferred registration to avoid circular imports."""
-        from linpde_gp.randprocs import covfuncs as rp_covfuncs  # pylint: disable=import-outside-toplevel
-        
+        from linpde_gp.randprocs import (  # pylint: disable=import-outside-toplevel
+            covfuncs as rp_covfuncs,
+        )
+
+        # pylint: disable=no-member
         @self.__call__.register(pn.randprocs.covfuncs.CovarianceFunction)
         def _(self, covfunc, *, argnum: int = 0):
-            components = tuple(row_op(covfunc, argnum=argnum) for row_op in self.row_operators)
+            components = tuple(
+                row_op(covfunc, argnum=argnum) for row_op in self.row_operators
+            )
             return rp_covfuncs.StackCovarianceFunction(components, output_idx=argnum)
 
     def _register_crosscov_handler(self):
         """Deferred registration to avoid circular imports."""
-        from linpde_gp.randprocs import crosscov as rp_crosscov  # pylint: disable=import-outside-toplevel
-        
+        from linpde_gp.randprocs import (  # pylint: disable=import-outside-toplevel
+            crosscov as rp_crosscov,
+        )
+
+        # pylint: disable=no-member
         @self.__call__.register(rp_crosscov.ProcessVectorCrossCovariance)
         def _(self, pv_crosscov):
             stacked = rp_crosscov.StackedProcessVectorCrossCovariance(

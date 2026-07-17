@@ -183,15 +183,17 @@ class RationalPolynomial(Polynomial):
             return "0"
 
         return " ".join(
-            str(coeff)
-            if k == 0
-            else (
-                "".join(
-                    [
-                        "+" if coeff > 0 else "-",
-                        f" {str(abs(coeff))}" if abs(coeff) != 1 else "",
-                        f" x^{k}",
-                    ]
+            (
+                str(coeff)
+                if k == 0
+                else (
+                    "".join(
+                        [
+                            "+" if coeff > 0 else "-",
+                            f" {str(abs(coeff))}" if abs(coeff) != 1 else "",
+                            f" x^{k}",
+                        ]
+                    )
                 )
             )
             for k, coeff in enumerate(self._rational_coeffs)

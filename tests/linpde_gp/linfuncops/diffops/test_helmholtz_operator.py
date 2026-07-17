@@ -1,5 +1,6 @@
 from jax import numpy as jnp
 import numpy as np
+
 import pytest
 
 import linpde_gp
@@ -74,24 +75,32 @@ def test_from_coefficient_field_matches_scalar_for_constant_field(domain_shape, 
     if domain_shape == ():
         f = JaxLambdaFunction(
             lambda x: jnp.sin(x) + 0.5 * x**2,
-            input_shape=(), output_shape=(), vectorize=True,
+            input_shape=(),
+            output_shape=(),
+            vectorize=True,
         )
     else:
         d = int(domain_shape[0])
         if d == 1:
             f = JaxLambdaFunction(
                 lambda x: jnp.sin(x[..., 0]),
-                input_shape=domain_shape, output_shape=(), vectorize=True,
+                input_shape=domain_shape,
+                output_shape=(),
+                vectorize=True,
             )
         elif d == 2:
             f = JaxLambdaFunction(
                 lambda x: jnp.sin(x[..., 0]) * jnp.cos(x[..., 1]),
-                input_shape=domain_shape, output_shape=(), vectorize=True,
+                input_shape=domain_shape,
+                output_shape=(),
+                vectorize=True,
             )
         else:
             f = JaxLambdaFunction(
-                lambda x: jnp.sum(x ** 2, axis=-1),
-                input_shape=domain_shape, output_shape=(), vectorize=True,
+                lambda x: jnp.sum(x**2, axis=-1),
+                input_shape=domain_shape,
+                output_shape=(),
+                vectorize=True,
             )
 
     scalar_op = HelmholtzOperator(domain_shape, k_squared=k0)
@@ -127,7 +136,9 @@ def test_from_coefficient_field_manufactured_solution_real():
     )
     f = JaxLambdaFunction(
         lambda x: (x + 2.0) ** (-2.0),
-        input_shape=(), output_shape=(), vectorize=True,
+        input_shape=(),
+        output_shape=(),
+        vectorize=True,
     )
 
     op = HelmholtzOperator.from_coefficient_field((), k_squared)
@@ -156,11 +167,15 @@ def test_from_coefficient_field_manufactured_solution_complex():
 
     k_squared = JaxLambdaFunction(
         lambda x: (1.0 + 0.1j) * ((x + 2.0) ** 2),
-        input_shape=(), output_shape=(), vectorize=True,
+        input_shape=(),
+        output_shape=(),
+        vectorize=True,
     )
     f = JaxLambdaFunction(
         lambda x: (x + 2.0) ** (-2.0),
-        input_shape=(), output_shape=(), vectorize=True,
+        input_shape=(),
+        output_shape=(),
+        vectorize=True,
     )
 
     op = HelmholtzOperator.from_coefficient_field((), k_squared)
@@ -266,8 +281,7 @@ def test_real2_from_coefficient_field_variable_matches_numpy_reference():
     # f(x) = [sin(x), cos(x)] — stacked Re/Im
     f = linpde_gp.functions.JaxLambdaFunction(
         lambda x: jnp.stack(
-            (jnp.sin(jnp.atleast_1d(x)[..., 0]),
-             jnp.cos(jnp.atleast_1d(x)[..., 0])),
+            (jnp.sin(jnp.atleast_1d(x)[..., 0]), jnp.cos(jnp.atleast_1d(x)[..., 0])),
             axis=-1,
         ),
         input_shape=domain_shape,
@@ -275,17 +289,15 @@ def test_real2_from_coefficient_field_variable_matches_numpy_reference():
         vectorize=True,
     )
 
-    op = (
-        linpde_gp.linfuncops.diffops.HelmholtzReal2Operator.from_coefficient_field(
-            domain_shape=domain_shape, k_squared_field=k_field
-        )
+    op = linpde_gp.linfuncops.diffops.HelmholtzReal2Operator.from_coefficient_field(
+        domain_shape=domain_shape, k_squared_field=k_field
     )
     assert op.is_variable_coefficient
 
     xs = np.linspace(-1.0, 1.0, 7)[:, None]
     xv = xs[:, 0]
 
-    alpha = 2.0 + xv ** 2
+    alpha = 2.0 + xv**2
     beta = 0.5 + 0.1 * xv
 
     f_r = np.sin(xv)
@@ -320,10 +332,8 @@ def test_real2_adjoint_for_variable_field():
         vectorize=True,
     )
 
-    op = (
-        linpde_gp.linfuncops.diffops.HelmholtzReal2Operator.from_coefficient_field(
-            domain_shape=domain_shape, k_squared_field=k_field
-        )
+    op = linpde_gp.linfuncops.diffops.HelmholtzReal2Operator.from_coefficient_field(
+        domain_shape=domain_shape, k_squared_field=k_field
     )
     adj = op.adjoint()
 

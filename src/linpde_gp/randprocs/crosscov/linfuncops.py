@@ -90,6 +90,7 @@ def _(self, stacked_pv_crosscov: crosscov.StackedProcessVectorCrossCovariance, /
 # Handler for ConditionalGaussianProcess.PriorPredictiveCrossCovariance
 # Import is deferred to avoid circular dependencies
 def _register_prior_predictive_crosscov_handler():
+    # pylint: disable=import-outside-toplevel
     from linpde_gp.randprocs._gaussian_process._conditional import (
         ConditionalGaussianProcess,
     )

@@ -2,15 +2,12 @@
 
 from jax import numpy as jnp
 import numpy as np
+
 import pytest
 
 import linpde_gp
 from linpde_gp.functions import Constant, JaxLambdaFunction
-from linpde_gp.linfuncops.diffops import (
-    CoefficientFieldOperator,
-    IdentityOperator,
-)
-
+from linpde_gp.linfuncops.diffops import CoefficientFieldOperator, IdentityOperator
 
 # ---------------------------------------------------------------------------
 # 1. Constant-field equivalence with IdentityOperator
@@ -31,11 +28,14 @@ def test_constant_field_matches_identity_operator_on_polynomial(domain_shape, sc
     """A constant coefficient field must behave identically to IdentityOperator."""
 
     if domain_shape == ():
+
         def _poly(x):
-            return x ** 2 + 1.0
+            return x**2 + 1.0
+
     else:
+
         def _poly(x):
-            return jnp.sum(x ** 2, axis=-1) + 1.0
+            return jnp.sum(x**2, axis=-1) + 1.0
 
     f = JaxLambdaFunction(
         _poly, input_shape=domain_shape, output_shape=(), vectorize=True
@@ -70,7 +70,7 @@ def test_constant_field_matches_identity_operator_on_exponential():
     scalar = 0.75
 
     f = JaxLambdaFunction(
-        lambda x: jnp.exp(-(x ** 2)), input_shape=(), output_shape=(), vectorize=True
+        lambda x: jnp.exp(-(x**2)), input_shape=(), output_shape=(), vectorize=True
     )
 
     ident_op = IdentityOperator(domain_shape, scalar=scalar)
@@ -94,18 +94,16 @@ def test_constant_field_matches_identity_operator_on_exponential():
 def test_variable_field_correctness_1d():
     """c(x) = sin(x), f(x) = x^2 => (cf)(x) = sin(x) x^2."""
 
-    c = JaxLambdaFunction(
-        jnp.sin, input_shape=(), output_shape=(), vectorize=True
-    )
+    c = JaxLambdaFunction(jnp.sin, input_shape=(), output_shape=(), vectorize=True)
     f = JaxLambdaFunction(
-        lambda x: x ** 2, input_shape=(), output_shape=(), vectorize=True
+        lambda x: x**2, input_shape=(), output_shape=(), vectorize=True
     )
 
     op = CoefficientFieldOperator((), c)
     cf = op(f)
 
     xs = np.array([-1.0, -0.3, 0.0, 0.5, 1.7])
-    expected = np.sin(xs) * xs ** 2
+    expected = np.sin(xs) * xs**2
     np.testing.assert_allclose(np.asarray(cf(xs)), expected, atol=1e-12)
 
 
@@ -114,11 +112,15 @@ def test_variable_field_correctness_2d():
 
     c = JaxLambdaFunction(
         lambda x: x[..., 0] * x[..., 1],
-        input_shape=(2,), output_shape=(), vectorize=True,
+        input_shape=(2,),
+        output_shape=(),
+        vectorize=True,
     )
     f = JaxLambdaFunction(
         lambda x: jnp.sin(x[..., 0]) + jnp.cos(x[..., 1]),
-        input_shape=(2,), output_shape=(), vectorize=True,
+        input_shape=(2,),
+        output_shape=(),
+        vectorize=True,
     )
 
     op = CoefficientFieldOperator((2,), c)
@@ -139,10 +141,12 @@ def test_complex_coefficient_field_dtype_and_values():
 
     c = JaxLambdaFunction(
         lambda x: jnp.exp(1j * x),
-        input_shape=(), output_shape=(), vectorize=True,
+        input_shape=(),
+        output_shape=(),
+        vectorize=True,
     )
     f = JaxLambdaFunction(
-        lambda x: 1.0 + x ** 2, input_shape=(), output_shape=(), vectorize=True
+        lambda x: 1.0 + x**2, input_shape=(), output_shape=(), vectorize=True
     )
 
     op = CoefficientFieldOperator((), c)
@@ -150,10 +154,8 @@ def test_complex_coefficient_field_dtype_and_values():
 
     cf = op(f)
     xs = np.linspace(-2.0, 2.0, 9)
-    expected = np.exp(1j * xs) * (1.0 + xs ** 2)
-    np.testing.assert_allclose(
-        np.asarray(cf(xs)), expected, atol=1e-10
-    )
+    expected = np.exp(1j * xs) * (1.0 + xs**2)
+    np.testing.assert_allclose(np.asarray(cf(xs)), expected, atol=1e-10)
 
 
 # ---------------------------------------------------------------------------
@@ -164,9 +166,7 @@ def test_complex_coefficient_field_dtype_and_values():
 def test_constant_input_returns_scaled_field():
     """Applying op to a non-zero Constant returns a function equal to v * c(x)."""
 
-    c = JaxLambdaFunction(
-        jnp.cos, input_shape=(), output_shape=(), vectorize=True
-    )
+    c = JaxLambdaFunction(jnp.cos, input_shape=(), output_shape=(), vectorize=True)
     v = 2.5
     f = Constant((), value=v)
 
@@ -181,9 +181,7 @@ def test_zero_input_returns_zero():
     """Applying op to a Zero function returns Zero."""
     from linpde_gp.functions import Zero
 
-    c = JaxLambdaFunction(
-        jnp.sin, input_shape=(), output_shape=(), vectorize=True
-    )
+    c = JaxLambdaFunction(jnp.sin, input_shape=(), output_shape=(), vectorize=True)
     f = Zero(input_shape=(), output_shape=())
 
     op = CoefficientFieldOperator((), c)
@@ -201,7 +199,7 @@ def test_shape_mismatch_in_output_shape_raises():
     """Passing a coefficient_field with non-scalar output_shape must raise."""
 
     vector_field = JaxLambdaFunction(
-        lambda x: jnp.array([x, x ** 2]),
+        lambda x: jnp.array([x, x**2]),
         input_shape=(),
         output_shape=(2,),
         vectorize=True,
@@ -213,9 +211,7 @@ def test_shape_mismatch_in_output_shape_raises():
 
 def test_input_shape_mismatch_raises():
     """coefficient_field.input_shape must match domain_shape."""
-    c1d = JaxLambdaFunction(
-        jnp.sin, input_shape=(), output_shape=(), vectorize=True
-    )
+    c1d = JaxLambdaFunction(jnp.sin, input_shape=(), output_shape=(), vectorize=True)
 
     with pytest.raises(ValueError, match="input_shape"):
         CoefficientFieldOperator((2,), c1d)

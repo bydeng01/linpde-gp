@@ -186,7 +186,7 @@ def _(self, k: covfuncs.JaxSumCovarianceFunction, /, *, argnum: int = 0):
 
 @linfuncops.SelectOutput.__call__.register  # pylint: disable=no-member
 def _(self, k: covfuncs.JaxScaledCovarianceFunction, /, *, argnum: int = 0):
-    """Pull the scalar through :class:`SelectOutput` on a JaxScaledCovarianceFunction."""
+    """Pull the scalar through :class:`SelectOutput` on a scaled covfunc."""
     return k.scalar * self(k.covfunc, argnum=argnum)
 
 

@@ -23,7 +23,9 @@ def jmlr(*, rel_width=1.0, rel_height=None, nrows=1, ncols=1, family="serif", **
     return tueplots_rcparams
 
 
-def jmlr_docker(*, rel_width=1.0, rel_height=None, nrows=1, ncols=1, family="serif", **kwargs):
+def jmlr_docker(
+    *, rel_width=1.0, rel_height=None, nrows=1, ncols=1, family="serif", **kwargs
+):
     """Docker-compatible version of jmlr bundle that doesn't use LaTeX."""
     if rel_height is not None:
         warnings.warn("The `rel_height` argument is not supported for the JMLR bundle")
