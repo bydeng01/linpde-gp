@@ -141,7 +141,10 @@ jobs:
         run: |
           # Skip helmholtz_equation_baselines/: PINN baselines need the deepxde
           # PyTorch backend, which is not installed in CI.
-          for file in $(find -wholename "./experiments/*.ipynb" -not -path "./experiments/helmholtz_equation_baselines/*")
+          # Skip 3D notebooks (*_3d_*): the 729-1331-point complex Helmholtz
+          # solves exhaust the GitHub runner memory (OOM / exit 143). They
+          # remain paper deliverables and are executed locally, not in CI.
+          for file in $(find -wholename "./experiments/*.ipynb" -not -path "./experiments/helmholtz_equation_baselines/*" -not -name "*_3d_*")
           do
               echo "Running ${file}..."
               jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 $file
