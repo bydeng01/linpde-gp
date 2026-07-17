@@ -1,5 +1,8 @@
 matplotlib>=3.4.3
 tueplots>=0.0.6
+nibabel>=5.1,<6
+Pillow>=9
+PyMuPDF>=1.23
 
 # For the interactive visualizations
 ipympl==0.8.8

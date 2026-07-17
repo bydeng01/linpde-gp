@@ -160,3 +160,5 @@ experiments/linpde_gp_constrained/
 src/linpde_gp_constrained/
 .DS_Store
 experiments/.DS_Store
+.DS_Store
+experiments/.DS_Store

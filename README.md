@@ -7,23 +7,40 @@
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/bydeng01/linpde-gp/ci.yml?branch=main&label=CI)](https://github.com/bydeng01/linpde-gp/actions/workflows/ci.yml)
-[![arXiv](https://img.shields.io/badge/arXiv-2212.12474-b31b1b.svg)](https://arxiv.org/abs/2212.12474)
+[![arXiv](https://img.shields.io/badge/arXiv-2607.14193-b31b1b.svg)](https://arxiv.org/abs/2607.14193)
 [![Docker](https://img.shields.io/badge/Docker-supported-2496ED.svg?logo=docker&logoColor=white)](Dockerfile)
 
 </div>
 
 ---
 
-The following work was done by Boyuan Deng:
+This fork builds on the original `linpde-gp` framework in two directions.
 
-- Development of the Helmholtz equation module (including the Helmholtz equation, Helmholtz operator, and related components)
-- Updating the software and its submodules to use modern dependencies
-- Creation and maintenance of Docker files
+>Research extensions:
 
-The software was developed by the author(s) of the paper
-"Physics-Informed Gaussian Process Regression Generalizes Linear PDE Solvers".
-If you are using this software in your research, I strongly recommend visiting the
+- Helmholtz equation support, including the Helmholtz operator and related components
+- An application to *in vivo* brain magnetic resonance elastography (MRE)
+- Additional research modules are in preparation...
+
+>Maintenance and reproducibility:
+
+- Updates to the software and submodules for modern dependencies
+- A maintained Docker build
+
+The original framework was developed by the author(s) of
+"Physics-Informed Gaussian Process Regression Generalizes Linear PDE Solvers." If you use
+this software in your research, we strongly recommend also visiting the
 [original repository](https://github.com/marvinpfoertner/linpde-gp).
+
+## Projects
+
+Each project is self-contained and has its own README with the science, the data it needs,
+and exact reproduce steps. Start at the front door here (install once), then follow the
+relevant guide.
+
+| Project | Status | Guide |
+| :--- | :--- | :--- |
+| **Helmholtz equation & Brain MRE** — physics-informed GP solver for the inhomogeneous Helmholtz BVP (real & complex, 1D/2D/3D) with FDM/PINN baselines, and its application to *in vivo* brain magnetic resonance elastography | Open-source | [`docs/HELMHOLTZ.md`](docs/HELMHOLTZ.md) |
 
 ## Submodules
 
@@ -32,7 +49,6 @@ This project depends on two Git submodules:
 | Submodule | Description |
 | :--- | :--- |
 | [`probnum`](https://github.com/bydeng01/probnum) | Probabilistic numerics library (forked for compatibility) |
-| [`gp_constr`](https://github.com/bydeng01/gp_constr) | Gaussian Process regression with linear operator constraints |
 
 Both are fetched automatically when you clone with `--recurse-submodules` (see below).
 
@@ -139,10 +155,18 @@ pip install -e .
 
 ## Citation
 
-If you refer to the Helmholtz equation example, please cite the following reference:
+If you use or refer to the Helmholtz equation module or the brain MRE application in this fork, please cite our paper.
 
 ```bibtex
-
+@misc{deng2026operatorinformedgaussianprocessescomplex,
+      title={Operator-Informed Gaussian Processes for Complex Helmholtz Wavefields: From Synthetic Benchmarks to In Vivo Brain Elastography}, 
+      author={Boyuan Deng and Kshitiz Upadhyay and Michael Shields},
+      year={2026},
+      eprint={2607.14193},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML},
+      url={https://arxiv.org/abs/2607.14193}, 
+}
 ```
 
 If you use this software, please cite the original publication:
@@ -158,8 +182,12 @@ If you use this software, please cite the original publication:
 }
 ```
 
+## License
+
+Released under the [MIT License](LICENSE).
+
 ---
 
-<div align="center">
-<sub>Originally developed by Marvin Pf&ouml;rtner et al. &mdash; Extended with Helmholtz equation support by Boyuan Deng.</sub>
-</div>
+<!-- <div align="center">
+<sub></sub>
+</div> -->

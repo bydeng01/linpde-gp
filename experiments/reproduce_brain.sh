@@ -3,7 +3,7 @@
 # Reproduce the brain MRE results (Sec. IV.E): Table 1, Table 2, the
 # reconstruction figures, and the supporting loss-tangent number.
 #
-# The committed sweep_log.txt was produced inside the project's Docker
+# The reference sweep_log.txt was produced inside the project's Docker
 # container (note the /app paths and KeOps messages). Reproduce in the
 # same environment:
 #
@@ -27,13 +27,13 @@ if [ -d "$_self/experiments" ]; then cd "$_self"; else cd "$_self/.."; fi
 
 DRIVER=experiments/helmholtz_brain_forward_bvp.py
 OUT=experiments/helmholtz_brain_outputs
+mkdir -p "$OUT"
 
 # ---------------------------------------------------------------------
 # Table 1 -- generalization sweep (3 subjects x 3 freqs x 3 components),
 # multiscale LMC, base length scales 4/16 mm, rho = 0, curl observable.
-# Writes the per-case *_curl_main.* (incl. the anchor = Fig. brain_recon:
-# helmholtz_brain_U01_UDEL_0001_01_70Hz_compx_curl_main.pdf) and
-# *_curl_mismatch.* figures, and the log the 7 OFAT rows are read from.
+# Writes the per-case *_curl_main.* and *_curl_mismatch.* figures, and the log
+# from which the 7 OFAT rows are read.
 # ---------------------------------------------------------------------
 # One PROCESS PER CASE (not a single in-process --sweep): the 27-case sweep
 # accumulates RAM (JAX/KeOps caches + the ~8.3k-voxel dense std evals) and the
@@ -109,26 +109,30 @@ PY
 # the sweep command. To recompute only the figures, just rerun the sweep
 # (there is no figure-only mode; figures come from the same solve).
 #
-# Headline / anchor figure (Fig. brain_recon) at EXACT posterior std (drop
-# --sparse-figures, ~70 s) and paper-styled (--no-suptitle):
+# Headline figure base (Fig. brain_recon, subject 0003) at EXACT posterior std
+# (drop --sparse-figures, ~70 s) and paper-styled (--no-suptitle):
 python "$DRIVER" \
-  --subject U01_UDEL_0001_01 --freq 70 --component 0 \
+  --subject U01_UDEL_0003_01 --freq 70 --component 0 \
   --observable curl --prior lmc --lmc-lengthscales 4,16 \
   --output-scale 2e-4 --bc-noise-rel 1e-6 --no-suptitle
+
+# Insert the deterministic FDM column to produce the paper's final figure.
+python experiments/fd_composite_fixed.py
 
 echo
 echo "Done. Table 1 rows: read from $OUT/sweep_log.txt."
 echo "Table 2 rows: read from $OUT/ablation_*.log."
 echo "Figures (all subjects/freqs/components): $OUT/helmholtz_brain_*_curl_{main,mismatch}.*"
+echo "Paper brain figure: $OUT/fig_with_fdm_0003_70Hz_compx.{pdf,png}"
 # ---------------------------------------------------------------------
 # Other paper sections (not part of IV.E) are notebooks under experiments/:
 #   1D real:    inHomo_realHelmholtz_dirichlet_1d_{3,5,7}pts.ipynb
 #   1D complex: inHomo_complexHelmholtz_dirichlet_1d_{3,5,7}pts.ipynb
-#   2D:         inHomo_realHelmholtz_dirichlet_2d_{64,100,144}pts.ipynb
-#   3D cube:    inHomo_realHelmholtz_dirichlet_3d_{729,1000,1331}pts.ipynb
+#   2D complex: inHomo_complexHelmholtz_dirichlet_2d_{64,100,144}pts.ipynb
+#   3D complex: inHomo_complexHelmholtz_dirichlet_3d_{729,1000,1331}pts.ipynb
 #   baselines:  fdm_*.ipynb, pinn_*.ipynb
 # Run them with:  ./docker-run.sh jupyter
-# NOTE: the SNR scatter (make_snr_pearson_figure.py) reads HARD-CODED SNR
-# values; there is no upstream SNR generator, which is why SNR was dropped
-# from the IV.E text. Do not treat that figure as reproduced.
+# NOTE: the archived SNR scatter used HARD-CODED SNR values; there is no
+# upstream SNR generator, which is why SNR was dropped from the IV.E text.
+# Do not treat that figure as reproduced.
 # ---------------------------------------------------------------------

@@ -93,13 +93,13 @@ if MODE == "3mm":
         fp = np.stack([gx[fillm]/s, gy[fillm]/s, np.full(int(fillm.sum()), Z/s)], axis=1)
         qfdm[fillm] = nnd_r(fp)+1j*nnd_i(fp)
 else:
-    # full-resolution deterministic baseline (interior D = erosion(mask,2), measured
-    # Dirichlet shell) -> the DISPLAYED solve is the one whose Pearson is 0.855.
+    # Full-resolution deterministic baseline (interior D = erosion(mask,2),
+    # measured Dirichlet shell), matching the solve displayed in the paper.
     qFD = solve_fd(mask, k2, q, zooms, erode=2)
     qfdm = qFD[:, :, Z]
     E = binary_erosion(mask, iterations=3)
     print(f"[fdm] full-res corr(|qFD|,|qmeas|) on E = "
-          f"{np.corrcoef(np.abs(qFD[E]), np.abs(q[E]))[0,1]:.3f}  (2000-set baseline = 0.855)")
+          f"{np.corrcoef(np.abs(qFD[E]), np.abs(q[E]))[0,1]:.3f}")
 
 # display-frame slices (rot90, masked to interior_diag like the GP figure)
 CNAN = complex(np.nan, np.nan)

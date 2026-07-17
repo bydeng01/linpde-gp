@@ -48,23 +48,24 @@ $NB $BASE/fdm_inHomo_complexHelmholtz_dirichlet_1d.ipynb
 $NB $BASE/pinn_inHomo_complexHelmholtz_dirichlet_1d.ipynb
 
 # ---------------------------------------------------------------------
-# Sec. IV.C -- 2D Helmholtz (Table tab:tab2d + helmholtz2d_posterior_*.pdf,
-# helmholtz2d_pde_residual_*.pdf)
+# Sec. IV.C -- 2D complex Helmholtz (Table tab:tab2d +
+# helmholtz2d_complex_{posterior,pde_residual}_*.pdf)
 # ---------------------------------------------------------------------
-$NB $EXP/inHomo_realHelmholtz_dirichlet_2d_64pts.ipynb
-$NB $EXP/inHomo_realHelmholtz_dirichlet_2d_100pts.ipynb
-$NB $EXP/inHomo_realHelmholtz_dirichlet_2d_144pts.ipynb
-$NB $BASE/fdm_inHomo_realHelmholtz_dirichlet_2d.ipynb
-$NB $BASE/pinn_inHomo_realHelmholtz_dirichlet_2d.ipynb
+$NB $EXP/inHomo_complexHelmholtz_dirichlet_2d_64pts.ipynb
+$NB $EXP/inHomo_complexHelmholtz_dirichlet_2d_100pts.ipynb
+$NB $EXP/inHomo_complexHelmholtz_dirichlet_2d_144pts.ipynb
+$NB $BASE/fdm_inHomo_complexHelmholtz_dirichlet_2d.ipynb
+$NB $BASE/pinn_inHomo_complexHelmholtz_dirichlet_2d.ipynb
 
 # ---------------------------------------------------------------------
-# Sec. IV.D -- 3D cube Helmholtz (Table tab:tab3d + helmholtz3d_posterior_*.pdf)
+# Sec. IV.D -- 3D complex Helmholtz (Table tab:tab3d +
+# helmholtz3d_complex_posterior_*.pdf)
 # ---------------------------------------------------------------------
-$NB $EXP/inHomo_realHelmholtz_dirichlet_3d_729pts.ipynb
-$NB $EXP/inHomo_realHelmholtz_dirichlet_3d_1000pts.ipynb
-$NB $EXP/inHomo_realHelmholtz_dirichlet_3d_1331pts.ipynb
-$NB $BASE/fdm_inHomo_realHelmholtz_dirichlet_3d.ipynb
-$NB $BASE/pinn_inHomo_realHelmholtz_dirichlet_3d.ipynb
+$NB $EXP/inHomo_complexHelmholtz_dirichlet_3d_729pts.ipynb
+$NB $EXP/inHomo_complexHelmholtz_dirichlet_3d_1000pts.ipynb
+$NB $EXP/inHomo_complexHelmholtz_dirichlet_3d_1331pts.ipynb
+$NB $BASE/fdm_inHomo_complexHelmholtz_dirichlet_3d.ipynb
+$NB $BASE/pinn_inHomo_complexHelmholtz_dirichlet_3d.ipynb
 
 # ---------------------------------------------------------------------
 # Sec. IV.E -- brain MRE (Table tab:brain_generalization,
