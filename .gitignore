@@ -148,8 +148,10 @@ data/.DS_Store
 # Brain MRE dataset — large raw NIfTI volumes, not committed (keep local only)
 data/brain_experiment_data/
 
-# Regenerable experiment figures (produced by helmholtz_brain_forward_bvp.py)
-experiments/helmholtz_brain_outputs/
+# experiments/helmholtz_brain_outputs/ was previously ignored wholesale (regenerable
+# figures/logs produced by helmholtz_brain_forward_bvp.py). Now tracked selectively —
+# files are added by hand, not en masse. NOTE: *.log below still hides the
+# ablation_*.log files in there; add those with `git add -f` if you want them tracked.
 experiments/.DS_Store
 .DS_Store
 

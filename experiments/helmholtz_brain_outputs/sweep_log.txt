@@ -1,0 +1,540 @@
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 30 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=6.070, p25=4.082, p75=9.389, frac<1: 0.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 41.8 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.596
+    median |err|/|q| (all)             = 0.346
+    median |err|/|q| (confident std<25%) = 0.339  (n_confident=1101)
+    Pearson(std, |r|/|k^2 q|) = 0.051
+  dense slice eval: 21.8 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_30Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_30Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 30 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=6.070, p25=4.082, p75=9.389, frac<1: 0.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.8 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.503
+    median |err|/|q| (all)             = 0.464
+    median |err|/|q| (confident std<25%) = 0.471  (n_confident=276)
+    Pearson(std, |r|/|k^2 q|) = 0.051
+  dense slice eval: 17.3 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_30Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_30Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 30 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=6.070, p25=4.082, p75=9.389, frac<1: 0.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 31.4 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.667
+    median |err|/|q| (all)             = 0.386
+    median |err|/|q| (confident std<25%) = 0.330  (n_confident=539)
+    Pearson(std, |r|/|k^2 q|) = 0.051
+  dense slice eval: 18.0 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_30Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_30Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 50 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.754, p25=2.441, p75=6.285, frac<1: 1.6%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.5 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.735
+    median |err|/|q| (all)             = 0.346
+    median |err|/|q| (confident std<25%) = 0.315  (n_confident=203)
+    Pearson(std, |r|/|k^2 q|) = 0.229
+  dense slice eval: 19.7 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_50Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_50Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 50 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.754, p25=2.441, p75=6.285, frac<1: 1.6%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 40.9 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.608
+    median |err|/|q| (all)             = 0.486
+    median |err|/|q| (confident std<25%) = 0.505  (n_confident=46)
+    Pearson(std, |r|/|k^2 q|) = 0.229
+  dense slice eval: 20.2 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_50Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_50Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 50 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.754, p25=2.441, p75=6.285, frac<1: 1.6%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 35.0 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.648
+    median |err|/|q| (all)             = 0.415
+    median |err|/|q| (confident std<25%) = 0.372  (n_confident=91)
+    Pearson(std, |r|/|k^2 q|) = 0.229
+  dense slice eval: 18.8 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_50Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_50Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 70 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.647, p25=2.102, p75=7.184, frac<1: 3.7%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.4 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.767
+    median |err|/|q| (all)             = 0.375
+    median |err|/|q| (confident std<25%) = 0.330  (n_confident=30)
+    Pearson(std, |r|/|k^2 q|) = 0.347
+  dense slice eval: 18.3 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_70Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_70Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 70 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.647, p25=2.102, p75=7.184, frac<1: 3.7%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 37.5 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.591
+    median |err|/|q| (all)             = 0.533
+    median |err|/|q| (confident std<25%) = 0.554  (n_confident=7)
+    Pearson(std, |r|/|k^2 q|) = 0.347
+  dense slice eval: 19.1 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_70Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_70Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0001_01 @ 70 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.647, p25=2.102, p75=7.184, frac<1: 3.7%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 34.6 s, pde_noise=2.633e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.626
+    median |err|/|q| (all)             = 0.432
+    median |err|/|q| (confident std<25%) = 0.352  (n_confident=8)
+    Pearson(std, |r|/|k^2 q|) = 0.347
+  dense slice eval: 18.2 s (M=8331 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0001_01_70Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0001_01_70Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 30 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=5.497, p25=3.745, p75=8.409, frac<1: 0.2%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 31.6 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.527
+    median |err|/|q| (all)             = 0.334
+    median |err|/|q| (confident std<25%) = 0.333  (n_confident=1525)
+    Pearson(std, |r|/|k^2 q|) = 0.074
+  dense slice eval: 18.6 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_30Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_30Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 30 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=5.497, p25=3.745, p75=8.409, frac<1: 0.2%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.9 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.575
+    median |err|/|q| (all)             = 0.438
+    median |err|/|q| (confident std<25%) = 0.384  (n_confident=500)
+    Pearson(std, |r|/|k^2 q|) = 0.074
+  dense slice eval: 18.8 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_30Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_30Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 30 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=5.497, p25=3.745, p75=8.409, frac<1: 0.2%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 35.3 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.682
+    median |err|/|q| (all)             = 0.374
+    median |err|/|q| (confident std<25%) = 0.305  (n_confident=821)
+    Pearson(std, |r|/|k^2 q|) = 0.074
+  dense slice eval: 17.1 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_30Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_30Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 50 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.877, p25=2.464, p75=6.564, frac<1: 1.7%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 31.9 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.689
+    median |err|/|q| (all)             = 0.331
+    median |err|/|q| (confident std<25%) = 0.368  (n_confident=232)
+    Pearson(std, |r|/|k^2 q|) = 0.233
+  dense slice eval: 17.2 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_50Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_50Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 50 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.877, p25=2.464, p75=6.564, frac<1: 1.7%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.3 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.566
+    median |err|/|q| (all)             = 0.472
+    median |err|/|q| (confident std<25%) = 0.447  (n_confident=55)
+    Pearson(std, |r|/|k^2 q|) = 0.233
+  dense slice eval: 17.5 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_50Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_50Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 50 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.877, p25=2.464, p75=6.564, frac<1: 1.7%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.3 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.657
+    median |err|/|q| (all)             = 0.387
+    median |err|/|q| (confident std<25%) = 0.294  (n_confident=70)
+    Pearson(std, |r|/|k^2 q|) = 0.233
+  dense slice eval: 17.1 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_50Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_50Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 70 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.699, p25=2.145, p75=7.348, frac<1: 3.2%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 31.8 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.679
+    median |err|/|q| (all)             = 0.387
+    median |err|/|q| (confident std<25%) = 0.453  (n_confident=29)
+    Pearson(std, |r|/|k^2 q|) = 0.344
+  dense slice eval: 17.1 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_70Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_70Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 70 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.699, p25=2.145, p75=7.348, frac<1: 3.2%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 32.4 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.553
+    median |err|/|q| (all)             = 0.473
+    median |err|/|q| (confident std<25%) = 0.415  (n_confident=11)
+    Pearson(std, |r|/|k^2 q|) = 0.344
+  dense slice eval: 17.7 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_70Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_70Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0002_01 @ 70 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.699, p25=2.145, p75=7.348, frac<1: 3.2%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 36.1 s, pde_noise=2.606e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.635
+    median |err|/|q| (all)             = 0.394
+    median |err|/|q| (confident std<25%) = 0.449  (n_confident=10)
+    Pearson(std, |r|/|k^2 q|) = 0.344
+  dense slice eval: 19.4 s (M=7218 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0002_01_70Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0002_01_70Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 30 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=5.879, p25=4.051, p75=8.786, frac<1: 0.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 37.2 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.585
+    median |err|/|q| (all)             = 0.353
+    median |err|/|q| (confident std<25%) = 0.348  (n_confident=1659)
+    Pearson(std, |r|/|k^2 q|) = 0.099
+  dense slice eval: 19.1 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_30Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_30Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 30 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=5.879, p25=4.051, p75=8.786, frac<1: 0.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 34.5 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.590
+    median |err|/|q| (all)             = 0.430
+    median |err|/|q| (confident std<25%) = 0.364  (n_confident=637)
+    Pearson(std, |r|/|k^2 q|) = 0.099
+  dense slice eval: 17.1 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_30Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_30Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 30 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=5.879, p25=4.051, p75=8.786, frac<1: 0.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 31.5 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.709
+    median |err|/|q| (all)             = 0.432
+    median |err|/|q| (confident std<25%) = 0.383  (n_confident=746)
+    Pearson(std, |r|/|k^2 q|) = 0.099
+  dense slice eval: 16.7 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_30Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_30Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 50 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.588, p25=2.341, p75=5.774, frac<1: 2.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.5 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.708
+    median |err|/|q| (all)             = 0.378
+    median |err|/|q| (confident std<25%) = 0.370  (n_confident=631)
+    Pearson(std, |r|/|k^2 q|) = 0.212
+  dense slice eval: 17.0 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_50Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_50Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 50 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.588, p25=2.341, p75=5.774, frac<1: 2.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 34.3 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.565
+    median |err|/|q| (all)             = 0.461
+    median |err|/|q| (confident std<25%) = 0.452  (n_confident=214)
+    Pearson(std, |r|/|k^2 q|) = 0.212
+  dense slice eval: 17.1 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_50Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_50Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 50 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=3.588, p25=2.341, p75=5.774, frac<1: 2.1%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 33.5 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.553
+    median |err|/|q| (all)             = 0.464
+    median |err|/|q| (confident std<25%) = 0.459  (n_confident=186)
+    Pearson(std, |r|/|k^2 q|) = 0.212
+  dense slice eval: 17.4 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_50Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_50Hz_compz_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 70 Hz, component x, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=2.981, p25=1.825, p75=5.371, frac<1: 5.6%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 34.2 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.753
+    median |err|/|q| (all)             = 0.400
+    median |err|/|q| (confident std<25%) = 0.401  (n_confident=296)
+    Pearson(std, |r|/|k^2 q|) = 0.331
+  dense slice eval: 16.7 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_70Hz_compx_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_70Hz_compx_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 70 Hz, component y, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=2.981, p25=1.825, p75=5.371, frac<1: 5.6%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 32.7 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.598
+    median |err|/|q| (all)             = 0.492
+    median |err|/|q| (confident std<25%) = 0.591  (n_confident=88)
+    Pearson(std, |r|/|k^2 q|) = 0.331
+  dense slice eval: 17.4 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_70Hz_compy_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_70Hz_compy_curl_mismatch.png
+[KeOps] Warning : CUDA libraries not found or could not be loaded; Switching to CPU only.
+
+== Subject U01_UDEL_0003_01 @ 70 Hz, component z, observable=curl (q) ==
+  scales: output_scale=2.000e-04  bc_noise=4.000e-14 (=bc_noise_rel 1.000e-06 * output_scale^2)
+/app/experiments/helmholtz_brain_forward_bvp.py:1226: RuntimeWarning: invalid value encountered in divide
+  k2_full = rho_omega2 / safe_G
+  diagnostic |r|/|k^2 q|  : median=2.981, p25=1.825, p75=5.371, frac<1: 5.6%
+  shell idx     : 2000
+  interior idx  : 2000
+  prior         : lmc
+  Real2 BVP OK in 32.7 s, pde_noise=2.569e-12
+
+  GP forward solve metrics on n=2000:
+    Pearson |q_pred| vs |q_meas|       = 0.617
+    median |err|/|q| (all)             = 0.473
+    median |err|/|q| (confident std<25%) = 0.415  (n_confident=61)
+    Pearson(std, |r|/|k^2 q|) = 0.331
+  dense slice eval: 17.2 s (M=6934 voxels, std=subsample 400)
+  saved helmholtz_brain_U01_UDEL_0003_01_70Hz_compz_curl_main.png
+  saved helmholtz_brain_U01_UDEL_0003_01_70Hz_compz_curl_mismatch.png
