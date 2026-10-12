@@ -15,7 +15,7 @@ kernel and concatenating:
 with ``n_E_total = sum_l output_size(L_l)``. ``G`` is the full block gram
 matrix (already assembled by linpde-gp inside ``posterior_gp.gram``).
 
-For the original repo state every ``L_l`` was an ``_EvaluationFunctional`` —
+When every ``L_l`` is an ``_EvaluationFunctional`` —
 i.e., point measurement / point boundary condition — so
 
     L_l k(x, ·) = k(x, X_E^{(l)}),     kLa(x) = k(x, X_E_total).

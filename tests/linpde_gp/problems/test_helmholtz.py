@@ -521,7 +521,7 @@ def test_helmholtz_real2_representation_matches_complex_solution():
 
 
 # ---------------------------------------------------------------------------
-# Phase 4: HelmholtzEquation accepts variable G_real / G_imag
+# HelmholtzEquation accepts variable G_real / G_imag
 # ---------------------------------------------------------------------------
 
 

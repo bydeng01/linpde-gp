@@ -451,8 +451,8 @@ class HelmholtzReal2Operator(StackedLinearDifferentialOperator):
         row_real = SumLinearFunctionOperator(diag_real, neg_beta_op @ selector_imag)
         row_imag = SumLinearFunctionOperator(diag_imag, beta_op @ selector_real)
 
-        # Construct without invoking the scalar __init__: mirror the spec's
-        # pattern from Phase 2.
+        # Construct without invoking the scalar __init__ (same pattern as
+        # HelmholtzOperator.from_coefficient_field).
         instance = cls.__new__(cls)
         instance._domain_shape = domain_shape
         instance._k_squared = k_squared_field

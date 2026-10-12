@@ -1,12 +1,10 @@
 """Intrinsic Coregionalization Model (ICM) covariance function.
 
-This is the Phase 8a building block for coregionalized (ICM/LMC) priors. It is
-*purely additive*: it does not modify, subclass, or otherwise touch
-:class:`IndependentMultiOutputCovarianceFunction` or any existing covariance
-function. With ``B = np.eye(P)`` and a single shared base kernel it reduces, to
-machine precision, to ``IndependentMultiOutputCovarianceFunction(base, ..., base)``
-(see the reduction-identity unit test), which is the backward-compatibility
-anchor for the whole phase.
+This is the building block for coregionalized (ICM/LMC) priors. It does not
+subclass :class:`IndependentMultiOutputCovarianceFunction`. With ``B = np.eye(P)``
+and a single shared base kernel it reduces, to machine precision, to
+``IndependentMultiOutputCovarianceFunction(base, ..., base)`` (see the
+reduction-identity unit test).
 """
 
 from typing import Optional
@@ -33,7 +31,7 @@ class CoregionalizedMultiOutputCovarianceFunction(JaxCovarianceFunction):
     product :math:`B \otimes K` where :math:`K` is the base kernel's Gram
     operator. Because ``B`` is constant in ``x``, any spatial linear operator
     ``L`` factors straight through: :math:`L_x (B \otimes k) = B \otimes (L_x k)`.
-    This is what makes the Phase 8b dispatch handlers a thin wrapper around the
+    This is what makes the ICM dispatch handlers a thin wrapper around the
     base kernel's specialized operator handlers.
 
     Parameters
@@ -128,6 +126,6 @@ class CoregionalizedMultiOutputCovarianceFunction(JaxCovarianceFunction):
         # B is constant in x, so the cross-covariance operator is the Kronecker
         # product B (x) K. With B = I_P this is exactly the block-diagonal
         # operator produced by IndependentMultiOutputCovarianceFunction with a
-        # shared base kernel, which is the reduction-identity (V5) anchor.
+        # shared base kernel (the reduction identity).
         K = self._base.linop(x0, x1)
         return pn.linops.Kronecker(pn.linops.aslinop(self._B), K)

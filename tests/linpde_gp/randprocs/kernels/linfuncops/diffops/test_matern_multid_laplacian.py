@@ -1,4 +1,4 @@
-"""Phase 6a regression tests.
+"""Regression tests for the multi-D Matern Laplacian closed forms.
 
 Explicit finite-difference verification for the multi-D half-integer Matern
 Laplacian closed forms (``HalfIntegerMatern_Identity_WeightedLaplacian`` and
@@ -96,9 +96,9 @@ def test_double_weighted_laplacian_fd_matches(nu):
 
 @pytest.mark.parametrize("nu", [2.5, 3.5])
 def test_double_weighted_laplacian_finite_at_diagonal(nu):
-    """Phase 6a's headline fix: the JAX hessian fallback NaNs out at r=0
-    because of sqrt(|x|^2) non-smoothness for Matern in d > 1. The new
-    closed form must give a finite, analytical value at the diagonal."""
+    """The JAX hessian fallback NaNs out at r=0 because of sqrt(|x|^2)
+    non-smoothness for Matern in d > 1. The closed form must give a
+    finite, analytical value at the diagonal."""
     rng = np.random.default_rng(2025_06_05)
     lengthscales = np.array([1.0, 0.5, 2.0])
     w0 = np.array([1.0, 1.0, 1.0])

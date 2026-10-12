@@ -1,10 +1,10 @@
-"""Unit tests for the Phase 8a ICM covariance function.
+"""Unit tests for the ICM covariance function.
 
 Parallels ``test_independent_multi_output.py``. Covers: output shape, batched
 input, joint-swap symmetry, the off-diagonal entries equalling ``B[c, c'] *
 base``, ``linop`` agreeing with the dense evaluation, and the reduction
 identity ``CoregionalizedMultiOutput(base, eye(P)) == IndependentMultiOutput(
-base, ..., base)`` to machine precision (the backward-compatibility anchor, V5).
+base, ..., base)`` to machine precision.
 """
 
 import numpy as np
@@ -115,7 +115,7 @@ def test_linop_matches_dense(base_kernel, B2, inputs_batched):
 
 @pytest.mark.parametrize("p", [2, 3])
 def test_reduction_identity(base_kernel, inputs_batched, p):
-    """ICM(base, eye(P)) == IndependentMultiOutput(base, ..., base) (V5)."""
+    """ICM(base, eye(P)) == IndependentMultiOutput(base, ..., base)."""
     x0, x1 = inputs_batched
     icm = CoregionalizedMultiOutputCovarianceFunction(base_kernel, np.eye(p))
     iid = IndependentMultiOutputCovarianceFunction(*([base_kernel] * p))

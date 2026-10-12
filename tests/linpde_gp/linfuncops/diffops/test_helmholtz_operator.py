@@ -55,7 +55,7 @@ def test_helmholtz_real2_operator_matches_manual_split():
 
 
 # ---------------------------------------------------------------------------
-# Phase 2: HelmholtzOperator.from_coefficient_field
+# HelmholtzOperator.from_coefficient_field
 # ---------------------------------------------------------------------------
 
 
@@ -160,7 +160,7 @@ def test_from_coefficient_field_manufactured_solution_complex():
 
     The Laplacian-of-complex-f path is intentionally avoided here because
     JAX's `jacrev` requires real-valued outputs; the same restriction exists
-    in the scalar-k² baseline. Phase 3's real2 lift handles complex f via
+    in the scalar-k² case. ``HelmholtzReal2Operator`` handles complex f via
     the {Re, Im} stack and is what production code uses for fully complex
     BVPs.
     """
@@ -222,7 +222,7 @@ def test_repr_distinguishes_variable_and_scalar():
 
 
 # ---------------------------------------------------------------------------
-# Phase 3: HelmholtzReal2Operator.from_coefficient_field
+# HelmholtzReal2Operator.from_coefficient_field
 # ---------------------------------------------------------------------------
 
 

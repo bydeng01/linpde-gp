@@ -1,15 +1,14 @@
-"""Acceptance test for Phase 8c: LMC as a JaxSum of ICM terms.
+"""Tests for LMC as a JaxSum of ICM terms.
 
 An LMC covariance ``sum_q B_q (x) k_q`` is just a ``JaxSumCovarianceFunction``
-of the Phase 8a ICM terms. The Phase 7b sum-dispatch handlers already route
-operators across that sum, so 8c adds *no* new dispatch — this test verifies
-that the existing machinery suffices:
+of ICM terms. The sum-dispatch handlers route operators across that sum, so
+LMC needs *no* dedicated dispatch — this test verifies that:
 
 * a Q=2 LMC is a ``JaxSumCovarianceFunction``;
 * the real2 Helmholtz operator can be applied (twice) with no
   ``JaxLambdaCovarianceFunction`` leaking and a finite Gram;
 * the operator-conditioned LMC Gram equals the sum of the two operator-
-  conditioned ICM Grams (the defining LMC linearity, Acceptance 8c).
+  conditioned ICM Grams (the defining LMC linearity).
 """
 
 from __future__ import annotations
@@ -71,7 +70,7 @@ def test_lmc_is_jaxsum_of_icm():
 
 
 def test_lmc_real2_operator_finite_and_additive():
-    """Acceptance 8c: apply the real2 operator; Gram is finite, JaxLambda-free,
+    """Apply the real2 operator; Gram is finite, JaxLambda-free,
     and equals the sum of the two ICM Grams."""
     icm1, icm2, lmc = _build_lmc()
     op = HelmholtzReal2Operator(domain_shape=(3,), k_squared=4.0 + 0.5j)

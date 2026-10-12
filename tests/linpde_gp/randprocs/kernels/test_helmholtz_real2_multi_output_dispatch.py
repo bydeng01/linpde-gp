@@ -1,4 +1,4 @@
-"""Regression tests for Phase 7a/7b.
+"""Regression tests for the real2 Helmholtz multi-output pipeline.
 
 Cover two pieces of the variable-Helmholtz 2-component pipeline:
 
@@ -12,11 +12,10 @@ Cover two pieces of the variable-Helmholtz 2-component pipeline:
   produces a fully *structured* covariance: no
   ``JaxLambdaCovarianceFunction`` is ever introduced, the Gram diagonal is
   finite, and the Gram matrix is symmetric under simultaneous swap of
-  ``(x, y)`` and the output axes. Without the Phase 7b dispatch additions
+  ``(x, y)`` and the output axes. Without the structured dispatch handlers
   in :mod:`linpde_gp.randprocs.covfuncs.linfuncops` the chain falls back to
   ``JaxLambdaCovarianceFunction`` and the diagonal NaN-s out (the same
-  failure mode that motivated the closed-form weighted-Laplacian work in
-  Phase 6a).
+  failure mode that motivated the closed-form weighted-Laplacian kernels).
 """
 
 from __future__ import annotations
@@ -40,7 +39,7 @@ from linpde_gp.randprocs.covfuncs import (
 )
 
 # --------------------------------------------------------------------------- #
-# Phase 7a — GP wiring                                                        #
+# GP wiring                                                                   #
 # --------------------------------------------------------------------------- #
 
 
@@ -105,7 +104,7 @@ def test_independent_multi_output_in_gaussian_process():
 
 
 # --------------------------------------------------------------------------- #
-# Phase 7b — structured dispatch on HelmholtzReal2Operator                    #
+# Structured dispatch on HelmholtzReal2Operator                               #
 # --------------------------------------------------------------------------- #
 
 
@@ -137,7 +136,7 @@ def test_helmholtz_real2_double_application_is_structured(real2_setup_3d):
     lambdas = _find_jax_lambdas(kL0L1)
     assert (
         lambdas == []
-    ), "Phase 7b dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
+    ), "Structured dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
 
 
 def test_helmholtz_real2_gram_diagonal_finite(real2_setup_3d):

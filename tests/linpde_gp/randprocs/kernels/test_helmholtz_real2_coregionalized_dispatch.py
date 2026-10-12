@@ -1,4 +1,4 @@
-"""Regression tests for Phase 8b: structured dispatch on an ICM prior.
+"""Regression tests for structured dispatch on an ICM prior.
 
 Parallels ``test_helmholtz_real2_multi_output_dispatch.py`` but builds the
 2-component prior from a :class:`CoregionalizedMultiOutputCovarianceFunction`
@@ -106,7 +106,7 @@ def test_icm_double_application_is_structured(icm_setup_3d):
     lambdas = _find_jax_lambdas(kL0L1)
     assert (
         lambdas == []
-    ), "Phase 8b dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
+    ), "ICM dispatch leaked a JaxLambdaCovarianceFunction: " + ", ".join(lambdas)
 
 
 def test_icm_gram_diagonal_finite(icm_setup_3d):

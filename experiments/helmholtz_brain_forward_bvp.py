@@ -40,7 +40,7 @@ What this script delivers
    representation would use ``HelmholtzReal2Operator.from_coefficient_field``;
    wiring up the 2-component GP is left as future work.
 
-3. **Two figure types per spec**:
+3. **Two figure types**:
 
    * ``helmholtz_brain_<subject>_<f>Hz_comp<c>_main.png``: 3x3 grid
      (rows: Re/Im/|.|; cols: measured, predicted, posterior std).
@@ -98,8 +98,8 @@ def load_subject_frequency(
 
     ``observable`` selects which complex vector field is returned as ``data["u"]``:
 
-    * ``"disp"``  — the measured displacement ``u_meas`` (microns), the legacy
-      observable used in Phases 6-7. ``u = disp_re + i disp_im``.
+    * ``"disp"``  — the measured displacement ``u_meas`` (microns), the default
+      observable. ``u = disp_re + i disp_im``.
     * ``"curl"``  — the curl-filtered field ``q = (∇ × u_meas)``, also of shape
       ``(X,Y,Z,3)``. Under the locally-homogeneous shear-modulus assumption the
       curl satisfies the *same* scalar Helmholtz equation as the displacement,
@@ -172,10 +172,10 @@ def empirical_residual(
 ):
     """Return per-voxel residual r and forcing magnitude |k^2 u|.
 
-    The spec asks for the relative diagnostic |r| / |k^2 u| (matching
-    ``data/.../scripts/helmholtz_residual_demo.py``). The previous version of
-    this script normalized by |u| instead; that disagrees with the demo by
-    ~5 orders of magnitude when k^2 is in 1/m^2.
+    The relative diagnostic is |r| / |k^2 u| (matching
+    ``data/.../scripts/helmholtz_residual_demo.py``). Normalizing by |u|
+    instead would disagree with the demo by ~5 orders of magnitude when k^2
+    is in 1/m^2.
     """
     dx, dy, dz = (s * 1e-3 for s in spacing_mm)
     interior = mask.copy()
@@ -239,7 +239,7 @@ def build_complex_k2_field_from_grid(
 ) -> pn.functions.Function:
     """Wrap a complex-valued 3D k^2 volume as a continuous pn.functions.Function.
 
-    Used by the Phase-7 two-component pipeline: ``HelmholtzReal2Operator``
+    Used by the two-component (real2) pipeline: ``HelmholtzReal2Operator``
     consumes the *full* complex k^2(x), splitting it into alpha = Re k^2 and
     beta = Im k^2 internally.
 
@@ -326,9 +326,9 @@ def _solve_real_bvp(
     # that pde_noise_rel is dimensionally meaningful. The jitter is added on
     # top to keep the conditional Gram PD.
     bvp_var = np.asarray(bc_post.var(X_pde)).flatten()
-    # NOTE: the previous version of this line was
+    # NOTE: do not floor the mean variance, as in
     #   trace_avg = max(float(np.mean(bvp_var)), 1.0)
-    # which silently clamps pde_noise to pde_noise_rel * 1.0 whenever the
+    # which would silently clamp pde_noise to pde_noise_rel * 1.0 whenever the
     # BC-conditioned variance is small. That is wrong when output_scale is
     # tuned away from 1.0 (e.g. for the curl observable, ~2e-4): the floor
     # makes pde_noise enormous relative to the prior variance, which kills
@@ -481,7 +481,7 @@ def gp_forward_solve(
 
 
 # ---------------------------------------------------------------------------
-# Phase-7: 2-component forward solve against the FULL complex Helmholtz block
+# 2-component forward solve against the FULL complex Helmholtz block
 # ---------------------------------------------------------------------------
 
 
@@ -498,13 +498,13 @@ def _build_real2_multi_cov(
 ):
     """Build the 2-component prior covariance for the real2 Helmholtz GP.
 
-    Phase 8d. ``prior_kind`` selects the cross-channel (Re/Im) prior structure:
+    ``prior_kind`` selects the cross-channel (Re/Im) prior structure:
 
-    * ``"iid"`` — ``output_scale**2 * IndependentMultiOutput(base, base)``.
-      Reproduces the pre-Phase-8 path bit-for-bit (the default).
+    * ``"iid"`` — ``output_scale**2 * IndependentMultiOutput(base, base)``
+      (the default).
     * ``"icm"`` — ``CoregionalizedMultiOutput(base, B)`` with
       ``B = output_scale**2 * [[1, rho], [rho, 1]]``. ``output_scale**2`` is
-      folded into ``B`` (per the spec, to avoid double-counting scale), so the
+      folded into ``B`` (to avoid double-counting scale), so the
       marginal prior variance matches the IID path. ``rho`` defaults to 0,
       which makes ICM reduce *exactly* to IID (a built-in sanity check).
     * ``"lmc"`` — ``sum_q CoregionalizedMultiOutput(base_q, B_q)`` over base
@@ -586,9 +586,9 @@ def _solve_real2_bvp(
     1D array and unpacked into a real (N_bc, 2) layout. PDE forcing is zero
     in the homogeneous Helmholtz model.
     """
-    # Default (multi_cov is None) reproduces the pre-Phase-8 IID prior exactly.
-    # Phase 8d injects an ICM/LMC prior via ``multi_cov`` (output_scale**2 is
-    # already folded into that object by ``_build_real2_multi_cov``).
+    # Default (multi_cov is None) is the IID prior. An ICM/LMC prior is passed
+    # in via ``multi_cov`` (output_scale**2 is already folded into that object
+    # by ``_build_real2_multi_cov``).
     if multi_cov is None:
         multi_cov = output_scale**2 * IndependentMultiOutputCovarianceFunction(
             cov_base, cov_base
@@ -611,10 +611,10 @@ def _solve_real2_bvp(
     # Scale PDE noise to the BVP-conditioned variance so pde_noise_rel is
     # dimensionally meaningful, mirroring the scalar path.
     bvp_var = np.asarray(bc_post.var(X_pde))  # shape (N_pde, 2)
-    # See _solve_real_bvp for the rationale: the previous `max(..., 1.0)`
-    # floor silently kills the PDE constraint when output_scale is small,
-    # because it pegs trace_avg above the actual post variance by orders of
-    # magnitude. Drop the floor; rely on cov_jitter_rel for PD safety.
+    # See _solve_real_bvp for the rationale: a `max(..., 1.0)` floor would
+    # silently kill the PDE constraint when output_scale is small, because it
+    # would peg trace_avg above the actual post variance by orders of
+    # magnitude. No floor; rely on cov_jitter_rel for PD safety.
     trace_avg = float(np.mean(bvp_var))
     pde_noise = pde_noise_rel * trace_avg + cov_jitter_rel * trace_avg
 
@@ -673,7 +673,7 @@ def gp_forward_solve_real2(
 
     Y_bc_complex = u_meas[shell_idx[:, 0], shell_idx[:, 1], shell_idx[:, 2], component]
 
-    # Operator with the FULL complex k^2 (Phase-7c innovation).
+    # Operator with the FULL complex k^2.
     k2_field_complex = build_complex_k2_field_from_grid(
         k2_volume_complex,
         origin_mm=np.zeros(3),
@@ -695,9 +695,9 @@ def gp_forward_solve_real2(
     else:
         raise ValueError(f"Unknown kernel: {kernel}")
 
-    # Phase 8d: assemble the cross-channel (Re/Im) prior. Default "iid" gives
-    # output_scale**2 * IndependentMultiOutput(base, base), bit-for-bit the
-    # pre-Phase-8 behaviour; "icm"/"lmc" couple the channels.
+    # Assemble the cross-channel (Re/Im) prior. Default "iid" gives
+    # output_scale**2 * IndependentMultiOutput(base, base); "icm"/"lmc"
+    # couple the channels.
     multi_cov = _build_real2_multi_cov(
         prior_kind=prior_kind,
         domain_shape=(3,),
@@ -1321,8 +1321,8 @@ def run_one_case(args, subject: str, freq: int, component: int):
             cov_jitter_rel=args.cov_jitter_rel,
         )
     else:
-        # Phase-7c default: full complex Helmholtz block on a 2-component GP.
-        # Phase 8d: --prior selects the Re/Im cross-channel prior structure.
+        # Default: full complex Helmholtz block on a 2-component GP.
+        # --prior selects the Re/Im cross-channel prior structure.
         res = gp_forward_solve_real2(
             u_meas=data["u"],
             k2_volume_complex=k2_for_solver,
@@ -1649,8 +1649,8 @@ def main():
         default="iid",
         choices=["iid", "icm", "lmc"],
         help="Cross-channel (Re/Im) prior for the real2 path. "
-        "'iid' (default) reproduces the pre-Phase-8 "
-        "IndependentMultiOutput prior bit-for-bit. 'icm' "
+        "'iid' (default) uses the "
+        "IndependentMultiOutput prior. 'icm' "
         "couples Re/Im via a single coregionalization matrix "
         "B = output_scale^2 * [[1,rho],[rho,1]] (see "
         "--coreg-corr). 'lmc' sums Q ICM terms with distinct "
@@ -1686,7 +1686,7 @@ def main():
     ap.add_argument(
         "--sweep",
         action="store_true",
-        help="Run the spec's 3x3x3 sweep (3 subjects, 3 freqs, 3 components). "
+        help="Run the 3x3x3 sweep (3 subjects, 3 freqs, 3 components). "
         "Single-case unless this is set.",
     )
     ap.add_argument(

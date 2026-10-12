@@ -1,4 +1,4 @@
-"""Unit tests for CoefficientFieldOperator (Phase 1)."""
+"""Unit tests for CoefficientFieldOperator."""
 
 from jax import numpy as jnp
 import numpy as np

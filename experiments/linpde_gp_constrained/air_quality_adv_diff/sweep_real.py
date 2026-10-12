@@ -579,7 +579,7 @@ def main() -> None:
 
 
 # -----------------------------------------------------------------------------
-# Verification (Task 5): assert the pooled trend, do not eyeball it.
+# Verification: assert the pooled trend, do not eyeball it.
 # -----------------------------------------------------------------------------
 def _snapshot_count(rows, Ns):
     """Distinct snapshots contributing at each density (composition can shrink as
@@ -671,7 +671,7 @@ def _verify(rows, Ns) -> None:
 
 
 # -----------------------------------------------------------------------------
-# LaTeX macros (Task 4): every paper-bound number read from the pooled CSV.
+# LaTeX macros: every paper-bound number read from the pooled CSV.
 # -----------------------------------------------------------------------------
 def _write_tex(rows, Ns, snaps, out_dir) -> None:
     n_lo, n_hi = Ns[0], Ns[-1]

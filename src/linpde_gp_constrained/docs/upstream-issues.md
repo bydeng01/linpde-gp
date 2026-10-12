@@ -1,10 +1,9 @@
 # Upstream linpde-gp issues encountered during the gp_constr integration
 
-This document is the migrated content of the former `_compat.py` module.
 These issues are documented here as candidates for upstream PRs against
 [linpde-gp](https://github.com/marvinpfoertner/linpde-gp). The integration
-package (`linpde_gp_constrained`) **no longer applies any of these patches
-at runtime** — the kernel adapter now bypasses the broken JAX paths by
+package (`linpde_gp_constrained`) **does not apply any of these patches
+at runtime** — the kernel adapter bypasses the broken JAX paths by
 computing derivative kernels directly from the conditional-kernel formula
 applied to the prior covariance function. See
 `linpde_gp_constrained/kernel_adapter.py` for the architectural choice.
@@ -213,9 +212,9 @@ which calls `np.asarray(a)` when `a` is `np.matrix`. We open this
 context only around the gp_constr call; numpy state is restored on
 exit, no global side effect.
 
-## Why we no longer patch the JAX bugs at runtime
+## Why the JAX bugs are not patched at runtime
 
-(Patches 1–4 only — patch 5 is still applied at runtime via the context
+(Patches 1–4 only — patch 5 is applied at runtime via the context
 manager described above, scoped to the single gp_constr call.)
 
 The kernel adapter avoids the JAX paths above by computing the conditional
@@ -231,5 +230,5 @@ numpy arrays (no JAX tracing). This bypasses Patches 1–3 entirely and
 sidesteps the architectural Patch 4.
 
 If a future change to the kernel adapter starts routing through
-`ConditionalGaussianProcess.CovarianceFunction._evaluate_jax` again, these
-patches (or proper upstream fixes) will become necessary again.
+`ConditionalGaussianProcess.CovarianceFunction._evaluate_jax`, these
+patches (or proper upstream fixes) will become necessary.

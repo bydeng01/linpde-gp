@@ -130,7 +130,7 @@ def _(
 ):
     """Select one output channel of an ICM (coregionalized) covariance.
 
-    Phase 8b. ICM has ``Cov[u_c(x), u_c'(x')] = B[c, c'] * base(x, x')``, so
+    ICM has ``Cov[u_c(x), u_c'(x')] = B[c, c'] * base(x, x')``, so
     selecting channel ``idx`` along ``argnum`` leaves a vector over the *other*
     channel: component ``c`` is ``B[idx, c] * base`` (``B`` is symmetric, so
     the row and column of ``B`` coincide). This parallels the
@@ -142,7 +142,7 @@ def _(
     Each component is either a ``Zero`` (for an exactly-zero coupling, which
     makes ``B = I`` reduce to the IID structure) or a
     ``JaxScaledCovarianceFunction`` wrapping the shared base kernel. The latter
-    is resolved by the existing Phase 7b ``JaxScaledCovarianceFunction``
+    is resolved by the ``JaxScaledCovarianceFunction``
     operator handlers (``scalar * L(base)``), so ``L`` always reaches the base
     kernel's closed-form path and never falls through to ``JaxLambda``.
     """
