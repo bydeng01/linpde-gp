@@ -155,11 +155,24 @@ data/brain_experiment_data/
 experiments/.DS_Store
 .DS_Store
 
-# Local-only: constrained-GP experiments (not part of the open-sourced paper)
-experiments/linpde_gp_constrained/
-
-# Local-only: constrained-GP source package (not part of the open-sourced paper)
-src/linpde_gp_constrained/
+# Constrained-GP experiments: large/regenerable outputs and local backups stay local
+experiments/linpde_gp_constrained/**/*.tiff
+experiments/linpde_gp_constrained/**/*.npz
+experiments/linpde_gp_constrained/**/*.bak*
+# Preview / quick-look images
+experiments/linpde_gp_constrained/**/*_preview.*
+experiments/linpde_gp_constrained/**/run.png
+experiments/linpde_gp_constrained/**/run.pdf
+experiments/linpde_gp_constrained/**/run_*.pdf
+# Figures are tracked as PDF only; SVG/PNG exports stay local
+experiments/linpde_gp_constrained/**/*.svg
+experiments/linpde_gp_constrained/**/*.png
+# Outputs of run.py --data (regenerable)
+experiments/linpde_gp_constrained/**/*_openaq.*
+# Quick (R-free) scouting sweeps
+experiments/linpde_gp_constrained/**/*_quick.csv
+# SPX option-chain snapshots are not redistributed; regenerate with fetch_data.py
+experiments/linpde_gp_constrained/black_scholes_surface/data/*.csv
 .DS_Store
 experiments/.DS_Store
 .DS_Store

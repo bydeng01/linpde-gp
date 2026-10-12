@@ -1,0 +1,11 @@
+n_obs = 14,  sigma_obs = 0.1,  obs_seed = 0,  backend = gp_constr
+P(C|E) [MC, monitors+E] = 0.0681   P(C) [MC, monitors] = 0.0294   P(C|E) [exact,R] =    0.0649
+
+arm             rmse_held  rmse_grid   max_abs     band  neg_frac   min_val  subzero
+monitors           0.0865     0.1123    0.3046   1.6025    0.1022   -0.2304   0.2775
+monitors+E         0.1416     0.1163    0.3843   0.3549    0.1200   -0.3843   0.1462
+monitors+C         0.3143     0.2435    0.7178   1.2821    0.0778   -0.3234   0.1804
+monitors+E+C       0.0746     0.1160    0.3236   0.3053    0.0844   -0.2928   0.1065
+
+held-out RMSE gain (E+C vs E, rel):    0.4731
+full-grid RMSE gain (E+C vs E, rel):    0.0029

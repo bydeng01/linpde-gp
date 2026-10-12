@@ -1,0 +1,6 @@
+# pooled real-data config (regenerated with Open-Meteo daytime winds)
+# path, wind_east, wind_north [, D, k, wind_mag, source]
+data/openaq_maryland_no2_2024-06-20.csv, -0.511, 6.036
+data/openaq_maryland_pm25_2021-07-15.csv, 2.756, 1.975
+data/openaq_maryland_pm25_2023-07-20.csv, -3.034, -0.838
+data/openaq_nyc_pm25_2023-07-20.csv, -3.411, 2.399

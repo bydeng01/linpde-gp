@@ -1,0 +1,7 @@
+                              unconstrained   constrained
+L2 error vs truth           :       0.3103        0.1195
+mean monotonicity viols     :            0             0
+BC residual at x=0          :    1.017e-13     3.336e-12
+BC residual at x=1          :    2.775e-12     5.052e-13
+avg 95% credible band width :       0.2816        0.1177
+P(C | E) = 0.3584

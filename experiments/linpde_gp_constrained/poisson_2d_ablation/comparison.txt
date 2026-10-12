@@ -1,0 +1,11 @@
+                              equality-only  inequality-only          both
+RMSE vs truth               :      0.3277       0.7008       0.1222
+max |mean - truth|          :      1.0666       1.5364       0.2430
+free-corner (1,1) error     :      1.0666       0.5304       0.0440
+avg 95% band width          :      0.9300       2.9080       0.5133
+min ∂_x mean (full grid)    :     -0.2687      -0.0047      -0.0000
+min ∂_y mean (full grid)    :     -0.2687      -0.0010      -0.0000
+
+P(C)        [prior, MC]     :      0.0043   (prior orthant prob; shape constraint vs zero-mean prior)
+P(C | E)    [exact, R]      :      0.1061   (combination showcase)
+P(C | E)    [MC, R-free]    :      0.1081

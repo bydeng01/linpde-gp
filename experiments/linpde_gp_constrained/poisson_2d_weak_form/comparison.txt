@@ -1,0 +1,13 @@
+                                unconstrained   constrained
+RMSE vs truth               :     0.3277        0.1218
+max |mean - truth|          :     1.0666        0.2424
+min  ∂_x mean (full grid)   :    -0.2687       -0.0000
+min  ∂_x mean (interior)    :        n/a        0.1866
+min  ∂_y mean (full grid)   :    -0.2687       -0.0000
+min  ∂_y mean (interior)    :        n/a        0.1548
+anchored-corner BC residual :     0.0000        0.0000
+free-corner (1,1) error     :     1.0666        0.0432
+avg 95% credible band width :     0.9300        0.5159
+RMSE improvement (1-con/unc):        n/a        0.6283
+P(C | E)  [exact, R]        :     0.1060
+P(C | E)  [MC, R-free]      :     0.1081

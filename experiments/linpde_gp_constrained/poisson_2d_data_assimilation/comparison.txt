@@ -1,0 +1,14 @@
+n_obs = 16,  sigma_obs = 0.1,  obs_seed = 2
+
+                                unconstrained   constrained
+RMSE vs truth               :     0.1369        0.0718
+max |mean - truth|          :     0.3974        0.3703
+min  d_x mean (interior)    :        n/a        0.2635
+min  d_x mean (full grid)   :    -0.3103           n/a
+min  d_y mean (interior)    :        n/a        0.0740
+min  d_y mean (full grid)   :    -0.3776           n/a
+avg 95% credible band width :     0.3897        0.2436
+RMSE gain (abs, unc - con)  :        n/a        0.0651
+RMSE gain (rel, 1 - con/unc):        n/a        0.4753
+P(C | E)  [exact, R]        :     0.0004
+P(C | E)  [MC, R-free]      :     0.0004
