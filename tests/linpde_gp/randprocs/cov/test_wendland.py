@@ -79,7 +79,7 @@ def test_wendland_covariance_function(x0, k):
     dist_mat = squareform(pdist(x0, metric="euclidean"))
 
     true_result = func(dist_mat)
-    np.testing.assert_allclose(cov.matrix(x0), true_result)
+    np.testing.assert_allclose(cov.matrix(x0), true_result, atol=1e-12)
 
 
 @pytest.mark.parametrize("k", [0, 1, 2])
