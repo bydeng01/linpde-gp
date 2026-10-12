@@ -764,7 +764,7 @@ def main(out_dir: str | None = None) -> None:
     # colour scale need a ground-truth field. A non-synthetic (e.g. SPX)
     # fields.npz stores `truth` as all-NaN, which would silently break the
     # truth panel and yield vmin=vmax=NaN. Fail fast and point to the right
-    # script rather than emit a corrupted figure. (See REPRO_figure_surface.md.)
+    # script rather than emit a corrupted figure.
     if not bool(fields["synthetic"]) or not np.isfinite(fields["truth"]).any():
         raise SystemExit(
             "fields.npz is from a non-synthetic run (truth unavailable); "

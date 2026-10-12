@@ -1,6 +1,6 @@
 <div align="center">
 
-# LinPDE-GP
+# LinPDE-GP with Linear Operator Inequality Constraints
 
 **Physics-Informed Gaussian Process Regression for Linear PDE Solvers**
 
@@ -21,7 +21,9 @@ This fork builds on the original `linpde-gp` framework in two directions.
 
 - Helmholtz equation support, including the Helmholtz operator and related components
 - An application to *in vivo* brain magnetic resonance elastography (MRE)
-- Additional research modules are in preparation...
+- Inequality-constrained GP-PDE solvers: linear inequality constraints such as bounds,
+  monotonicity and no-arbitrage conditions on top of the PDE posterior, with applications to
+  option pricing and air quality
 
 >Maintenance and reproducibility:
 
@@ -42,7 +44,7 @@ relevant guide.
 | Project | Status | Guide |
 | :--- | :--- | :--- |
 | **Helmholtz equation & Brain MRE** — physics-informed GP solver for the inhomogeneous Helmholtz BVP (real & complex, 1D/2D/3D) with FDM/PINN baselines, and its application to *in vivo* brain magnetic resonance elastography | Open-source | [`docs/HELMHOLTZ.md`](docs/HELMHOLTZ.md) |
-| **Inequality-constrained GP-PDE** — equality (PDE + BC) *and* inequality (e.g. monotonicity) constraints via `gp_constr` | Open-source | `experiments/linpde_gp_constrained/README.md` |
+| **Inequality-constrained GP-PDE** — equality (PDE + BC) *and* inequality (e.g. monotonicity) constraints via `gp_constr` | Open-source | [`experiments/linpde_gp_constrained/README.md`](experiments/linpde_gp_constrained/README.md) |
 
 ## Submodules
 

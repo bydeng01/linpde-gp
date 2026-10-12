@@ -2,8 +2,7 @@
 1D Poisson with weak-form PDE residual on the equality side
 ============================================================
 
-This is the publication-grade companion to monotone_regression/run.py: a
-demo that genuinely exercises linpde-gp's distinctive capability — equality
+A demo that exercises linpde-gp's distinctive capability: equality
 information delivered as a *finite test-basis projection of a PDE residual*
 rather than as point observations of u.
 
@@ -43,9 +42,9 @@ u(1) = 1`` are added as a separate ``_EvaluationFunctional`` block.
 Inequality side
 ---------------
 Monotonicity on a virtual grid: ``u'(x_v) >= 0`` at ``n_v`` evenly spaced
-virtual points. Mirrors the monotone_regression demo, but in this setting
-the inequality bites against a posterior whose equality information is the
-PDE residual — not direct observations of ``u``.
+virtual points. In this setting the inequality bites against a posterior
+whose equality information is the PDE residual — not direct observations of
+``u``.
 
 Reporting
 ---------
