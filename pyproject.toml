@@ -132,6 +132,8 @@ load-plugins = [
     "pylint.extensions.overlapping_exceptions",
     "pylint.extensions.mccabe",
 ]
+# Research package for the inequality-constrained paper; excluded from pylint
+ignore-paths = ["^src/linpde_gp_constrained/.*$"]
 
 [tool.pylint.messages_control]
 disable = [
