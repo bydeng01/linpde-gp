@@ -8,6 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/bydeng01/linpde-gp/ci.yml?branch=main&label=CI)](https://github.com/bydeng01/linpde-gp/actions/workflows/ci.yml)
 [![arXiv](https://img.shields.io/badge/arXiv-2607.14193-b31b1b.svg)](https://arxiv.org/abs/2607.14193)
+[![arXiv](https://img.shields.io/badge/arXiv-2610.13804-b31b1b.svg)](https://arxiv.org/abs/2610.13804)
 [![Docker](https://img.shields.io/badge/Docker-supported-2496ED.svg?logo=docker&logoColor=white)](Dockerfile)
 
 </div>
@@ -41,6 +42,7 @@ relevant guide.
 | Project | Status | Guide |
 | :--- | :--- | :--- |
 | **Helmholtz equation & Brain MRE** — physics-informed GP solver for the inhomogeneous Helmholtz BVP (real & complex, 1D/2D/3D) with FDM/PINN baselines, and its application to *in vivo* brain magnetic resonance elastography | Open-source | [`docs/HELMHOLTZ.md`](docs/HELMHOLTZ.md) |
+| **Inequality-constrained GP-PDE** — equality (PDE + BC) *and* inequality (e.g. monotonicity) constraints via `gp_constr` | Open-source | `experiments/linpde_gp_constrained/README.md` |
 
 ## Submodules
 
@@ -49,6 +51,7 @@ This project depends on two Git submodules:
 | Submodule | Description |
 | :--- | :--- |
 | [`probnum`](https://github.com/bydeng01/probnum) | Probabilistic numerics library (forked for compatibility) |
+| [`gp_constr`](https://github.com/bydeng01/gp_constr) | Gaussian processes with linear operator inequality constraints |
 
 Both are fetched automatically when you clone with `--recurse-submodules` (see below).
 
@@ -154,6 +157,20 @@ pip install -e .
 ```
 
 ## Citation
+
+If you use or refer to the inequality-constrained GP-PDE module in this fork, please cite our paper.
+
+```bibtex
+@misc{deng2026constrainedprobabilisticnumericsgaussian,
+      title={Constrained Probabilistic Numerics: Gaussian Process Solvers for Linear PDEs under Linear Inequality Constraints}, 
+      author={Boyuan Deng and Kshitiz Upadhyay and Michael Shields},
+      year={2026},
+      eprint={2610.13804},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML},
+      url={https://arxiv.org/abs/2610.13804}, 
+}
+```
 
 If you use or refer to the Helmholtz equation module or the brain MRE application in this fork, please cite our paper.
 
