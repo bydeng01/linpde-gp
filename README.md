@@ -19,11 +19,9 @@ This fork builds on the original `linpde-gp` framework in two directions.
 
 >Research extensions:
 
+- Inequality-constrained GP-PDE solvers: linear inequality constraints such as bounds, monotonicity and no-arbitrage conditions on top of the PDE posterior, with applications to option pricing and air quality
 - Helmholtz equation support, including the Helmholtz operator and related components
 - An application to *in vivo* brain magnetic resonance elastography (MRE)
-- Inequality-constrained GP-PDE solvers: linear inequality constraints such as bounds,
-  monotonicity and no-arbitrage conditions on top of the PDE posterior, with applications to
-  option pricing and air quality
 
 >Maintenance and reproducibility:
 
