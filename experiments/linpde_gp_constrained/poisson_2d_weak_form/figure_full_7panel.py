@@ -310,7 +310,7 @@ def plot(fields, diag, base):
         )
         ax.set_title(ttl, pad=3)
         _square(ax)
-    # the diverging bar now sits beside the error maps it scales
+    # The diverging colorbar is shared by the signed-error maps.
     _style_cbar(fig.colorbar(ime, cax=_cbar_axes(fig, 1, ROW_LO)), "error")
 
     im_t = ax_t.pcolormesh(

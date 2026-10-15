@@ -298,11 +298,8 @@ out = Image.new("RGB", (W + pitch, H), (255, 255, 255))
 out.paste(img.crop((0, 0, px0, H)), (0, 0))  # labels + Measured + gap
 out.paste(col, (px0, 0))  # FDM column
 out.paste(img.crop((px0, 0, W, H)), (px0 + pitch, 0))  # Predicted + cbars + s.d.
-# no suptitle: trim only the whitespace/suptitle band ABOVE the auto-detected
-# column headers (hdr_top). The previous hardcoded 130/105 assumed the headers
-# began at ~y139; once the base figure is re-rendered with the headers near the
-# top (no suptitle), those constants erased the headers AND painted white over
-# the top of the Re-row brains. Deriving the trim from hdr_top fixes both.
+# Trim above the detected column headers. A fixed crop can erase headers and
+# brain panels when the source figure has no suptitle.
 top_margin = int(round(0.6 * hdr_size))  # whitespace kept above the header text
 top_keep = max(0, int(round(hdr_top)) - top_margin)
 ImageDraw.Draw(out).rectangle((0, 0, out.size[0], top_keep), fill=(255, 255, 255))

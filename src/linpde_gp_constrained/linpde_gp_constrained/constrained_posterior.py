@@ -63,7 +63,7 @@ strictly:
 It also exposes :attr:`gp_constr_model` for advanced use, but explicitly
 forbids calling :meth:`optimize` on it: the kernel adapter raises
 :class:`NoHyperparamOptimization` from set_params/get_params/K_gradients,
-making any such attempt loud.
+preventing hyperparameter changes after equality conditioning.
 """
 
 from __future__ import annotations
@@ -92,7 +92,8 @@ from .mean_handling import transform_bounds_for_zero_mean
 #
 # Wrapper-side workaround: monkey-patch ``np.percentile`` for the duration of
 # the gp_constr call, coercing ``np.matrix`` inputs to plain ``np.ndarray``.
-# Restored on exit. Scoped to one method invocation, no global side effect.
+# The module-level binding is restored on exit; concurrent NumPy calls can
+# still see the temporary wrapper while the context is active.
 @contextlib.contextmanager
 def _matrix_safe_numpy_percentile():
     """Context manager: ``np.percentile`` accepts ``np.matrix`` for the duration.

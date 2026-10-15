@@ -38,8 +38,8 @@ gp_constr's ``kernel_Stationary`` interface requires:
                                          evaluated at (X1[a], X2[b])           second by j
     Kii_diag(X, i)    shape (n,)       diag of Kij(X, X, i, i)
 
-Differentiation is delegated to linpde-gp's PartialDerivative dispatch on the
-posterior covariance function (see
+Derivative kernels use the conditional-covariance formula above, with
+linpde-gp's PartialDerivative dispatch on the prior kernel and cross-covariances (see
 src/linpde_gp/randprocs/covfuncs/linfuncops/diffops/_registry.py).
 For ExpQuad / Matern priors with explicit handlers this hits a closed-form
 path; otherwise linpde-gp falls back to a JAX autodiff implementation
@@ -65,7 +65,7 @@ gp_constr's GPmodel.optimize() reaches into the kernel via
 set_params/get_params/K_gradients. The two-stage integration framework
 freezes equality-side hyperparameters before this adapter is built; calling
 optimize() through the adapter would silently break that contract. We raise
-NoHyperparamOptimization to make any such attempt loud.
+NoHyperparamOptimization on these calls.
 """
 
 from __future__ import annotations
@@ -98,10 +98,10 @@ class LinPDEKernelAdapter:
 
     Notes
     -----
-    The adapter is read-only: it does not mutate posterior_gp. Calls to K,
-    K_diag, Ki0, Kij, Kii_diag are delegated to posterior_gp.cov and to
-    linpde-gp's PartialDerivative dispatch; output shapes match gp_constr's
-    documented conventions.
+    The adapter is read-only: it does not mutate posterior_gp. Calls to K and
+    K_diag use posterior_gp.cov; Ki0, Kij, and Kii_diag use the conditional-kernel
+    formula with derivatives of the prior kernel and cross-covariances. Output
+    shapes match gp_constr's documented conventions.
     """
 
     def __init__(self, posterior_gp: Any) -> None:
@@ -126,7 +126,7 @@ class LinPDEKernelAdapter:
 
         # Derivative-kernel machinery (Ki0 / Kij) is deferred to the first
         # call so that K and K_diag work against any object exposing only
-        # ``.cov`` (e.g., the Layer A unit-test mock).
+        # ``.cov`` (e.g., the covariance-only unit-test mock).
         #
         # Populated by _ensure_derivative_setup():
         #   self._prior_cov   : the prior kernel k(x, x')
@@ -159,9 +159,7 @@ class LinPDEKernelAdapter:
             point-evaluation functional. The all-eval case admits a fast
             path that bypasses linpde-gp's per-functional cross-cov dispatch
             and directly evaluates the prior kernel at the concatenated
-            ``X_E``. This was the original adapter's behaviour and is kept
-            both for speed and for backwards compatibility with the unit
-            tests built against the all-eval interface.
+            ``X_E``.
         """
         if self._derivative_setup_done:
             return

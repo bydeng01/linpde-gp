@@ -1,7 +1,8 @@
 # Inequality-Constrained GP-PDE
 
-Part of [LinPDE-GP](../../README.md). Install once via the root README, then use this guide to
-find your way around. Paper: [arXiv:2610.13804](https://arxiv.org/abs/2610.13804).
+This guide covers the inequality-constrained experiments in
+[LinPDE-GP](../../README.md). Installation instructions are in the root README.
+Paper: [arXiv:2610.13804](https://arxiv.org/abs/2610.13804).
 
 The method conditions a Gaussian-process prior on two kinds of information in sequence. The
 equality information *E* (a PDE residual, boundary data, noisy observations) is handled by
@@ -16,7 +17,7 @@ given both *E* and *C*.
 src/linpde_gp_constrained/                # integration package (linpde-gp + gp_constr)
 ├── linpde_gp_constrained/                #   the importable package
 ├── tests/                                #   unit and integration tests
-└── docs/upstream-issues.md               #   linpde-gp issues found during the integration
+└── docs/upstream-issues.md               #   backend limitations and wrapper workarounds
 gp_constr/                                # submodule: inequality-constrained GP backend
 experiments/linpde_gp_constrained/        # everything that produces a paper number or figure
 ├── poisson_2d_weak_form/                 #   2D Poisson with partial boundary data
@@ -56,9 +57,11 @@ experiments/linpde_gp_constrained/        # everything that produces a paper num
 Each folder also holds the outputs behind the paper: figure PDFs, `comparison.txt` and
 `diagnostics.json` from the snapshot run, sweep CSVs, and `*_numbers.tex` LaTeX macros. The
 figure scripts render from the saved run outputs (`fields.npz`, written by `run.py`) and the
-sweep CSVs, so a figure can be restyled without re-running the constrained solve. The
-`check_*.py` scripts are fast R-free sanity checks (closed-form kernel dispatch, ground truth);
-the air-quality and Black–Scholes `reproduce.sh` scripts run them first.
+sweep CSVs. The NPZ files are local outputs and are not committed: snapshot figures
+require a prior solver run, while CSV-only summaries can be regenerated from a fresh
+checkout. The `check_*.py` scripts are fast R-free sanity checks (closed-form kernel
+dispatch, ground truth); the air-quality and Black–Scholes `reproduce.sh` scripts
+run them first.
 
 ## Requirements
 

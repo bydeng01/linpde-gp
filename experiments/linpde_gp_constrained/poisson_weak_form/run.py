@@ -100,13 +100,9 @@ rng = np.random.default_rng(SEED)
 #   u_true''(x) = e^x / (e - 1)
 #   f(x) = -u_true''(x) = -e^x / (e - 1)
 #
-# The "with margin" property is what makes the inequality conditioning
-# numerically friendly here: u_true' bounded away from 0 means the
-# monotonicity constraint u' >= 0 is far from the boundary of the polytope
-# everywhere, so the truncated-MVN mean is much less biased than for the
-# previous u_true(x) = (1 - cos(pi x))/2 (which had u' vanishing at both
-# endpoints, putting the truncation polytope's boundary right under the
-# truth and biasing the constrained mean's endpoint slopes upward).
+# The positive derivative margin separates the truth from the truncation
+# boundary. For comparison, (1 - cos(pi*x))/2 has zero endpoint slopes;
+# truncation at u' >= 0 can bias its constrained endpoint slopes upward.
 # -----------------------------------------------------------------------------
 _E_MINUS_ONE = float(np.exp(1.0) - 1.0)
 

@@ -256,11 +256,9 @@ def plot(fields, diag, base):
     )
 
     # ---- Row 2: credible-band slice (mechanism), spanning the field columns -
-    # The quantitative summary is now the in-text LaTeX table (table_metrics
-    # .tex, via make_table.py) and the signed-error / residual-uncertainty maps
-    # are in the supplement (figure_full_7panel.py); the slice is the one panel
-    # whose evidence is intrinsically graphical (the non-monotone equality dip,
-    # the continuous credible bands, and the truth inside the combined band).
+    # Metrics are in table_metrics.tex (make_table.py); signed-error and
+    # residual-uncertainty maps are in figure_full_7panel.py. This slice shows
+    # the posterior means and credible bands along the diagonal.
     ax_sl = fig.add_subplot(gs[1, 0:3])
     s = a
     td, ud, cd = np.diag(truth), np.diag(unc), np.diag(con)

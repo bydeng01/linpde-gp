@@ -4,7 +4,7 @@
 
 **Physics-Informed Gaussian Process Regression for Linear PDE Solvers**
 
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python](https://img.shields.io/badge/python-3.10--3.11-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/bydeng01/linpde-gp/ci.yml?branch=main&label=CI)](https://github.com/bydeng01/linpde-gp/actions/workflows/ci.yml)
 [![arXiv](https://img.shields.io/badge/arXiv-2607.14193-b31b1b.svg)](https://arxiv.org/abs/2607.14193)
@@ -28,16 +28,14 @@ This fork builds on the original `linpde-gp` framework in two directions.
 - Updates to the software and submodules for modern dependencies
 - A maintained Docker build
 
-The original framework was developed by the author(s) of
-"Physics-Informed Gaussian Process Regression Generalizes Linear PDE Solvers." If you use
-this software in your research, we strongly recommend also visiting the
+The original framework accompanies "Physics-Informed Gaussian Process Regression
+Generalizes Linear PDE Solvers"; see the
 [original repository](https://github.com/marvinpfoertner/linpde-gp).
 
 ## Projects
 
-Each project is self-contained and has its own README with the science, the data it needs,
-and exact reproduce steps. Start at the front door here (install once), then follow the
-relevant guide.
+The projects share the installation below. Each guide describes the method, data
+requirements, and reproduction commands.
 
 | Project | Status | Guide |
 | :--- | :--- | :--- |
@@ -202,9 +200,3 @@ If you use this software, please cite the original publication:
 ## License
 
 Released under the [MIT License](LICENSE).
-
----
-
-<!-- <div align="center">
-<sub></sub>
-</div> -->

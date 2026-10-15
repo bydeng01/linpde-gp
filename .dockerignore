@@ -57,4 +57,22 @@ docs/_build/
 # Docker files (don't copy into container)
 Dockerfile
 docker-compose.yml
-.dockerignore 
+.dockerignore
+
+# Local development records are not part of the image
+.local-archive/
+**/.claude/
+**/.codex/
+**/.cursor/
+CLAUDE.md
+AGENTS.md
+LinPDE-GP/Claude outputs/
+experiments/linpde_gp_constrained/**/PROMPT*.md
+experiments/linpde_gp_constrained/**/REVIEW*.md
+experiments/linpde_gp_constrained/**/DESIGN_NOTES.md
+experiments/linpde_gp_constrained/**/notes.md
+experiments/linpde_gp_constrained/**/review_recompute.py
+experiments/linpde_gp_constrained/**/section*.tex
+experiments/linpde_gp_constrained/**/section.md
+src/linpde_gp_constrained/linpde_gp_constrained/_compat.py
+experiments/linpde_gp_constrained/groundwater_drawdown/

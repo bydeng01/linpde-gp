@@ -338,10 +338,8 @@ def _panel_sweep(ax, sweep, fixed_nobs):
     )
     ax.set_xlabel(r"observation noise $\sigma_{\mathrm{obs}}$")
     ax.set_ylabel(r"relative gain $G_M$ [%]")
-    # Title intentionally omitted from the figure; the "proxy reduction grows
-    # as data degrade" line now lives in the LaTeX caption (see caption edit).
-    # n_obs annotation intentionally omitted; the caption already states
-    # the fixed n_obs value (\AqNobsFixed).
+    # The caption supplies the panel description and fixed n_obs value
+    # (\AqNobsFixed).
     ax.legend(
         loc="center left",
         bbox_to_anchor=(0.16, 0.5),

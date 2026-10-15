@@ -1,7 +1,7 @@
 # Helmholtz Equation & Brain MRE
 
-Part of [LinPDE-GP](../README.md). Install once via the root README, then use this guide to
-find your way around.
+This guide covers the Helmholtz experiments and brain MRE application in
+[LinPDE-GP](../README.md). Installation instructions are in the root README.
 
 ## Repository map
 

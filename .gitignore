@@ -148,12 +148,8 @@ data/.DS_Store
 # Brain MRE dataset — large raw NIfTI volumes, not committed (keep local only)
 data/brain_experiment_data/
 
-# experiments/helmholtz_brain_outputs/ was previously ignored wholesale (regenerable
-# figures/logs produced by helmholtz_brain_forward_bvp.py). Now tracked selectively —
-# files are added by hand, not en masse. NOTE: *.log below still hides the
-# ablation_*.log files in there; add those with `git add -f` if you want them tracked.
-experiments/.DS_Store
-.DS_Store
+# Brain figures and result records are tracked selectively. The *.log rule
+# excludes newly generated ablation logs; existing tracked records are retained.
 
 # Constrained-GP experiments: large/regenerable outputs and local backups stay local
 experiments/linpde_gp_constrained/**/*.tiff
@@ -173,7 +169,23 @@ experiments/linpde_gp_constrained/**/*_openaq.*
 experiments/linpde_gp_constrained/**/*_quick.csv
 # SPX option-chain snapshots are not redistributed; regenerate with fetch_data.py
 experiments/linpde_gp_constrained/black_scholes_surface/data/*.csv
-.DS_Store
-experiments/.DS_Store
-.DS_Store
-experiments/.DS_Store
+
+# Local development records and cleanup archives
+/.local-archive/
+.claude/
+.codex/
+.cursor/
+/CLAUDE.md
+/AGENTS.md
+/LinPDE-GP/Claude outputs/
+experiments/linpde_gp_constrained/**/PROMPT*.md
+experiments/linpde_gp_constrained/**/REVIEW*.md
+experiments/linpde_gp_constrained/**/DESIGN_NOTES.md
+experiments/linpde_gp_constrained/**/notes.md
+experiments/linpde_gp_constrained/**/review_recompute.py
+experiments/linpde_gp_constrained/**/section*.tex
+experiments/linpde_gp_constrained/**/section.md
+src/linpde_gp_constrained/linpde_gp_constrained/_compat.py
+
+# Unreleased experiment; retain its code, data, and records locally
+experiments/linpde_gp_constrained/groundwater_drawdown/
