@@ -1,11 +1,9 @@
 """Insert a geometry-matched FDM column into the GP curl figure.
 
-Fixes the size/placement bug in the previous splice: instead of pasting
-fixed 215x221 panels at hardcoded positions (which were smaller than and
-offset from the true 217x273 brain panels), this:
-  * detects the real Measured/Predicted brain rectangles from the raster,
+To align the FDM column with the GP panels, this:
+  * detects the Measured/Predicted brain rectangles from the raster,
   * renders each FDM panel cropped to the SAME interior_diag brain bbox and
-    masked to the SAME silhouette the GP figure uses (lines 950/1024 of
+    masked to the SAME silhouette the GP figure uses (``save_main_figure`` in
     helmholtz_brain_forward_bvp.py), so the FDM brain is pixel-aligned in
     size, aspect and outline with Measured/Predicted.
 Self-contained: re-solves the 3 mm FDM, reproducing fd_panels_3mm.py.

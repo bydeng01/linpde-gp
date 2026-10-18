@@ -1,6 +1,6 @@
 """Comparison figure: measured curl vs deterministic FD reconstruction.
 Same central axial slice, orientation, and per-row colour scaling as the
-provided GP figure (helmholtz_brain_U01_UDEL_0003_01_70Hz_compx_curl_main.pdf).
+GP figure (helmholtz_brain_U01_UDEL_0003_01_70Hz_compx_curl_main.pdf).
 """
 
 import matplotlib as mpl

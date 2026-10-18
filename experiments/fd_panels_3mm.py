@@ -1,6 +1,6 @@
 """Solve FDM at 3.0 mm (stride 2), slice it at the figure's central axial
 plane, and render the 3 FDM panels (Re/Im/|.|) to exact 215x221 px PNGs
-matching the provided figure's colormaps and per-row colour scaling
+matching the GP figure's colormaps and per-row colour scaling
 (99th percentile of the measured field, shared with Measured/Predicted)."""
 
 import matplotlib as mpl
