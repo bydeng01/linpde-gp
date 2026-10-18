@@ -8,6 +8,7 @@ observations. We solve the coarse BVP, interpolate back to the GP's exact
 2000-voxel eval set, and report Pearson(|q|) vs the measurement.
 """
 
+import os
 import time
 
 import numpy as np
@@ -16,7 +17,9 @@ from scipy.ndimage import binary_erosion
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import LinearOperator, bicgstab, spilu
 
-OUT = "/sessions/blissful-practical-mayer/mnt/outputs"
+_here = os.path.dirname(os.path.abspath(__file__))
+REPO = os.environ.get("REPO", os.path.dirname(_here))  # repo root
+OUT = os.environ.get("OUTDIR", f"{REPO}/experiments/helmholtz_brain_outputs")
 d = np.load(f"{OUT}/fd_brain_0003_70Hz_compx.npz")
 q, mask, k2, zooms = d["q"], d["mask"], d["k2"], d["zooms"]
 

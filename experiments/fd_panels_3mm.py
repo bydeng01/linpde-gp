@@ -3,6 +3,8 @@ plane, and render the 3 FDM panels (Re/Im/|.|) to exact 215x221 px PNGs
 matching the GP figure's colormaps and per-row colour scaling
 (99th percentile of the measured field, shared with Measured/Predicted)."""
 
+import os
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +15,9 @@ from scipy.sparse.linalg import LinearOperator, bicgstab, spilu
 
 mpl.use("Agg")
 
-OUT = "/sessions/blissful-practical-mayer/mnt/outputs"
+_here = os.path.dirname(os.path.abspath(__file__))
+REPO = os.environ.get("REPO", os.path.dirname(_here))  # repo root
+OUT = os.environ.get("OUTDIR", f"{REPO}/experiments/helmholtz_brain_outputs")
 d = np.load(f"{OUT}/fd_brain_0003_70Hz_compx.npz")
 q, mask, k2, zooms = d["q"], d["mask"], d["k2"], d["zooms"]
 S_STRIDE = 2

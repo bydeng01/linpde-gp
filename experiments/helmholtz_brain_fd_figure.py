@@ -3,13 +3,17 @@ Same central axial slice, orientation, and per-row colour scaling as the
 GP figure (helmholtz_brain_U01_UDEL_0003_01_70Hz_compx_curl_main.pdf).
 """
 
+import os
+
 import matplotlib as mpl
 import numpy as np
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 
-OUT = "/sessions/blissful-practical-mayer/mnt/outputs"
+_here = os.path.dirname(os.path.abspath(__file__))
+REPO = os.environ.get("REPO", os.path.dirname(_here))  # repo root
+OUT = os.environ.get("OUTDIR", f"{REPO}/experiments/helmholtz_brain_outputs")
 d = np.load(f"{OUT}/fd_brain_0003_70Hz_compx.npz")
 qFD, q, mask = d["qFD"], d["q"], d["mask"]
 zooms = d["zooms"]

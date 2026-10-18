@@ -1,13 +1,17 @@
 """Pearson(|q|) vs FD grid spacing, with the GP level marked. Shows the
 deterministic solver matching the GP at ~9 mm effective resolution."""
 
+import os
+
 import matplotlib as mpl
 import numpy as np
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 
-OUT = "/sessions/blissful-practical-mayer/mnt/outputs"
+_here = os.path.dirname(os.path.abspath(__file__))
+REPO = os.environ.get("REPO", os.path.dirname(_here))  # repo root
+OUT = os.environ.get("OUTDIR", f"{REPO}/experiments/helmholtz_brain_outputs")
 spacing = np.array([1.5, 3.0, 4.5, 6.0, 7.5, 9.0, 12.0])
 pearson = np.array([0.855, 0.807, 0.822, 0.804, 0.813, 0.742, 0.722])
 GP = 0.753

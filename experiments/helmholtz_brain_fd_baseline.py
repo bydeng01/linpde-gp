@@ -11,6 +11,7 @@ boundary trace), interior held out. Correlations are reported on the GP eval
 region E = erosion(mask, 3).
 """
 
+import os
 import sys
 import time
 
@@ -20,10 +21,12 @@ from scipy.ndimage import binary_erosion
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import LinearOperator, bicgstab, spilu, splu
 
-RHO = 1040.0  # kg/m^3 (brain tissue; was 1000.0)
-ROOT = "/sessions/blissful-practical-mayer/mnt/linpde-gp/data/brain_experiment_data/mre_udel"
+RHO = 1040.0  # kg/m^3 (brain tissue)
+_here = os.path.dirname(os.path.abspath(__file__))
+REPO = os.environ.get("REPO", os.path.dirname(_here))  # repo root
+ROOT = f"{REPO}/data/brain_experiment_data/mre_udel"
 SUB, FREQ, COMP = "U01_UDEL_0003_01", 70, 0  # comp x
-OUT = "/sessions/blissful-practical-mayer/mnt/outputs"
+OUT = os.environ.get("OUTDIR", f"{REPO}/experiments/helmholtz_brain_outputs")
 
 
 def load():

@@ -58,7 +58,7 @@ Six FDM + six PINN notebooks (one per dimension × real/complex).
 | :--- | :--- | :--- |
 | GP-PDE driver | `experiments/helmholtz_brain_forward_bvp.py` | the method applied to brain data (paper reproduction flags are shown in `reproduce_brain.sh`) |
 | Deterministic baseline / paper figure | `experiments/fd_composite_fixed.py` | solves the variable-coefficient complex Helmholtz problem and inserts the FDM column into the paper figure |
-| Auxiliary FD analyses | `experiments/helmholtz_brain_fd_baseline.py`, `fd_brain_resolution_sweep.py`, `fd_resolution_figure.py`, `fd_panels_3mm.py`, `helmholtz_brain_fd_figure.py` | legacy one-off baseline and resolution analyses; their `ROOT` / `OUT` paths must be configured before use |
+| Auxiliary FD analyses | `experiments/helmholtz_brain_fd_baseline.py`, `fd_brain_resolution_sweep.py`, `fd_resolution_figure.py`, `fd_panels_3mm.py`, `helmholtz_brain_fd_figure.py` | legacy one-off baseline and resolution analyses; paths default to the repository layout (override with `REPO` / `OUTDIR`), and `helmholtz_brain_fd_baseline.py` must run first to write the `.npz` the others read |
 | Results output directory | `experiments/helmholtz_brain_outputs/` | `reproduce_brain.sh` writes its logs and figures here |
 
 ## Data (brain, external)
