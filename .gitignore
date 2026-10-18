@@ -170,22 +170,5 @@ experiments/linpde_gp_constrained/**/*_quick.csv
 # SPX option-chain snapshots are not redistributed; regenerate with fetch_data.py
 experiments/linpde_gp_constrained/black_scholes_surface/data/*.csv
 
-# Local development records and cleanup archives
+# Local archives
 /.local-archive/
-.claude/
-.codex/
-.cursor/
-/CLAUDE.md
-/AGENTS.md
-/LinPDE-GP/Claude outputs/
-experiments/linpde_gp_constrained/**/PROMPT*.md
-experiments/linpde_gp_constrained/**/REVIEW*.md
-experiments/linpde_gp_constrained/**/DESIGN_NOTES.md
-experiments/linpde_gp_constrained/**/notes.md
-experiments/linpde_gp_constrained/**/review_recompute.py
-experiments/linpde_gp_constrained/**/section*.tex
-experiments/linpde_gp_constrained/**/section.md
-src/linpde_gp_constrained/linpde_gp_constrained/_compat.py
-
-# Unreleased experiment; retain its code, data, and records locally
-experiments/linpde_gp_constrained/groundwater_drawdown/
