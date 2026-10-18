@@ -82,7 +82,7 @@ from linpde_gp.randprocs.covfuncs import (
     IndependentMultiOutputCovarianceFunction,
 )
 
-RHO = 1040.0  # kg/m^3 (brain tissue; was 1000.0)
+RHO = 1040.0  # kg/m^3 (brain tissue)
 COMPONENT_NAME = {0: "x", 1: "y", 2: "z"}
 
 

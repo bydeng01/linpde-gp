@@ -35,7 +35,7 @@ ORIG_PDF = os.environ.get(
     "ORIG_PDF", f"{OUTDIR}/helmholtz_brain_U01_UDEL_0003_01_70Hz_compx_curl_main.pdf"
 )
 os.makedirs(OUTDIR, exist_ok=True)
-RHO = 1040.0  # kg/m^3 (brain tissue; was 1000.0)
+RHO = 1040.0  # kg/m^3 (brain tissue)
 SUB, FREQ, COMP = "U01_UDEL_0003_01", 70, 0  # subject 0003, 70 Hz, comp x (curl)
 RASTER_W = 1703
 
