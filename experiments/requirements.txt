@@ -1,4 +1,4 @@
-matplotlib>=3.4.3
+matplotlib>=3.4.3,!=3.11.0
 tueplots>=0.0.6
 nibabel>=5.1,<6
 Pillow>=9
