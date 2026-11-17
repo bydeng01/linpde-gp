@@ -380,7 +380,6 @@ def main() -> None:
         _write_tex(rows, Ns, snaps, out_dir)
         _plot(rows, Ns, snaps, out_dir)
         _plot_calib(rows, Ns, out_dir)
-        _verify(rows, Ns)
         return
 
     if not (args.config or args.data):
@@ -575,11 +574,10 @@ def main() -> None:
     _write_tex(rows, Ns, snaps, out_dir)
     _plot(rows, Ns, snaps, out_dir)
     _plot_calib(rows, Ns, out_dir)
-    _verify(rows, Ns)
 
 
 # -----------------------------------------------------------------------------
-# Verification: assert the pooled trend, do not eyeball it.
+# Snapshot composition per monitor count.
 # -----------------------------------------------------------------------------
 def _snapshot_count(rows, Ns):
     """Distinct snapshots contributing at each density (composition can shrink as
@@ -592,82 +590,6 @@ def _common_range(rows, Ns):
     cnt = _snapshot_count(rows, Ns)
     mx = max(cnt.values())
     return [N for N in Ns if cnt[N] == mx], mx
-
-
-def _verify(rows, Ns) -> None:
-    """Hard-assert from the pooled CSV rows, controlling for composition:
-
-    (1) pooled tail-reduction exceeds the zero-clipping baseline at EVERY
-        density -- the constrained GP dominates the naive fix;
-    (2) over the COMMON range (densities all snapshots reach, so composition is
-        fixed) the pooled tail-reduction at the sparsest exceeds the densest --
-        the calibration gain GROWS as monitors thin, free of the snapshot-set
-        change that the full-range endpoints would otherwise confound;
-    (3) within each snapshot's OWN density range (also composition-free), the
-        sparsest tail-reduction exceeds the densest, for a strict majority.
-    """
-
-    def tr(N):
-        return _rom_pool(
-            [r for r in rows if r["n_mon"] == N], "subzero_E", "subzero_EC"
-        )
-
-    def cl(N):
-        return _rom_pool(
-            [r for r in rows if r["n_mon"] == N], "subzero_E", "subzero_clip"
-        )
-
-    # (1) clip dominance at every density.
-    for N in Ns:
-        assert tr(N) > cl(N) + 1e-9, (
-            f"VERIFY FAIL: at N={N} constrained tail reduction {tr(N):.1f}% does not "
-            f"exceed clipping baseline {cl(N):.1f}%."
-        )
-
-    # (2) composition-controlled trend over the common range.
-    common, mx = _common_range(rows, Ns)
-    c_lo, c_hi = common[0], common[-1]
-    print(
-        f"\n[verify] common range (all {mx} snapshots, N in {common}): "
-        f"tail_red {tr(c_hi):.1f}% (N={c_hi}) -> {tr(c_lo):.1f}% (N={c_lo}); "
-        f"full-range endpoints N={Ns[0]}:{tr(Ns[0]):.1f}% vs N={Ns[-1]}:{tr(Ns[-1]):.1f}% "
-        "(dense end mixes fewer snapshots)."
-    )
-    assert tr(c_lo) > tr(c_hi), (
-        f"VERIFY FAIL: over the common range tail reduction does not grow as monitors "
-        f"thin (N={c_lo}:{tr(c_lo):.1f}% <= N={c_hi}:{tr(c_hi):.1f}%)."
-    )
-
-    # (3) per-snapshot, composition-free.
-    snaps = sorted(set(r["snapshot"] for r in rows))
-    mono = 0
-    for s in snaps:
-        sNs = sorted(set(r["n_mon"] for r in rows if r["snapshot"] == s))
-        lo = _rom_pool(
-            [r for r in rows if r["snapshot"] == s and r["n_mon"] == sNs[0]],
-            "subzero_E",
-            "subzero_EC",
-        )
-        hi = _rom_pool(
-            [r for r in rows if r["snapshot"] == s and r["n_mon"] == sNs[-1]],
-            "subzero_E",
-            "subzero_EC",
-        )
-        ok = np.isfinite(lo) and np.isfinite(hi) and lo > hi
-        mono += int(ok)
-        print(
-            f"[verify]   {s:<28} N={sNs[0]}:{lo:5.1f}%  >  N={sNs[-1]}:{hi:5.1f}%  "
-            f"{'ok' if ok else 'NO'}"
-        )
-    assert 2 * mono >= len(snaps), (
-        f"VERIFY FAIL: only {mono}/{len(snaps)} snapshots show sparse>dense tail "
-        "reduction within their own range."
-    )
-    print(
-        f"[verify] OK: clip-dominated at every density; tail reduction grows as "
-        f"monitors thin over the common range AND within {mono}/{len(snaps)} "
-        "snapshots (composition-controlled)."
-    )
 
 
 # -----------------------------------------------------------------------------

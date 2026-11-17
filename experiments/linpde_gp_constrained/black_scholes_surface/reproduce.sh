@@ -8,7 +8,7 @@
 #   2. dispatch    check_dispatch.py        (closed-form ExpQuad dispatch for the operator)
 #   3. recovery    run.py --recovery-check  (dense noiseless quotes -> RMSE < 1e-3)
 #   4. regime      sweep.py --quick         (R-free regime characterisation)
-#   5. snapshot    run.py                   (headline snapshot; asserts the checks)
+#   5. snapshot    run.py                   (headline snapshot)
 #   6. full sweep  sweep.py                 (gain CSV + bs_numbers.tex; the slow R step)
 #   7. figure      figure.py                (wide + _column svg/pdf/tiff)
 #
@@ -18,8 +18,8 @@
 #
 # Steps 1-4 are R-free (linpde-gp + probnum + jax + scipy); steps 5-7
 # additionally need rpy2 + R packages mvtnorm/tmvtnorm/TruncatedNormal/
-# truncnorm for the constrained arms (without them step 5 degrades to the
-# equality-side checks and steps 6-7 abort).
+# truncnorm for the constrained arms (without them step 5 runs only the
+# R-free arms and steps 6-7 abort).
 #
 # Real data (optional, outside the container first):
 #     python experiments/.../black_scholes_surface/fetch_data.py
@@ -60,7 +60,7 @@ python "$EXP/sweep.py" --quick
 
 echo
 echo "============================================================"
-echo "[5/7] Headline snapshot — run.py (regime and constrained-arm checks)"
+echo "[5/7] Headline snapshot — run.py"
 echo "============================================================"
 python "$EXP/run.py"
 

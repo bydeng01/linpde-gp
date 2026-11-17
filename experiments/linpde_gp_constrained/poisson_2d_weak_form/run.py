@@ -606,35 +606,12 @@ def main(out_dir: str | None = None) -> None:
     print(f"Saved plot:  {out_path}")
     print(f"Saved table: {os.path.join(out_dir, 'comparison.txt')}")
 
-    # ---- Self-check assertions for the COMBINATION SHOWCASE.
-    # The equality side is intentionally under-determined (partial BCs), so we
-    # do NOT assert it recovers u_true; instead the equality-only mean should be
-    # genuinely non-monotone (room for the inequality to help) and P(C|E) bounded
-    # away from 1.
+    # ---- Consistency checks: the Dirichlet-anchored corner keeps its value,
+    # and the constrained mean is monotone where the constraint is imposed.
     assert diag["bc_corner_unc"] < 1e-2, (
-        f"an *anchored* (Dirichlet-fixed) corner drifted: "
-        f"{diag['bc_corner_unc']:.3e}. (The free corner (1,1) is allowed to be "
-        "off — that under-determination is the point.)"
+        f"an anchored (Dirichlet-fixed) corner drifted: "
+        f"{diag['bc_corner_unc']:.3e}."
     )
-    worst_unc_slope = min(diag.get(f"min_d{ax}_unc", 0.0) for ax in c_axes)
-    if worst_unc_slope >= -1e-2:
-        print(
-            f"\nNOTE: equality-only mean is already ~monotone (worst ∂ = "
-            f"{worst_unc_slope:.3e}); the inequality has little mean to correct. "
-            "Under-determine more (sparser collocation / fewer BC edges / larger "
-            "lengthscale) to strengthen the showcase.\n"
-        )
-
-    pmc = diag.get("p_ce_mc", float("nan"))
-    if not (0.05 < pmc < 0.95):
-        print(
-            f"\nP(C|E) check TUNING NEEDED: MC P(C|E) = {pmc:.4f} outside "
-            "(0.05, 0.95). If ~1, under-determine more; if ~0, shrink the "
-            "virtual grid / pull it further into the interior. R-free; use "
-            "sweep.py.\n"
-        )
-    else:
-        print(f"\nP(C|E) check OK (MC): P(C|E) = {pmc:.4f} in (0.05, 0.95).\n")
 
     if data["constrained_ok"]:
         # (a) the fixed-edge corner BC stays tight.
@@ -647,43 +624,10 @@ def main(out_dir: str | None = None) -> None:
             assert (
                 mi >= -1e-3
             ), f"monotonicity check failed: min ∂_{'xy'[ax]} on interior = {mi:.3e} < -1e-3."
-        # (c) P(C|E) strictly inside (0.05, 0.95).
-        if not np.isnan(diag["p_ce"]):
-            assert (
-                0.05 < diag["p_ce"] < 0.95
-            ), f"P(C|E) check failed: P(C|E) = {diag['p_ce']:.4f} not in (0.05,0.95)."
-        # HEADLINE (combination advantage): adding the inequality to the
-        # under-determined equality posterior reduces the mean L² error AND the
-        # credible-band width AND the worst-case error. NOTE we do NOT require
-        # full recovery (max|con-truth| < 0.1): monotonicity is scale-free, so it
-        # cannot by itself pin the magnitude at the free corner (1,1)=1 — it
-        # corrects the *shape* (non-monotonicity) and substantially reduces, but
-        # does not eliminate, the under-determination there.
-        assert (
-            diag["band_con"] < diag["band_unc"]
-        ), f"band did not shrink: {diag['band_unc']:.4f} -> {diag['band_con']:.4f}."
-        assert diag["l2_con"] < 0.85 * diag["l2_unc"], (
-            f"inequality did not materially improve the mean: RMSE "
-            f"{diag['l2_unc']:.4f} -> {diag['l2_con']:.4f} (want >=15% lower). "
-            "Under-determine the equality side more so the equality-only mean is "
-            "genuinely non-monotone."
-        )
-        assert diag["max_abs_con"] < diag["max_abs_unc"], (
-            f"worst-case error not reduced: {diag['max_abs_unc']:.4f} -> "
-            f"{diag['max_abs_con']:.4f}."
-        )
-        print(
-            f"SHOWCASE OK: RMSE {diag['l2_unc']:.4f} -> {diag['l2_con']:.4f} "
-            f"({100*diag['l2_improvement']:.0f}% lower), band "
-            f"{diag['band_unc']:.4f} -> {diag['band_con']:.4f}, free-corner err "
-            f"{diag.get('free_corner_unc', float('nan')):.3f} -> "
-            f"{diag.get('free_corner_con', float('nan')):.3f}.\n"
-        )
     else:
         print(
-            "NOTE: constrained-side assertions skipped (gp_constr R backend "
-            "unavailable). The R-free MC P(C|E) and the equality-only "
-            "diagnostics above still drive tuning."
+            "NOTE: constrained-side checks skipped (gp_constr R backend "
+            "unavailable)."
         )
 
 

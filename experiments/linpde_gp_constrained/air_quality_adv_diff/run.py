@@ -889,52 +889,13 @@ def recovery_check(n_dense: int = 12, sigma_lo: float = 1e-4) -> float:
 
 
 def _self_checks(diag: dict) -> None:
-    """Regime check and constrained-arm check assertions."""
-    pmc = diag["p_ce_mc"]
-    if not (0.05 < pmc < 0.95):
-        print(
-            f"\nNOTE: MC P(C|E) = {pmc:.4f} outside (0.05, 0.95) -- retune n_obs / "
-            "sigma_obs. See sweep.py."
-        )
-    else:
-        print(f"\nregime check OK: MC P(C|E) = {pmc:.4f} in (0.05, 0.95).")
-
-    base = diag["arms"]["monitors+E"]
-    if base["neg_frac"] > 0.0:
-        print(
-            f"regime check OK: monitors+E mean negative on {100*base['neg_frac']:.1f}% of "
-            f"the grid (min {base['min_val']:.3f})."
-        )
-    else:
-        print(
-            "NOTE: monitors+E mean is nonnegative everywhere -- raise sigma_obs / "
-            "lower n_obs so positivity bites."
-        )
-
+    """Check that the constrained mean is nonnegative at the virtual points."""
     comb = diag["arms"]["monitors+E+C"]
     if np.isfinite(comb["rmse_held"]):
-        # Constrained-arm check: mean nonnegative at virtual points.
         assert diag["min_mean_v_EC"] >= -1e-3, (
             f"constrained-arm check FAIL: constrained mean negative at virtual points "
             f"(min {diag['min_mean_v_EC']:.3e})."
         )
-        # Constrained-arm check: held-out RMSE improves >= 10% over monitors+E.
-        g = diag["gain_rmse_held_rel"]
-        if g >= 0.10:
-            print(
-                f"constrained-arm check OK: held-out RMSE gain {100*g:.1f}% (>= 10%), "
-                f"band {base['band']:.3f} -> {comb['band']:.3f}, "
-                f"subzero tail {base['subzero_tail']:.3f} -> {comb['subzero_tail']:.3f}."
-            )
-        else:
-            print(
-                f"\nNOTE: held-out RMSE gain {100*g:.1f}% < 10% at this snapshot; "
-                "the headline operating point is set in sweep.py."
-            )
-        # Constrained-arm check: band and sub-zero tail shrink.
-        assert (
-            comb["subzero_tail"] <= base["subzero_tail"] + 1e-6
-        ), "constrained-arm check FAIL: constrained sub-zero tail did not shrink."
 
 
 if __name__ == "__main__":

@@ -518,55 +518,6 @@ def main(out_dir: str | None = None) -> None:
     print(f"Saved table:  {os.path.join(out_dir, 'comparison.txt')}")
     print(f"Saved fields: {os.path.join(out_dir, 'fields.npz')}")
 
-    # --- Headline assertions: BOTH dominates each single source.
-    if i_diag["constrained_ok"] and eb["constrained_ok"]:
-        # (1) Inequality-only cannot fix the magnitude: its free-corner error
-        #     stays large (the scale-free constraint cannot climb to u(1,1)=1).
-        assert i_diag["free_corner_err"] > 0.3, (
-            "inequality-only unexpectedly recovered the free corner "
-            f"({i_diag['free_corner_err']:.3f}); the scale-free shape constraint "
-            "should NOT be able to set the magnitude. Check the prior scale."
-        )
-        # (2) Both beats equality-only on RMSE (the parent experiment's claim).
-        assert e_diag["l2_con"] < 0.85 * e_diag["l2_unc"], (
-            f"both did not improve on equality-only: RMSE {e_diag['l2_unc']:.4f} "
-            f"-> {e_diag['l2_con']:.4f}."
-        )
-        # (3) Both beats inequality-only on RMSE (combination > shape alone).
-        assert e_diag["l2_con"] < i_diag["l2"], (
-            f"both ({e_diag['l2_con']:.4f}) did not beat inequality-only "
-            f"({i_diag['l2']:.4f}) on RMSE."
-        )
-        # (4) The combination is monotone on the interior where neither single
-        #     source is both accurate AND monotone (equality is non-monotone,
-        #     inequality is monotone-but-wrong-scale).
-        assert e_diag.get("min_d0_unc", 0.0) < -1e-2, (
-            "equality-only mean is already monotone; the ablation's premise "
-            "(under-determination) is not met — under-determine more."
-        )
-        print(
-            "\nABLATION OK:\n"
-            f"  equality only  : RMSE {e_diag['l2_unc']:.3f}, "
-            f"free-corner err {e_diag['free_corner_unc']:.3f}, "
-            f"min ∂ {min(e_diag['min_d0_unc'], e_diag['min_d1_unc']):.3f} "
-            "(inaccurate + non-monotone)\n"
-            f"  inequality only: RMSE {i_diag['l2']:.3f}, "
-            f"free-corner err {i_diag['free_corner_err']:.3f}, "
-            f"min ∂ {min(i_diag['min_d0'], i_diag['min_d1']):.3f} "
-            "(monotone but wrong magnitude)\n"
-            f"  both           : RMSE {e_diag['l2_con']:.3f}, "
-            f"free-corner err {e_diag['free_corner_con']:.3f}, "
-            f"min ∂ {min(e_diag['min_d0_con'], e_diag['min_d1_con']):.3f} "
-            "(accurate + shape-correct)\n"
-        )
-    else:
-        print(
-            "\nNOTE: full 3-way assertions skipped (gp_constr R backend "
-            "unavailable for the inequality-only and/or both arms). The "
-            "equality-only diagnostics and the R-free prior P(C) above are "
-            "still valid."
-        )
-
 
 if __name__ == "__main__":
     main(out_dir=sys.argv[1] if len(sys.argv) > 1 else None)

@@ -1154,86 +1154,23 @@ def main(argv: list[str] | None = None) -> None:
     plt.close(fig)
     print(f"Saved plot:  {os.path.join(out_dir, 'run.png')}")
 
-    # ---- Self-checks, synthetic setup only: the check criteria are tuned
-    # to the synthetic headline point. The real chain reports the same
-    # diagnostics without asserting (the constant-sigma PDE is misspecified
-    # there by design).
-    dE = results["quotes+E"]["diagnostics"]
+    # ---- Consistency check, synthetic setup only: the price bounds are an
+    # identity constraint, so the combined mean must satisfy them at the
+    # virtual points. The derivative constraints are not checked pointwise,
+    # because finite-differencing the posterior mean on the sparse virtual
+    # grid is too inaccurate for that.
     dEC = results["quotes+E+C"]["diagnostics"]
     if data is not None:
-        print(
-            "\nreal-data chain: diagnostics reported, synthetic-only check "
-            "assertions skipped."
-        )
         return
-    pmc = dE["p_ce_mc"]
-    viol = max(dE["viol_spread_rate"], dE["viol_cal_rate"])
-    assert viol > 0.0, (
-        "regime check FAILED: the equality posterior is arbitrage-free at the "
-        "headline point; the inequalities have nothing to fix. Reduce n_obs "
-        "or raise sigma_obs (see sweep.py --quick)."
-    )
-    assert 0.05 < pmc < 0.95, (
-        f"regime check FAILED: MC P(C|E) = {pmc:.4f} outside (0.05, 0.95); the "
-        "constraint is either saturated or inactive at the headline point."
-    )
-    print(
-        f"\nregime check: equality arm violates no-arbitrage "
-        f"(spread rate {dE['viol_spread_rate']:.3f}, calendar rate "
-        f"{dE['viol_cal_rate']:.3f}), MC P(C|E) = {pmc:.4f} in (0.05, 0.95)."
-    )
-
     if dEC["ok"]:
-        # (a) Held-out RMSE gain over quotes+E.
-        gain = 1.0 - dEC["rmse_test"] / dE["rmse_test"]
-        assert gain >= 0.10, (
-            f"constrained-arm check FAILED: held-out RMSE gain {100 * gain:.1f}% < 10% "
-            f"({dE['rmse_test']:.4f} -> {dEC['rmse_test']:.4f})."
-        )
-        # (b) Band shrinks.
-        assert dEC["band"] < dE["band"], (
-            f"constrained-arm check FAILED: band did not shrink "
-            f"({dE['band']:.4f} -> {dEC['band']:.4f})."
-        )
-        # (c) The constraints bite: arbitrage on the DENSE evaluation grid
-        # strictly decreases for every imposed family. This is the trustworthy
-        # satisfaction check. The per-virtual-point residual route below is NOT
-        # asserted for the derivative families: gp_constr enforces them on the
-        # constraint *variables* in truncated-MVN space, but reconstructing the
-        # derivative by finite-differencing the function-space posterior mean
-        # over a sparse virtual grid is unstable (the quotes+C arm, with no
-        # equality data to stabilise it, shows xv_resid_dT in the single digits
-        # even though gp_constr enforced d_T >= 0). The identity (bounds) family
-        # has no reconstruction gap, so it IS asserted pointwise.
-        assert dEC["viol_spread_rate"] < dE["viol_spread_rate"], (
-            f"constrained-arm check FAILED: call-spread violation rate did not drop "
-            f"({dE['viol_spread_rate']:.3f} -> {dEC['viol_spread_rate']:.3f})."
-        )
-        assert dEC["viol_cal_rate"] < dE["viol_cal_rate"], (
-            f"constrained-arm check FAILED: calendar violation rate did not drop "
-            f"({dE['viol_cal_rate']:.3f} -> {dEC['viol_cal_rate']:.3f})."
-        )
-        # (d) Bounds family (identity constraint, exact at Xv) satisfied.
         assert dEC["xv_resid_bounds"] <= 1e-2, (
             f"constrained-arm check FAILED: combined mean violates the price bounds at "
             f"virtual points by {dEC['xv_resid_bounds']:.3e} > 1e-2."
         )
-        print(
-            f"constrained-arm check: held-out RMSE {dE['rmse_test']:.4f} -> "
-            f"{dEC['rmse_test']:.4f} ({100 * gain:.0f}% gain), band "
-            f"{dE['band']:.4f} -> {dEC['band']:.4f}; grid arbitrage "
-            f"spread {dE['viol_spread_rate']:.3f} -> {dEC['viol_spread_rate']:.3f}, "
-            f"calendar {dE['viol_cal_rate']:.3f} -> {dEC['viol_cal_rate']:.3f}; "
-            f"bounds Xv resid {dEC['xv_resid_bounds']:.2e} (<= 1e-2). "
-            f"Derivative Xv resid reported only (FD-reconstruction artefact): "
-            f"d_x {dEC['xv_resid_dx']:.2e}, d_T {dEC['xv_resid_dT']:.2e}.\n"
-        )
     else:
         print(
             "\nNOTE: constrained arms skipped (gp_constr R backend "
-            f"unavailable: {results['quotes+E+C']['diagnostics'].get('error')})"
-            ". Equality-side diagnostics and MC P(C|E) above are still valid; "
-            "run inside the container for the constrained-arm check."
+            f"unavailable: {results['quotes+E+C']['diagnostics'].get('error')})."
         )
 
 

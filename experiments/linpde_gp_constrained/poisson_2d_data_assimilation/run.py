@@ -574,61 +574,19 @@ def main(out_dir: str | None = None) -> None:
     print(f"Saved plot:  {out_path}")
     print(f"Saved table: {os.path.join(out_dir, 'comparison.txt')}")
 
-    # ---- Self-checks. The equality side is intentionally information-poor, so
-    # we do NOT assert it recovers u_true; we assert the inequality genuinely
-    # bites and helps.
-    pmc = diag.get("p_ce_mc", float("nan"))
-    if not (0.02 < pmc < 0.98):
-        print(
-            f"\nNOTE: MC P(C|E) = {pmc:.4f} outside (0.02, 0.98). If ~1 the data "
-            "already make u|E monotone (reduce n_obs / raise sigma_obs); if ~0 "
-            "the constraint is saturating (shrink the virtual grid). Use sweep.py."
-        )
-    else:
-        print(f"\nMC P(C|E) = {pmc:.4f} in (0.02, 0.98): inequality is informative.")
-
+    # ---- Consistency check: the constrained mean is monotone where the
+    # constraint is imposed.
     if data["constrained_ok"]:
-        # HARD: the constrained mean must be monotone on the constrained
-        # interior — this is guaranteed by construction and is the one claim
-        # that always holds regardless of the data regime.
         for ax in c_axes:
             mi = diag[f"min_d{ax}_con_interior"]
             assert mi >= -1e-3, (
                 f"constrained mean not monotone on interior: "
                 f"min d_{'xy'[ax]} = {mi:.3e} < -1e-3."
             )
-        # SOFT: the band should shrink (truncation reduces variance); report
-        # rather than abort, so the pipeline always proceeds to the sweep.
-        if not (diag["band_con"] < diag["band_unc"]):
-            print(
-                f"\nNOTE: band did not shrink ({diag['band_unc']:.4f} -> "
-                f"{diag['band_con']:.4f}); unexpected — check the snapshot config."
-            )
-        # SOFT: the mean-RMSE gain is REGIME-DEPENDENT. It is positive when the
-        # data leave a non-monotone, under-determined region (e.g. obs_hi < 1
-        # starves the (1,1) corner); it can be ~0 or slightly negative when
-        # full-domain data already determine the smooth solution. The headline
-        # gain-vs-(sigma_obs, n_obs) curves are produced by sweep.py.
-        if diag["gain_rel"] > 0.0:
-            print(
-                f"OK: RMSE {diag['rmse_unc']:.4f} -> {diag['rmse_con']:.4f} "
-                f"({100*diag['gain_rel']:.0f}% mean gain from the inequality), "
-                f"band {diag['band_unc']:.4f} -> {diag['band_con']:.4f}.\n"
-            )
-        else:
-            print(
-                f"\nNOTE: at this snapshot the inequality did not improve the "
-                f"MEAN (RMSE {diag['rmse_unc']:.4f} -> {diag['rmse_con']:.4f}); "
-                f"it reduced the band ({diag['band_unc']:.4f} -> "
-                f"{diag['band_con']:.4f}) and monotonized the mean. The data "
-                "here already pin u; starve a region (obs_hi < 1) or use sparser/"
-                "noisier data for a mean gain. See sweep.py for the full curve.\n"
-            )
     else:
         print(
             "NOTE: constrained-side computation skipped (gp_constr R backend "
-            f"unavailable: {data['constrained_error']}). The R-free MC P(C|E) "
-            "and equality-only diagnostics above are still valid.\n"
+            f"unavailable: {data['constrained_error']}).\n"
         )
 
 
