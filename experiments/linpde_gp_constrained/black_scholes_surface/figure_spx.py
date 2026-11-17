@@ -291,7 +291,7 @@ def _viol_panel(ax, rows):
     ax.set_ylabel("calendar violations (% cells)")
     ax.set_ylim(bottom=0.0)
     # Upper-left is the empty quadrant here (the quotes+E curve rises into the
-    # upper right), so the legend no longer overlaps the data.
+    # upper right), so the legend does not overlap the data.
     ax.legend(
         loc="upper left",
         frameon=False,

@@ -6,11 +6,9 @@ reduces the spurious sub-zero mass the PDE + sparse-monitor posterior places
 in the clean upwind air, and the amount of infeasible probability it reclaims
 grows as the monitors degrade.
 
-Layout: a clean row of reconstruction maps (main figure). The noise sweep
-is a separate, well-proportioned appendix figure (figure_..._sweep), and the
-per-arm scalar metrics are a companion table (table_air_quality_arms.tex),
-where exact multi-metric values read better than bars and the off-scale +C
-ablation no longer distorts a shared axis.
+Layout: a row of reconstruction maps (main figure). The noise sweep is a
+separate appendix figure (figure_..._sweep), and the per-arm scalar metrics
+are a companion table (table_air_quality_arms.tex).
 
 Main-figure panels
 ------------------
@@ -263,11 +261,11 @@ ARM_TABLE_LABEL = {
 
 
 def write_arm_table(diag, path):
-    """Per-arm scalar metrics -> a booktabs LaTeX table (replaces the former
-    bar panels d, e). One representative noise seed (seed 0, the default point
-    n_obs=14 / sigma_obs=0.1); lower is better for every column, and the best
-    (lowest) value in each column is bold-faced. Seed-averaged feasibility-proxy
-    numbers live in the prose macros and in panel d."""
+    """Per-arm scalar metrics -> a booktabs LaTeX table. One representative
+    noise seed (seed 0, the default point n_obs=14 / sigma_obs=0.1); lower is
+    better for every column, and the best (lowest) value in each column is
+    bold-faced. Seed-averaged feasibility-proxy numbers are in the LaTeX macros
+    and the sweep figure."""
     # The sub-zero tail is not listed: it is reported seed-averaged in the
     # text, and panels b/c already show the negative region.
     cols = [
@@ -404,8 +402,7 @@ def plot(F, fig_base, layout="wide"):
 
 def plot_sweep(sweep, fixed_nobs, fig_base):
     """Standalone appendix figure: the observation-noise sweep (sub-zero-tail
-    proxy reduction vs regime-dependent held-RMSE gain), at a sensible
-    single-panel aspect rather than squashed into the map figure."""
+    proxy reduction vs regime-dependent held-RMSE gain), as a single panel."""
     fig, ax = plt.subplots(figsize=(3.7, 2.8))
     _panel_sweep(ax, sweep, fixed_nobs)
     out = f"{fig_base}_sweep"

@@ -27,7 +27,7 @@ the exact constrained arm; falls back to the R-free sampler otherwise):
       python experiments/linpde_gp_constrained/air_quality_adv_diff/sweep_real.py \
         --config experiments/.../air_quality_adv_diff/snapshots.txt
 
-Backward-compatible single-wind form (one --wind applied to all CSVs):
+Single-wind form (one --wind applied to all CSVs):
 
     ... sweep_real.py --data csv1,csv2 --wind=-0.869,1.992
 
@@ -198,7 +198,7 @@ def _specs_from_config(path: str, base_params, g_wind_mag, g_D, g_k, g_source):
 
 
 def _specs_from_data(data_arg, g_wind, base_params, g_wind_mag, g_D, g_k, g_source):
-    """Backward-compatible path: comma-separated CSVs, one global --wind for all."""
+    """Single-wind path: comma-separated CSVs, one global --wind for all."""
     params = _apply_spec(base_params, g_wind, g_wind_mag, g_D, g_k)
     src_fn = _src_fn("plume" if g_source == "plume" else "zero")
     src_lbl = "plume" if g_source == "plume" else "zero"

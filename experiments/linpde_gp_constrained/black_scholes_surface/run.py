@@ -39,11 +39,12 @@ At 3x3 virtual grids on per-block interior boxes (XV_BOXES; d = 27 <= 48):
   * calendar monotonicity:    d_T c >= 0.
 
 Butterfly convexity (d_KK C >= 0, i.e. d_xx c - d_x c >= 0) is not
-expressible through the wrapper (identity / first-order partials only;
-constrained_posterior.py:129) and is never imposed; it is reported as an FD
-diagnostic of every posterior mean. The PDE + calendar monotonicity partially
-induce it: at collocation points (sigma^2/2)(d_xx c - d_x c) = d_T c + r d_x c,
-so convexity holds wherever d_T c + r d_x c >= 0.
+expressible through the wrapper (identity / first-order partials only; see
+``InequalityConstraint.kind_and_axis``) and is never imposed; it is reported
+as an FD diagnostic of every posterior mean. The PDE + calendar monotonicity
+partially induce it: at collocation points
+(sigma^2/2)(d_xx c - d_x c) = d_T c + r d_x c, so convexity holds wherever
+d_T c + r d_x c >= 0.
 
 Main experiment (see ``sweep.py`` + ``figure.py``)
 --------------------------------------------------
@@ -832,8 +833,6 @@ def solve_bs(
                 if compute_band:
                     # Deterministic truncated-Gaussian moments (Agrell Cor. 6):
                     # one R call yields mean and std, with no MC / seed noise.
-                    # Replaces the earlier samples.std(ddof=1) estimate so the
-                    # reported bands match the appendix's determinism claim.
                     mean, std = cwrap.posterior_moments(X_eval)
                     mean = np.asarray(mean).reshape(-1)
                     std = np.asarray(std).reshape(-1)

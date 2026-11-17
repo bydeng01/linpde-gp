@@ -244,7 +244,7 @@ def make_pde_equality_posterior(
     # 3. Block gram. We assemble each block from existing dispatch:
     #    * G_pde_pde[i,j] = ∫∫ φ_i(s) [pde_sign² Δ_s Δ_t k(s,t)] φ_j(t) ds dt
     #      = pde_sign² * l2_proj(l2_proj(Δ_s Δ_t k, argnum=1)).
-    #      Internally projections.py:75 does dblquad over the inner covfunc.
+    #      Internally projections.py does dblquad over the inner covfunc.
     #    * G_bc_bc = k(X_bc, X_bc).
     #    * G_pde_bc[i,j] = ∫ φ_i(s) [pde_sign * Δ_s k(s, X_bc[j])] ds
     #      via l2_proj(pde_op(prior.cov, argnum=0), argnum=0)(X_bc).

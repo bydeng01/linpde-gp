@@ -204,8 +204,7 @@ def solve_inequality_only(rng, compute_constrained: bool = True) -> dict:
             )
             # Deterministic moment-based mean and std in one R call. Because the
             # "both" arm is the same (E,C) posterior as poisson_2d_weak_form,
-            # the moment-based band matches that figure exactly (the old
-            # sample-std estimate drifted between the two runs).
+            # the moment-based band matches that figure exactly.
             mean_all, std_all = cwrap.posterior_moments(X_pred)
             mean_all = np.asarray(mean_all).reshape(-1)
             con_mean, con_free = mean_all[:n_eval], float(mean_all[n_eval])

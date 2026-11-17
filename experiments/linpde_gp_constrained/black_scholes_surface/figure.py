@@ -15,10 +15,9 @@ Panels
        (quotes+E, quotes+E+C), row = constraint family (call spread d_x c,
        calendar d_T c). The derivative field is plotted, not a violation
        mask: red is the infeasible side, the solid red line is the
-       constraint boundary (the old hatch outline), and the dashed blue line
-       in b, c is the lower leg of the two-sided spread bound -e^{x-rT}.
-       Plotting the field keeps the depth of each violation, which the old
-       binary hatch discarded (advisor comment, 2026-08-04);
+       constraint boundary, and the dashed blue line in b, c is the lower
+       leg of the two-sided spread bound -e^{x-rT}. Plotting the field keeps
+       the depth of each violation;
   * f: held-out RMSE per arm;
   * g: arbitrage-violation rates per arm (incl. the never-imposed butterfly);
   * h: sweep — seed-averaged held-out RMSE of quotes+E vs quotes+E+C against
@@ -152,22 +151,16 @@ def _surface_panel(
 
 
 # --- Finite-difference constraint fields -------------------------------------
-# The no-arbitrage conditions are inequalities on DERIVATIVES of the surface,
-# so the quantity that shows a violation is the finite-difference derivative
-# itself, not a binary mask of it. Plotting the derivative keeps the depth of
-# the violation (how far outside the feasible set the mean sits), which a
-# hatch discards: between quotes+E and quotes+E+C the violating AREA falls
-# 52.7% -> 30.1% of interior cells, but the worst calendar violation falls
-# -0.072 -> -0.028 and the worst spread violation +0.81 -> +0.48. The zero
-# contour drawn on each panel is exactly the old hatch boundary.
+# The no-arbitrage conditions are inequalities on derivatives of the surface,
+# so the panels plot the finite-difference derivative itself rather than a
+# binary violation mask. This keeps the depth of each violation (how far
+# outside the feasible set the mean sits). The zero contour on each panel is
+# the constraint boundary.
 #
-# STENCIL CAVEAT: those depths are on the SHARED interior grid used here,
-# (n_x-2, n_T-2), because d_x and d_T must be plotted on common axes.
-# run.py:violation_rates keeps each derivative on its own fuller grid
-# (d_x over all T, d_T over all x), so its worst_* are slightly larger:
-# spread 0.83 -> 0.49 and calendar 0.079 -> 0.033 in diagnostics.json.
-# Quote the diagnostics.json values in the paper, since panel g's rates come
-# from the same source; the two agree except on the boundary rows.
+# The fields here use the shared interior grid (n_x-2, n_T-2), because d_x and
+# d_T are plotted on common axes. run.py:violation_rates keeps each derivative
+# on its own fuller grid (d_x over all T, d_T over all x), so the worst_*
+# values in diagnostics.json can differ slightly on the boundary rows.
 
 
 def _fd_fields(M: np.ndarray, EX: np.ndarray, ET: np.ndarray):

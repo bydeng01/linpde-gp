@@ -11,10 +11,10 @@ inequality information restores an accurate, shape-correct solution and
 sharply lowers predictive uncertainty. Equality and inequality information
 are complementary --- neither alone suffices.
 
-Layout (advisor revision, Aug 2026): the mechanism panel is referenced first in
-the text, so it leads the figure at full width; the six maps then form a 2x3
-grid in which each column pairs a posterior with the quantity derived from it,
-and every colour bar sits immediately to the right of the panel it scales.
+Layout: the mechanism panel is referenced first in the text, so it leads the
+figure at full width; the six maps then form a 2x3 grid in which each column
+pairs a posterior with the quantity derived from it, and every colour bar sits
+immediately to the right of the panel it scales.
 
     a  diagonal slice u(s,s) with 1.96-sigma bands: truth vs equality-only vs
        combined --- the mechanism (non-monotone dip removed, band shrinks,

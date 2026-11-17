@@ -29,10 +29,10 @@ Inequality side C
 -----------------
 Pointwise nonnegativity 0 <= c on a virtual-point grid (d <= 48), mapped to
 gp_constr's bounded constraint via an identity ``InequalityConstraint`` with
-bounds (0, +inf) -- the identity / boundedness branch
-(constrained_posterior.py:129). The zero-mean prior sits on the boundary of the
-feasible region, so the truncated-Gaussian mean is lifted off zero only by the
-data and the source term.
+bounds (0, +inf) -- the identity / boundedness branch of
+``InequalityConstraint.kind_and_axis``. The zero-mean prior sits on the
+boundary of the feasible region, so the truncated-Gaussian mean is lifted off
+zero only by the data and the source term.
 
 Main experiment (see sweep.py + figure.py)
 ------------------------------------------
@@ -349,7 +349,6 @@ def _constrained_fields(posterior, Xv, X_eval, rng, n_samples, constr_likelihood
         # Truncated-Gaussian moments (Agrell Cor. 6): one seeded R call yields
         # reproducible mean and std, subject to numerical-integration error.
         # Phi(-mean/std) is used downstream as a moment-based tail proxy.
-        # Replaces the earlier samples.std(ddof=1) estimate (N=150, ~6% SE).
         mean, std = cwrap.posterior_moments(X_eval)
         mean = np.asarray(mean).reshape(-1)
         std = np.asarray(std).reshape(-1)
