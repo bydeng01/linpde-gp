@@ -133,10 +133,9 @@ jobs:
           git fetch --tags --unshallow
           pip install .
       - name: Install experiment dependencies
-        run: |
-          pip install .
-          pip install -r experiments/requirements.txt
-          pip install -r .github/workflows/experiment-requirements.txt
+        # One resolution step: as separate `pip install` commands, the latest
+        # nibabel pulls numpy past the `numpy<2.0` pin in pyproject.toml.
+        run: pip install . -r experiments/requirements.txt -r .github/workflows/experiment-requirements.txt
       - name: Run all experiment notebooks with `nbconvert`
         run: |
           # Skip helmholtz_equation_baselines/: PINN baselines need the deepxde
