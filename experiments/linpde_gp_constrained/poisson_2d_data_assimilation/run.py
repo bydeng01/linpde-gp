@@ -1,17 +1,17 @@
 """
-2D Poisson data assimilation: PDE collocation + NOISY SCATTERED observations of u
+2D Poisson data assimilation: PDE collocation + noisy scattered observations of u
 =================================================================================
 
 This is the canonical LinPDE-GP setting --- a linear PDE conditioned on *noisy*
 data --- combined with Agrell shape constraints. It generalises the
-``poisson_2d_weak_form`` *showcase* (partial Dirichlet edges) by replacing the
+``poisson_2d_weak_form`` setting (partial Dirichlet edges) by replacing the
 exact, edge-located boundary data with ``n_obs`` observations of ``u`` placed
 uniformly at random over the whole domain and corrupted by Gaussian noise of
 standard deviation ``sigma_obs``:
 
     u(X_obs) = u_true(X_obs) + N(0, sigma_obs^2 I).
 
-The partial-BC showcase is exactly the ``sigma_obs = 0`` endpoint with the
+The partial-BC setting is exactly the ``sigma_obs = 0`` endpoint with the
 observations pinned to two edges; here we let ``sigma_obs > 0`` and scatter the
 data. No wrapper change is needed: a noisy point observation of ``u`` *is* an
 ``_EvaluationFunctional`` with observation noise, i.e. the same object the
@@ -36,7 +36,7 @@ so that  d_x u_true, d_y u_true >= 0 everywhere, and
 Equality side
 -------------
   * Strong-form PDE residual -Delta u = f enforced at an interior collocation
-    grid (noiseless; same closed-form bivariate operators as the showcase).
+    grid (noiseless; same closed-form bivariate operators as poisson_2d_weak_form).
   * ``n_obs`` noisy scattered observations of ``u`` (the data-assimilation term),
     Uniform over (0,1)^2, with observation noise ``sigma_obs``.
 
@@ -45,8 +45,8 @@ Inequality side
 Monotonicity in both coordinates, d_x u >= 0 and d_y u >= 0, on an interior
 virtual grid.
 
-Headline experiment (see ``sweep.py`` + ``figure.py``)
-------------------------------------------------------
+Main experiment (see ``sweep.py`` + ``figure.py``)
+--------------------------------------------------
 The inequality's marginal value --- the reduction in mean RMSE it buys --- is
 plotted against ``sigma_obs`` and against ``n_obs``. Hypothesis: the inequality
 helps *more* as the data degrades (noisier / sparser), because the equality
@@ -117,13 +117,13 @@ def _obs_points(
     obs_random: bool = False,
     rng: np.random.Generator | None = None,
 ) -> np.ndarray:
-    """n_obs observation LOCATIONS in [obs_lo, obs_hi]^2 -> (n_obs, 2).
+    """n_obs observation locations in [obs_lo, obs_hi]^2 -> (n_obs, 2).
 
     Two layouts:
 
-    * ``obs_random=False`` (default, HEADLINE): a deterministic, space-filling
+    * ``obs_random=False`` (default): a deterministic, space-filling
       Halton low-discrepancy set. This is the key design choice for the sweep:
-      because the points are FIXED (not redrawn per seed) and *nested* (the first
+      because the points are fixed (not redrawn per seed) and *nested* (the first
       ``n_obs`` points of a single sequence), the seeds vary only the noise
       realisation and the ``n_obs`` axis is a clean knob — adding points fills
       the domain more densely without the placement lottery that an i.i.d.
@@ -133,10 +133,10 @@ def _obs_points(
     * ``obs_random=True``: i.i.d. Uniform over the box (requires ``rng``); kept
       for ablation. Not recommended for the sweep — see the note above.
 
-    Setting ``obs_hi < 1`` leaves the top-right corner DATA-STARVED: this
-    reproduces the partial-BC showcase geometry under noise (no information
+    Setting ``obs_hi < 1`` leaves the top-right corner data-starved: this
+    reproduces the partial-BC geometry under noise (no information
     toward the (1,1) corner), the regime in which the *scale-free* monotonicity
-    constraint can correct the MEAN rather than only trim the band. With
+    constraint can correct the mean rather than only trim the band. With
     full-domain data the smooth PDE + data already recover u well, so the
     inequality mostly reduces predictive uncertainty.
     """
@@ -241,7 +241,7 @@ def solve_assimilation(
         Number of scattered observations of u (the data-assimilation term).
     sigma_obs
         Observation-noise standard deviation. ``sigma_obs = 0`` recovers exact
-        interpolation; the partial-BC showcase is the on-edge, sigma=0 endpoint.
+        interpolation; the partial-BC setting is the on-edge, sigma=0 endpoint.
     obs_seed
         Seed for the observation locations *and* the noise realisation. Vary it
         in ``sweep.py`` to average the RMSE gain over data realisations.
@@ -254,7 +254,7 @@ def solve_assimilation(
         still computed, so the RMSE-gain curves are unaffected. ``sweep.py``
         sets this False to keep the R cost down across the grid.
     """
-    # obs_rng drives the observation NOISE (and locations only if
+    # obs_rng drives the observation noise (and locations only if
     # obs_random=True). With the default Halton layout the locations are fixed,
     # so obs_seed varies the noise realisation alone — exactly what we want for
     # clean seed-averaging of the sweep. mc_rng is fixed so the MC P(C|E)

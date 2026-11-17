@@ -25,8 +25,7 @@ experiments/linpde_gp_constrained/        # everything that produces a paper num
 ├── poisson_2d_data_assimilation/         #   noisy and sparse observations
 ├── black_scholes_surface/                #   arbitrage-free option-price surfaces
 ├── air_quality_adv_diff/                 #   nonnegative air-quality field
-├── poisson_weak_form/                    #   1D weak-form Poisson example
-└── conventions/                          #   check of gp_constr's kernel conventions
+└── poisson_weak_form/                    #   1D weak-form Poisson example
 ```
 
 ### Integration package
@@ -52,7 +51,6 @@ experiments/linpde_gp_constrained/        # everything that produces a paper num
 | `black_scholes_surface/` | §6.2, App. C.1 | call-price surfaces under no-arbitrage constraints, synthetic (Black–Scholes) and real (S&P 500) | `reproduce.sh`, `reproduce_spx.sh` |
 | `air_quality_adv_diff/` | §6.3, App. C.2 | a nonnegative pollutant field from an advection–diffusion model and sparse monitors, synthetic and real (OpenAQ) | `reproduce.sh`, `sweep_real.py` |
 | `poisson_weak_form/` | — | 1D Poisson with a weak-form PDE residual (not in the paper) | `run.py`, then `figure.py` |
-| `conventions/` | — | numerical check of `gp_constr`'s derivative-kernel conventions (NumPy only, under a second) | `verify_gpconstr_conventions.py` |
 
 Each folder also holds the outputs behind the paper: figure PDFs, `comparison.txt` and
 `diagnostics.json` from the snapshot run, sweep CSVs, and `*_numbers.tex` LaTeX macros. The

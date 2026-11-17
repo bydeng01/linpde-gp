@@ -1,14 +1,13 @@
 """
-Figure 1: Inequality conditioning on monotonicity reduces both prediction
-error and predictive uncertainty for a 1D Poisson BVP with weak-form PDE
-residual on the equality side.
+Figure for the 1D weak-form Poisson example: conditioning on monotonicity
+reduces both prediction error and predictive uncertainty for a 1D Poisson BVP
+with weak-form PDE residual on the equality side.
 
-Main message:
-    For a 1D Poisson BVP -u'' = f, u(0)=0, u(1)=1 whose equality information
-    is a low-rank weak-form PDE residual on a 2-mode hat-basis test space
-    plus two Dirichlet BCs, conditioning on the monotonicity inequality
-    u' >= 0 at virtual points simultaneously reduces the posterior mean's
-    L^2 error and the 95% credible band width.
+For a 1D Poisson BVP -u'' = f, u(0)=0, u(1)=1 whose equality information
+is a low-rank weak-form PDE residual on a 2-mode hat-basis test space
+plus two Dirichlet BCs, conditioning on the monotonicity inequality
+u' >= 0 at virtual points simultaneously reduces the posterior mean's
+L^2 error and the 95% credible band width.
 
 Panels:
   Panel a (unconstrained equality posterior):
@@ -21,17 +20,12 @@ Panels:
   Numerical drops are reported in-panel as small annotations:
     L2 error, average 95% band width, and P(C | E) (panel b only).
 
-Design choices:
-  - Reproducibility: seed pinned; deterministic regeneration of all data.
-  - Honest comparison: identical y-axis range, identical sample-path count,
-    identical credible-band definition (mean +/- 1.96 * std) on both panels.
-  - Constraint cost: the panel b annotation includes P(C | E) so the reader
-    can assess how much of the unconstrained posterior was discarded.
+Both panels share the y-axis range, the number of sample paths and the band
+definition (mean +/- 1.96 * std). The seed is fixed.
 
 Layout: two stacked panels of equal weight, 3.25 in wide x 4.2 in tall
-(single-column width; stacked top-to-bottom so the reader's eye traverses
-unconstrained -> constrained as "before -> after"). Arial 7 pt; editable
-SVG and PDF; TIFF at 600 dpi.
+(single-column width; unconstrained on top, constrained below). Arial 7 pt;
+editable SVG and PDF; TIFF at 600 dpi.
 
 Run from the repo root inside the container:
 
@@ -39,9 +33,9 @@ Run from the repo root inside the container:
       python experiments/linpde_gp_constrained/poisson_weak_form/figure.py
 
 Outputs (next to this script):
-    figure_poisson_weak_form.svg     master vector (editable text)
-    figure_poisson_weak_form.pdf     Illustrator-friendly vector
-    figure_poisson_weak_form.tiff    600 dpi raster, journal submission
+    figure_poisson_weak_form.svg     vector, editable text
+    figure_poisson_weak_form.pdf     vector
+    figure_poisson_weak_form.tiff    600 dpi raster
 """
 
 from __future__ import annotations
@@ -68,7 +62,7 @@ from linpde_gp_constrained import (
 
 # -----------------------------------------------------------------------------
 # Publication rcParams. Editable text in SVG/PDF, no top/right spines, thin
-# lines. 7 pt is the journal target body size.
+# lines. Body text is 7 pt.
 # -----------------------------------------------------------------------------
 mpl.rcParams.update(
     {
@@ -96,10 +90,8 @@ mpl.rcParams.update(
 
 
 # -----------------------------------------------------------------------------
-# Palette: one neutral family + one signal family + one accent. We deliberately
-# avoid the saturated red/blue clash and use a warm coral for the
-# "uncorrected" panel and a cool slate for the "improved" panel — a
-# directional cue that reads even at thumbnail size.
+# Palette: warm coral for the unconstrained panel, cool slate for the
+# constrained panel.
 # -----------------------------------------------------------------------------
 COLOR_UNC = "#C97062"  # warm desaturated coral, "before"
 COLOR_CON = "#4F7CAC"  # cool desaturated slate,  "after"

@@ -48,8 +48,8 @@ approximation is used.
 
 Argument-number convention reconciliation
 -----------------------------------------
-gp_constr's Ki0 differentiates the FIRST kernel argument (verified
-empirically: see verify_gpconstr_conventions.py; for an RBF
+gp_constr's Ki0 differentiates the FIRST kernel argument (checked in
+tests/test_kernel_adapter_integration.py; for an RBF
 k(x, x') = sigma^2 exp(-0.5 ||x - x'||^2/ell^2), gp_constr.kernel_RBF.Ki0
 returns -k * (x_i - x'_i) / ell_i^2, which matches d/d x_i analytically.).
 linpde-gp's argnum=0 also means "differentiate the first kernel argument"

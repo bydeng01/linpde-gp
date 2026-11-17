@@ -2,7 +2,7 @@
 Sweep the inequality's RMSE gain against observation noise (sigma_obs) and
 observation count (n_obs) for the 2D Poisson data-assimilation experiment.
 
-This produces the headline numbers for ``figure.py`` and
+This produces the numbers for ``figure.py`` and
 ``assim_numbers.tex``. The central hypothesis is that the
 monotonicity inequality's *marginal value* --- the reduction in posterior-mean
 RMSE it buys on top of the PDE + noisy data --- grows as the data degrade
@@ -13,7 +13,7 @@ Design
 By default we sweep a *cross* through the (sigma_obs, n_obs) plane rather than
 the full Cartesian grid, because each constrained solve calls gp_constr's R
 truncated-MVN moment computation (cost ~ O(d^2) in the constraint dimension
-d = (#axes) * n_v^2 = 32). The cross gives both headline curves at a fraction of
+d = (#axes) * n_v^2 = 32). The cross gives both curves at a fraction of
 the cost:
 
   * vs sigma_obs : n_obs fixed at FIXED_NOBS, sigma_obs over SIGMA_VALUES;
@@ -25,11 +25,11 @@ full Cartesian product at correspondingly higher R cost.
 
 Modes
 -----
-  * default        : full pipeline (needs gp_constr's R backend), STARVED-corner
-                     headline (obs_hi = OBS_HI_STARVED). Writes the unconstrained
+  * default        : full pipeline (needs gp_constr's R backend), starved-corner
+                     setting (obs_hi = OBS_HI_STARVED). Writes the unconstrained
                      and constrained RMSE, hence the mean gain. CSV:
                      ``poisson_2d_data_assimilation_sweep.csv``.
-  * ``--uniform``  : scatter observations over the FULL domain (contrast). The
+  * ``--uniform``  : scatter observations over the full domain (contrast). The
                      inequality then mostly trims the band (weak/negative mean
                      gain). CSV: ``..._sweep_uniform.csv``.
   * ``--quick``    : R-free. Computes only the unconstrained RMSE and the MC
@@ -76,14 +76,13 @@ SEEDS = [0, 1, 2, 3, 4]  # noise realisations (5 -> smoother
 FIXED_NOBS = 16  # n_obs held fixed while sweeping sigma_obs
 FIXED_SIGMA = 0.10  # sigma_obs held fixed while sweeping n_obs
 
-# Observation sampling box. The HEADLINE (default) leaves the (1,1) corner
-# DATA-FREE (obs_hi = OBS_HI_STARVED), reproducing the partial-BC showcase
-# geometry under noise: this is the regime in which the *scale-free*
-# monotonicity inequality corrects the MEAN, so the "RMSE gain grows as data
-# degrade" story holds on the mean. Pass ``--uniform`` to scatter observations
-# over the FULL domain instead; there the smooth PDE + data already determine u
-# and the inequality only trims the predictive band (a contrast, not the
-# headline).
+# Observation sampling box. The default leaves the (1,1) corner data-free
+# (obs_hi = OBS_HI_STARVED), reproducing the partial-BC geometry under noise:
+# this is the regime in which the *scale-free* monotonicity inequality corrects
+# the mean, so the RMSE gain grows as the data degrade. Pass ``--uniform`` to
+# scatter observations over the full domain instead; there the smooth PDE +
+# data already determine u and the inequality only trims the predictive band
+# (a contrast).
 OBS_HI_FULL = 1.0 - 1e-3
 OBS_HI_STARVED = 0.85
 
@@ -162,7 +161,7 @@ def write_numbers_tex(rows: list[dict], out_dir: str) -> None:
     """Emit ``assim_numbers.tex`` with \\newcommand macros for the section's
     prose and table, computed seed-averaged from the sweep rows. The section
     ``\\input``s this file, so one R-backed run refreshes every number; the file
-    is only written for the headline (starved) sweep that has constrained
+    is only written for the default (starved) sweep that has constrained
     results, so the ``--uniform`` / ``--quick`` runs don't clobber it.
     """
     if not any(r["gain_rel"] == r["gain_rel"] for r in rows):
@@ -186,8 +185,8 @@ def write_numbers_tex(rows: list[dict], out_dir: str) -> None:
     )
     sig_lo, sig_hi = sig_pts[0], sig_pts[-1]
 
-    # Gains are reported as RATIO-OF-MEANS, 1 - mean(rmse_con)/mean(rmse_unc),
-    # NOT the mean of the per-seed ratios. The per-seed ratio divides by a noisy
+    # Gains are reported as ratio-of-means, 1 - mean(rmse_con)/mean(rmse_unc),
+    # not the mean of the per-seed ratios. The per-seed ratio divides by a noisy
     # denominator and is extremely high-variance (its curve is non-monotone and
     # its std spans zero); the ratio-of-means is a stable estimator of the
     # aggregate skill and is what the paired-RMSE figure shows. See figure.py.
@@ -238,8 +237,8 @@ def write_numbers_tex(rows: list[dict], out_dir: str) -> None:
     if p_ce_zero != p_ce_zero:  # exact (R) unavailable -> MC
         p_ce_zero = _nm([r["p_ce_mc"] for r in zero])
 
-    # Per-seed reversals: cells where the constrained arm scored WORSE. These
-    # are per-repetition ratios, NOT the ratio-of-means gain reported above.
+    # Per-seed reversals: cells where the constrained arm scored worse. These
+    # are per-repetition ratios, not the ratio-of-means gain reported above.
     sig_cells = [r for r in at(n_filter=FIXED_NOBS) if r["sigma_obs"] > 0]
     n_cells = at(s_filter=FIXED_SIGMA)
 
@@ -332,11 +331,11 @@ def _rows_from_csv(path: str) -> list[dict]:
 
 def main() -> None:
     quick = "--quick" in sys.argv
-    uniform = "--uniform" in sys.argv  # default is the starved-corner headline
+    uniform = "--uniform" in sys.argv  # default is the starved-corner setting
     grid = "full" if "--grid" in sys.argv and "full" in sys.argv else "cross"
     obs_hi = OBS_HI_FULL if uniform else OBS_HI_STARVED
     out_dir = os.path.dirname(os.path.abspath(__file__))
-    suffix = "_uniform" if uniform else ""  # headline (starved) has no suffix
+    suffix = "_uniform" if uniform else ""  # default (starved) has no suffix
     out_csv = os.path.join(out_dir, f"poisson_2d_data_assimilation_sweep{suffix}.csv")
 
     if "--from-csv" in sys.argv:
@@ -355,7 +354,7 @@ def main() -> None:
     total = len(configs) * len(SEEDS)
     print(
         f"Sweep: design={grid}, obs_box=[0,{obs_hi:.2f}]^2 "
-        f"({'full domain (contrast)' if uniform else 'STARVED corner (headline)'}), "
+        f"({'full domain (contrast)' if uniform else 'starved corner (default)'}), "
         f"{len(configs)} operating points x {len(SEEDS)} seeds = {total} solves. "
         f"quick={quick} (constrained/R {'OFF' if quick else 'ON'}).",
         flush=True,
@@ -365,7 +364,7 @@ def main() -> None:
     t0 = time.time()
     done = 0
     for axis, n_obs, sig in configs:
-        # Compute the (expensive, rtmvnorm-backed) constrained credible band ONLY
+        # Compute the (expensive, rtmvnorm-backed) constrained credible band only
         # at the table operating point (FIXED_NOBS, FIXED_SIGMA); the gain curves
         # need only the constrained mean, so every other cell stays mean-only to
         # keep the R cost down. This yields a seed-averaged band_con for the
@@ -428,15 +427,12 @@ def main() -> None:
         _avg("grid", "sigma_obs")
         _avg("grid", "n_obs")
 
-    # Refresh the LaTeX macros for the section (headline starved sweep only, so
+    # Refresh the LaTeX macros for the section (default starved sweep only, so
     # the --uniform contrast does not overwrite them).
     if not uniform:
         write_numbers_tex(rows, out_dir)
     else:
-        print(
-            "NOTE: --uniform run; assim_numbers.tex (headline macros) left "
-            "untouched."
-        )
+        print("NOTE: --uniform run; assim_numbers.tex left untouched.")
 
 
 if __name__ == "__main__":

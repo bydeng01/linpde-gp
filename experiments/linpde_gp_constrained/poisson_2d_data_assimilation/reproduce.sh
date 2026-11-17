@@ -3,11 +3,11 @@
 # reproduce.sh — one-shot driver for the noisy/sparse data-assimilation
 # experiment (PDE collocation + noisy scattered u-observations + monotonicity).
 #
-# Runs, in order (all in the STARVED-corner headline regime, the default —
-# observations scattered with a data-free (1,1) corner, the partial-BC showcase
+# Runs, in order (all in the default starved-corner regime —
+# observations scattered with a data-free (1,1) corner, the partial-BC setting
 # under noise; pass --uniform to sweep.py for the full-domain contrast):
 #   1. single-snapshot demo  run.py        (run.png + comparison.txt)
-#   2. full R-backed sweep   sweep.py       (gain CSV, the headline numbers)
+#   2. full R-backed sweep   sweep.py       (gain CSV + assim_numbers.tex)
 #   3. publication figure    figure.py      (svg/pdf/tiff gain curves)
 #
 # Run from the repo root inside the container (the repo is mounted at /app):
@@ -43,7 +43,7 @@ python "$EXP/sweep.py"
 
 echo
 echo "============================================================"
-echo "[3/3] Headline figure — figure.py (svg/pdf/tiff)"
+echo "[3/3] Publication figure — figure.py (svg/pdf/tiff)"
 echo "============================================================"
 python "$EXP/figure.py"
 

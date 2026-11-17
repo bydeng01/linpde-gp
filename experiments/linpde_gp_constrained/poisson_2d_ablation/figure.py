@@ -2,11 +2,10 @@
 Publication figure for the 3-way ablation on the free-boundary
 2D Poisson problem: equality-only vs inequality-only vs both.
 
-Main message:
-    The PDE-equality posterior and the scale-free monotonicity constraint each
-    fail on a complementary axis --- equality fixes the magnitude but is
-    non-monotone at the free corner, the inequality fixes the shape but not the
-    magnitude --- so only their combination is accurate, monotone, and tight.
+The PDE-equality posterior and the scale-free monotonicity constraint each
+fail on a complementary axis --- equality fixes the magnitude but is
+non-monotone at the free corner, the inequality fixes the shape but not the
+magnitude --- so only their combination is accurate, monotone, and tight.
 
 Layout: field row -> mechanism slice -> metric bars.
 Panels:
@@ -14,7 +13,7 @@ Panels:
     b  equality only       (failure 1: reverts toward 0 at the free corner; non-monotone)
     c  inequality only     (failure 2: monotone but wrong magnitude; widest band)
     d  both (E, C)         (the fix)                       [a-d share one colour scale]
-    e  diagonal slice u(s,s): truth vs the three arms      [the MECHANISM]
+    e  diagonal slice u(s,s): truth vs the three arms      [the mechanism]
     f  metrics relative to equality-only: RMSE / band / free-corner error
 
 Data: rendered from ``fields.npz`` + ``diagnostics.json`` (written by run.py),
@@ -43,7 +42,7 @@ from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ---- MANDATORY editable-text rules (must precede any figure) ----------------
+# ---- Editable-text rules (must precede any figure) --------------------------
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = [
     "DejaVu Sans",
@@ -74,12 +73,12 @@ mpl.rcParams.update(
 )
 
 # Restrained palette: one neutral family (reference / deficient
-# baselines), one signal family (the combined hero), green reserved for the
+# baselines), one signal family (the combined posterior), green reserved for the
 # directional gain cue only.
 C_TRUTH = "#272727"  # near-black reference
 C_EQ = "#767676"  # neutral mid — equality only (deficient baseline)
 C_IN = "#3775BA"  # blue — inequality only (the other deficient baseline)
-C_BOTH = "#B64342"  # signal red — both (the hero)
+C_BOTH = "#B64342"  # signal red — both
 C_GAIN = "#2E9E44"  # green — directional gain cue only
 FIELD_CMAP = "viridis"
 

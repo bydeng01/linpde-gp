@@ -1,12 +1,11 @@
 """
 Publication figure for the arbitrage-constrained call-surface experiment.
 
-Main message:
-    Conditioning the quote + Dupire-PDE posterior on the no-arbitrage
-    inequalities sharply reduces the arbitrage in the extrapolated surface
-    (residual finite-difference violations persist in the wings, since the
-    inequalities are imposed softly at finite virtual points) and cuts the
-    held-out error, most where the quotes pin the surface least.
+Conditioning the quote + Dupire-PDE posterior on the no-arbitrage
+inequalities sharply reduces the arbitrage in the extrapolated surface
+(residual finite-difference violations persist in the wings, since the
+inequalities are imposed softly at finite virtual points) and cuts the
+held-out error, most where the quotes pin the surface least.
 
 Panels
 ------
@@ -14,11 +13,11 @@ Panels
        long-maturity band), virtual boxes;
   * b-e: the 2x2 finite-difference constraint block. Column = arm
        (quotes+E, quotes+E+C), row = constraint family (call spread d_x c,
-       calendar d_T c). The DERIVATIVE FIELD is plotted, not a violation
+       calendar d_T c). The derivative field is plotted, not a violation
        mask: red is the infeasible side, the solid red line is the
        constraint boundary (the old hatch outline), and the dashed blue line
        in b, c is the lower leg of the two-sided spread bound -e^{x-rT}.
-       Plotting the field keeps the DEPTH of each violation, which the old
+       Plotting the field keeps the depth of each violation, which the old
        binary hatch discarded (advisor comment, 2026-08-04);
   * f: held-out RMSE per arm;
   * g: arbitrage-violation rates per arm (incl. the never-imposed butterfly);
@@ -27,7 +26,7 @@ Panels
        annotated; per-seed ratios are too noisy to plot, cf.
        poisson_2d_data_assimilation/figure.py).
 
-NOTE (scope of panel g): run.py:violation_rates scores only the UPPER leg of
+NOTE (scope of panel g): run.py:violation_rates scores only the upper leg of
 the two-sided spread bound (d_x c > 0) and does not score the price-bound
 block at all, though both are imposed by run.py:build_constraints. The dashed
 contour in b, c is therefore the only place the lower leg is visible.
@@ -86,14 +85,14 @@ mpl.rcParams.update(
     }
 )
 
-# Palette. The four arms form ONE "information added" family
+# Palette. The four arms form one "information added" family
 # rather than four competing hues: neutral for the data-only baselines, the
 # blue signal family for the arms that carry the no-arbitrage inequalities,
 # darkening as information accrues (quotes < quotes+E; quotes+C < quotes+E+C).
 # Green and red are reserved strictly for directional cues (RMSE reduction,
 # arbitrage violations).
 C_UNC = "#4D4D4D"  # neutral_dark   — quotes+E (equality baseline)
-C_CON = "#0F4D92"  # blue_main      — quotes+E+C (full method, hero)
+C_CON = "#0F4D92"  # blue_main      — quotes+E+C (full method)
 C_GAIN = "#8BCF8B"  # green_3        — RMSE reduction (gain cue)
 C_VIOL = "#B64342"  # red_strong     — arbitrage violations (drop cue)
 C_Q = "#CFCECE"  # neutral_light  — quotes only
@@ -190,7 +189,7 @@ def _fd_panel(
 ):
     """One finite-difference constraint field, diverging about the bound.
 
-    ``cmap`` is oriented so the INFEASIBLE side is red. The solid red line is
+    ``cmap`` is oriented so the infeasible side is red. The solid red line is
     the constraint boundary (F = 0); the dashed blue line, when given, is the
     second bound of a two-sided constraint (F = lower_bound).
     """
@@ -216,7 +215,7 @@ def _fd_panel(
 
 
 def _fd_full(M: np.ndarray, EX: np.ndarray, ET: np.ndarray):
-    """Each derivative on its OWN full grid, exactly as run.py scores them.
+    """Each derivative on its own full grid, exactly as run.py scores them.
 
     ``_fd_fields`` trims both to a shared interior so d_x and d_T can be drawn
     on common axes; that trim lowers the extremes. The profile panel reports
@@ -242,7 +241,7 @@ def _profile_panel(ax_top, ax_bot, xs, dxE, xt, dTE, dxC, dTC, ec_ok):
     """
 
     def _arms(ax, x, fE, fC, bound_above):
-        # bound_above: infeasible half lies ABOVE zero (call spread) or below.
+        # bound_above: infeasible half lies above zero (call spread) or below.
         vals = [fE] + ([fC] if ec_ok else [])
         lo = min(float(v.min()) for v in vals)
         hi = max(float(v.max()) for v in vals)

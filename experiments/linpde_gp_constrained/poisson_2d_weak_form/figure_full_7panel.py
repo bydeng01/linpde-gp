@@ -1,16 +1,15 @@
 """
-Publication figure for the 2D Poisson *combination showcase* with incomplete
+Publication figure for the 2D Poisson problem with incomplete
 (partial) boundary information.
 
 Seven-panel supplementary version of figure.py (panels a--g). It writes the
 ``_supp`` basename.
 
-Main message:
-    When boundary information is incomplete, the PDE-equality posterior is
-    under-determined and non-monotone near the free corner; adding monotonicity
-    inequality information restores an accurate, shape-correct solution and
-    sharply lowers predictive uncertainty. Equality and inequality information
-    are complementary --- neither alone suffices.
+When boundary information is incomplete, the PDE-equality posterior is
+under-determined and non-monotone near the free corner; adding monotonicity
+inequality information restores an accurate, shape-correct solution and
+sharply lowers predictive uncertainty. Equality and inequality information
+are complementary --- neither alone suffices.
 
 Layout (advisor revision, Aug 2026): the mechanism panel is referenced first in
 the text, so it leads the figure at full width; the six maps then form a 2x3
@@ -18,13 +17,13 @@ grid in which each column pairs a posterior with the quantity derived from it,
 and every colour bar sits immediately to the right of the panel it scales.
 
     a  diagonal slice u(s,s) with 1.96-sigma bands: truth vs equality-only vs
-       combined --- the MECHANISM (non-monotone dip removed, band shrinks,
+       combined --- the mechanism (non-monotone dip removed, band shrinks,
        truth inside the combined band)                         [full width]
     ---------------------------------------------------------------------
     b  equality only  u|E      (reverts toward 0 near the free corner (1,1))
     c  + inequality   u|(E,C)  (recovered)                    | shared u scale
     d  combined posterior 1.96-sigma half-width (where uncertainty remains),
-       with its OWN sequential colour bar
+       with its own sequential colour bar
     ---------------------------------------------------------------------
     e  signed error  u|E - u*          | shared diverging scale: the error
     f  signed error  u|(E,C) - u*      | collapse is visible directly
@@ -38,7 +37,7 @@ residual uncertainty above, the truth it should bracket below).
 Quantitative summary: table_metrics.tex (via make_table.py).
 
 Rendered from fields.npz + diagnostics.json (written by run.py), so the figure
-can be re-styled WITHOUT re-running the slow R solve.
+can be re-styled without re-running the slow R solve.
 """
 
 from __future__ import annotations
@@ -80,7 +79,7 @@ mpl.rcParams.update(
 
 C_TRUTH = "#272727"
 C_EQ = "#767676"  # equality-only (deficient baseline)
-C_CON = "#0F4D92"  # combined (E,C) posterior (hero)
+C_CON = "#0F4D92"  # combined (E,C) posterior
 C_GAIN = "#2E9E44"  # improvement cue only
 C_BC = "#B64342"  # boundary data
 C_XV = "#FFD700"  # virtual points
@@ -280,7 +279,7 @@ def plot(fields, diag, base):
         arrowprops=dict(arrowstyle="->", color=C_GAIN, lw=0.8),
     )
 
-    # (d) residual uncertainty: its OWN colour bar, adjacent to the panel, so
+    # (d) residual uncertainty: its own colour bar, adjacent to the panel, so
     # the diverging error scale is never read against this map.
     ims = ax_sd.pcolormesh(
         EX, EY, half95_c, shading="auto", cmap=CMAP_STD, rasterized=True

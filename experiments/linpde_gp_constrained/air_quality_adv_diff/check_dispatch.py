@@ -8,7 +8,7 @@ chains
 
 for the ``ExpQuad`` prior. This probe applies ``L`` (built by
 ``adv_diff_operator.make_adv_diff_operator``) to ``ExpQuad`` on argnum=1 then
-argnum=0 and asserts the core covariance is NOT the JAX autodiff fallback
+argnum=0 and asserts the core covariance is not the JAX autodiff fallback
 (``JaxLambdaCovarianceFunction``), then cross-checks the numeric value against a
 direct ``jax.hessian`` / ``jax.jvp`` evaluation of L_s L_t on the scalar kernel.
 

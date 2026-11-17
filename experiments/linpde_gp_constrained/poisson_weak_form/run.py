@@ -24,7 +24,7 @@ so
 
 ``u_true`` is C^infty, monotone, with the boundary values (0, 1).
 
-Equality side (weak-form, NOT pointwise)
+Equality side (weak-form, not pointwise)
 ----------------------------------------
 Pick a hat basis ``{φ_i}_{i=1}^m`` on a uniform grid of [0, 1] with grid
 endpoints at the domain boundary. The PDE residual modes are
@@ -136,10 +136,10 @@ def main(out_dir: str | None = None) -> None:
     # Coarse test basis on purpose: 2 interior hats means the weak-form PDE
     # residual lives in a 2-dim subspace of L². With an ExpQuad prior of
     # lengthscale 0.25 the prior has many more effective DOF than that, so
-    # the equality side genuinely under-determines u — the unconstrained mean
+    # the equality side under-determines u — the unconstrained mean
     # is allowed to be visibly off truth, and (combined with the monotone-
     # with-margin u_true above) the inequality has room to pull it back
-    # WITHOUT introducing the endpoint-slope bias that dominated when
+    # without introducing the endpoint-slope bias that dominated when
     # u_true' vanished at the boundary.
     test_grid = np.linspace(0.0, 1.0, 4)  # 4 grid points -> 2 interior hats
     test_basis = linpde_bases.UnivariateLinearInterpolationBasis(

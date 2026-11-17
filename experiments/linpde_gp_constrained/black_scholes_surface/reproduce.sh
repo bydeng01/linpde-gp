@@ -7,7 +7,7 @@
 #   1. truth       check_truth.py           (BS truth: parity, quadrature, Dupire residual)
 #   2. dispatch    check_dispatch.py        (closed-form ExpQuad dispatch for the operator)
 #   3. recovery    run.py --recovery-check  (dense noiseless quotes -> RMSE < 1e-3)
-#   4. snapshot    run.py                   (headline snapshot)
+#   4. snapshot    run.py                   (synthetic snapshot)
 #   5. full sweep  sweep.py                 (gain CSV + bs_numbers.tex; the slow R step)
 #   6. figure      figure.py                (wide + _column svg/pdf/tiff)
 #
@@ -53,7 +53,7 @@ python "$EXP/run.py" --recovery-check
 
 echo
 echo "============================================================"
-echo "[4/6] Headline snapshot — run.py"
+echo "[4/6] Synthetic snapshot — run.py"
 echo "============================================================"
 python "$EXP/run.py"
 

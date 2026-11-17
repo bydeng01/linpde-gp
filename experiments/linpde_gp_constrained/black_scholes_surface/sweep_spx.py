@@ -1,22 +1,22 @@
 """
-Real-data (SPX) thinned-chain sweep: the headline SPX experiment.
+Real-data (SPX) thinned-chain sweep.
 
 The dense SPX chain is a *negative control* --- thousands of tightly quoted
 strikes pin the surface so well that the no-arbitrage inequalities are inert
-(quotes+E+C == quotes+E; see run.py --dense). The publishable claim is that
+(quotes+E+C == quotes+E; see run.py --dense). The claim tested here is that
 the model-free no-arbitrage information recovers its value as the market gets
-illiquid. We therefore THIN the chain to ``n_obs`` training quotes (seeded
+illiquid. We therefore thin the chain to ``n_obs`` training quotes (seeded
 random subsets of the bulk, so each seed is a different sparse market) with a
 quote-noise floor, and trace the held-out RMSE of quotes+E vs quotes+E+C as a
 function of ``n_obs``. The held-out set is fixed (the full wing / long-T block)
 so the score target does not move.
 
 This mirrors the synthetic ``sweep.py`` but on real market data and with the
-constant-sigma Dupire PDE demoted to a soft prior (``sigma_pde > 0``), which is
-the honest treatment when the model is misspecified: the equality side carries
+constant-sigma Dupire PDE demoted to a soft prior (``sigma_pde > 0``), because
+the model is misspecified: the equality side carries
 a model assumption, the inequalities carry model-free truth.
 
-Gain is reported as RATIO-OF-MEANS, 1 - mean(rmse_con)/mean(rmse_unc), over
+Gain is reported as ratio-of-means, 1 - mean(rmse_con)/mean(rmse_unc), over
 SEEDS subsets (per-seed ratios divide by a noisy denominator; same estimator
 decision as the synthetic sweep).
 
@@ -55,7 +55,7 @@ NOBS_VALUES = [12, 20, 35, 60, 120, 300]
 SEEDS = list(range(20))
 NOISE_FLOOR = SPX_NOISE_FLOOR  # mimic wide / stale quotes
 SIGMA_PDE = 1e-3  # misspecified Dupire as a soft prior
-FIXED_NOBS = 20  # the headline illiquid operating point
+FIXED_NOBS = 20  # the main illiquid operating point
 
 _FIELDS = [
     "n_obs",
@@ -247,11 +247,9 @@ def main() -> None:
                 flush=True,
             )
 
-    # Dense negative control (one solve, all retained quotes). The quotes-only
-    # arm is included so the misspecified-PDE-alone RMSE is computed in-pipeline
-    # (was a hand-copied literal in the section before); the whole block is
-    # persisted to black_scholes_spx_dense.json as the auditable raw record
-    # behind the \BsSpxDense* macros (parallels black_scholes_spx_sweep.csv).
+    # Dense negative control (one solve, all retained quotes), including the
+    # quotes-only arm. The result goes into the \BsSpxDense* macros and is
+    # saved to black_scholes_spx_dense.json.
     dense = dict(
         n_obs=int(data["n_train"]),
         rmse_quotes=float("nan"),

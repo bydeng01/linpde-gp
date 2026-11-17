@@ -1,12 +1,11 @@
 """
-Real-data (SPX) headline figure: no-arbitrage value vs market liquidity.
+Real-data (SPX) figure: no-arbitrage value vs market liquidity.
 
-Main message:
-    On a real SPX option chain the no-arbitrage inequalities add nothing when
-    the chain is densely quoted (the data already pin the surface), but recover
-    a large held-out-RMSE reduction as the chain is thinned toward an illiquid
-    market --- the model-free constraints are worth most exactly where the
-    quotes are sparse.
+On a real SPX option chain the no-arbitrage inequalities add nothing when
+the chain is densely quoted (the data already pin the surface), but recover
+a large held-out-RMSE reduction as the chain is thinned toward an illiquid
+market --- the model-free constraints are worth most exactly where the
+quotes are sparse.
 
 Panels (shared y-axis):
   * a: paired seed-averaged held-out RMSE of quotes+E vs quotes+E+C against the
@@ -120,7 +119,7 @@ def _stats(rows, key):
 def _band(rows, key):
     """Per-n_obs mean and interquartile (25-75%) range across the seeds.
 
-    The IQR is the honest spread to show here: the unconstrained held-out RMSE
+    The IQR is used here because the unconstrained held-out RMSE
     is heavy-tailed across thinned subsets (a few sparse draws miss the wings
     badly), so a symmetric std band would overstate the lower edge. The two
     arms' IQR bands overlap at most n_obs (the subsets are paired, so a wide
@@ -141,7 +140,7 @@ def _band(rows, key):
 def _rmse_panel(ax, rows, dense):
     x, mu, u25, u75 = _band(rows, "rmse_unc")
     _, mc, c25, c75 = _band(rows, "rmse_con")
-    # Green fill between the mean curves = the headline ratio-of-means reduction.
+    # Green fill between the mean curves = the ratio-of-means reduction.
     ax.fill_between(
         x,
         mc,
@@ -201,7 +200,7 @@ def _rmse_panel(ax, rows, dense):
             ha="left",
         )
     if dense is not None and np.isfinite(dense["rmse_unc"]):
-        # Dense control plotted at its TRUE retained-quote count (the full,
+        # Dense control plotted at its true retained-quote count (the full,
         # un-thinned chain) far to the right on the *same* log axis. A faint
         # dashed connector bridges the gap to the thinned sweep, signalling
         # that this is the same axis at a much higher density --- not an

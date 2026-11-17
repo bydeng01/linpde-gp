@@ -1,7 +1,7 @@
 """
 Snapshot the ^SPX option chain to data/spx_chain_<date>.csv (real-data input).
 
-Run OUTSIDE the container (needs network + yfinance):
+Run outside the container (needs network + yfinance):
 
     pip install yfinance
     python experiments/linpde_gp_constrained/black_scholes_surface/fetch_data.py

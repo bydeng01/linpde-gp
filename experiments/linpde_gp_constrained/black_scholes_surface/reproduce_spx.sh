@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 #
-# reproduce_spx.sh — real-data driver (the publishable headline).
+# reproduce_spx.sh — real-data driver.
 #
-# The dense SPX chain is the NEGATIVE CONTROL (data pin the surface, the
-# inequalities are inert); the THINNED chain is the headline (model-free
+# The dense SPX chain is the negative control (data pin the surface, the
+# inequalities are inert); the thinned chain is the main experiment (model-free
 # no-arbitrage information recovers its value as the market goes illiquid).
 #
-# Prerequisite (run OUTSIDE the container, needs internet + yfinance):
+# Prerequisite (run outside the container, needs internet + yfinance):
 #     pip install yfinance
 #     python experiments/.../black_scholes_surface/fetch_data.py
 #   -> writes data/spx_chain_<date>.csv  (pass that filename as $1 below)
 #
-# Run from the repo root INSIDE the container (R backend required):
+# Run from the repo root inside the container (R backend required):
 #     cd /app && bash experiments/linpde_gp_constrained/black_scholes_surface/reproduce_spx.sh data/spx_chain_<date>.csv [NSEEDS]
 #
 #   $2 NSEEDS = thinned subsets per n_obs (default 20; 15-25 recommended). The
@@ -20,7 +20,7 @@
 #
 # Steps:
 #   1. dense control snapshot   run.py --data <csv> --dense
-#   2. thinned headline snapshot run.py --data <csv>          (diagnostics only)
+#   2. thinned snapshot         run.py --data <csv>          (diagnostics only)
 #   3. full R-backed thinned sweep  sweep_spx.py --data <csv> --seeds N (slow)
 #   4. real-data figure         figure_spx.py
 
@@ -42,7 +42,7 @@ python "$EXP/run.py" --data "$CSV" --dense
 
 echo
 echo "============================================================"
-echo "[2/4] Thinned headline snapshot — run.py (illiquid regime)"
+echo "[2/4] Thinned snapshot — run.py (illiquid regime)"
 echo "============================================================"
 python "$EXP/run.py" --data "$CSV"
 

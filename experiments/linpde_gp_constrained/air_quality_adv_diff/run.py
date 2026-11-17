@@ -4,7 +4,7 @@ r"""Positivity-constrained GP for a steady advection-diffusion air-quality field
 Reconstruct a steady pollutant concentration c(x, y) >= 0 from sparse ground
 monitors, conditioning a GP on a steady linear advection-diffusion PDE as
 equality information E and on nonnegativity of concentration as inequality
-information C, through the ``linpde_gp_constrained`` seam.
+information C, through the ``linpde_gp_constrained`` wrapper.
 
 Problem
 -------
@@ -34,8 +34,8 @@ bounds (0, +inf) -- the identity / boundedness branch
 feasible region, so the truncated-Gaussian mean is lifted off zero only by the
 data and the source term.
 
-Headline experiment (see sweep.py + figure.py)
-----------------------------------------------
+Main experiment (see sweep.py + figure.py)
+------------------------------------------
 Four arms on the same prior and monitors -- ``monitors``, ``monitors+E``,
 ``monitors+C``, ``monitors+E+C`` -- are scored by held-out RMSE, full-grid RMSE,
 band width, P(C|E) and a negativity diagnostic. As the data degrade (sparser /
@@ -87,7 +87,7 @@ ARMS = ("monitors", "monitors+E", "monitors+C", "monitors+E+C")
 
 
 def _identity_op(dim: int = 2) -> PartialDerivative:
-    """Order-0 PartialDerivative -> the identity / boundedness branch of the seam."""
+    """Order-0 PartialDerivative -> the identity / boundedness branch."""
     return PartialDerivative(MultiIndex(np.zeros(dim, dtype=int)))
 
 
@@ -142,10 +142,10 @@ def _in_heldout(X: np.ndarray, v) -> np.ndarray:
 def _obs_points(
     n_obs: int, v, obs_lo: float = 1e-3, obs_hi: float = 1.0 - 1e-3
 ) -> np.ndarray:
-    """n_obs deterministic Halton monitor LOCATIONS avoiding the held-out zones.
+    """n_obs deterministic Halton monitor locations avoiding the held-out zones.
 
     Nested low-discrepancy design (same rationale as
-    poisson_2d_data_assimilation._obs_points): points are FIXED across seeds so
+    poisson_2d_data_assimilation._obs_points): points are fixed across seeds so
     obs_seed varies only the noise; n_obs is a clean knob. Candidates falling in
     the upwind / centreline held-out zones are dropped so those regions stay
     data-starved.
@@ -335,7 +335,7 @@ def _unconstrained_fields(posterior, X_eval):
 def _constrained_fields(posterior, Xv, X_eval, rng, n_samples, constr_likelihood):
     """Positivity-constrained mean / std / P(C|E) for one underlying posterior.
 
-    Prefer the gp_constr seam (exact, R-backed); fall back to the R-free
+    Prefer gp_constr (exact, R-backed); fall back to the R-free
     truncated-normal sampler when the R backend is unavailable so the checks and
     figures run offline. Returns (mean, std, p_ce_exact, min_mean_v, backend).
     """
@@ -511,7 +511,7 @@ def solve(
         )
         diag["arms"][arm] = rec
 
-    # Headline gains: monitors+E+C vs monitors+E.
+    # Gains: monitors+E+C vs monitors+E.
     base = diag["arms"]["monitors+E"]
     comb = diag["arms"]["monitors+E+C"]
     diag["gain_rmse_held_rel"] = (
@@ -579,7 +579,7 @@ def mean_at(
 def _preprocess_openaq(csv_path: str) -> dict:
     """Load + project + nondimensionalise a snapshot CSV to the [0,1]^2 frame.
 
-    Drops non-positive / flagged readings, AVERAGES multiple readings per sensor
+    Drops non-positive / flagged readings, averages multiple readings per sensor
     (so a multi-hour window collapses to one value per station -- the steady-state
     snapshot -- instead of duplicate co-located points that wreck the GP gram),
     projects lon/lat to a local planar frame in metres (equirectangular about the
@@ -612,7 +612,7 @@ def _preprocess_openaq(csv_path: str) -> dict:
     Rm = 6_371_000.0
     x_m = np.radians(lon - lon.mean()) * Rm * np.cos(np.radians(lat0))  # +x = east
     y_m = np.radians(lat - lat0) * Rm  # +y = north
-    # ISOMETRIC rescale into the unit box: a single scale on both axes preserves
+    # Isometric rescale into the unit box: a single scale on both axes preserves
     # aspect ratio, so a physical wind direction (east, north) maps to the same
     # direction in the [0,1]^2 operator frame. Center, then scale by the larger
     # extent and recenter into [0.05, 0.95].
@@ -696,7 +696,7 @@ def main(
     if data_csv and os.path.exists(data_csv):
         pre = _preprocess_openaq(data_csv)
         # Reproducible random thinning of the monitor set (density knob for the
-        # real-data sparsity sweep). thin_seed varies the subset AND, since
+        # real-data sparsity sweep). thin_seed varies the subset and, since
         # solve() holds out the first quarter of the passed array, the held-out
         # CV split -- so averaging over thin_seed is a cross-validated estimate.
         n_all = pre["X_obs"].shape[0]
@@ -719,7 +719,7 @@ def main(
         )
 
     # PDE-coefficient overrides. Wind is given as a physical (east, north) vector;
-    # only its DIRECTION is identifiable in the nondimensional [0,1]^2 frame (the
+    # only its direction is identifiable in the nondimensional [0,1]^2 frame (the
     # magnitude is the dimensionless advection strength |v'|, a Peclet-like knob),
     # so we orient v' along the measured wind and keep |v'| at wind_mag (default:
     # the synthetic regime's magnitude). D, k may be overridden too.
@@ -741,7 +741,7 @@ def main(
             f"{params['v'][1]:.3g}), k={params['k']:.4g}"
         )
 
-    # Source term. For real data the synthetic Gaussian plume is indefensible;
+    # Source term. The synthetic Gaussian plume does not apply to real data;
     # default to S=0 (the PDE acts as an advection-diffusion-decay transport prior
     # over the monitor values). 'plume' forces the synthetic source; 'zero' forces
     # S=0; 'auto' = zero for real data, plume for synthetic.
@@ -763,7 +763,7 @@ def main(
     n = data["n_eval_axis"]
     EX, EY = data["EX"], data["EY"]
 
-    # Real-data runs write suffixed files so the canonical synthetic (headline) outputs
+    # Real-data runs write suffixed files so the canonical synthetic outputs
     # consumed by figure.py are never clobbered.
     sfx = "_openaq" if real_data is not None else ""
 

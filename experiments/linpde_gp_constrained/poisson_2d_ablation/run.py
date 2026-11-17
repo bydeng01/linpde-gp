@@ -2,21 +2,21 @@
 3-way ablation: equality-only vs inequality-only vs both
 ========================================================
 
-This is a SEPARATE experiment from ``poisson_2d_weak_form`` (which contrasts
+This is a separate experiment from ``poisson_2d_weak_form`` (which contrasts
 only equality-only vs the combined posterior). Here we add the missing third
 arm — *inequality-only* — to isolate the contribution of each information
 source on the **same** under-determined, free-boundary 2D Poisson problem.
 
 Why this ablation
 -----------------
-The combination-showcase regime (partial Dirichlet data: only the homogeneous
+The partial-BC regime (partial Dirichlet data: only the homogeneous
 edges ``x=0`` and ``y=0``; the far edges ``x=1``, ``y=1`` are free) is chosen
 precisely so that *neither* information source suffices on its own:
 
 * **Equality only** ``u | E`` (PDE collocation + the two homogeneous edges).
   Away from data a GP reverts to its prior mean (0), so the equality-only mean
   rises and then falls back toward 0 near the free corner ``(1,1)`` — it is
-  inaccurate AND non-monotone. The PDE + partial BCs cannot *pin* ``u`` near
+  inaccurate and non-monotone. The PDE + partial BCs cannot *pin* ``u`` near
   the free boundary.
 
 * **Inequality only** ``u | C`` (monotonicity ``∂_x u ≥ 0`` and ``∂_y u ≥ 0``
@@ -32,7 +32,7 @@ precisely so that *neither* information source suffices on its own:
   structure the missing boundaries would have provided. Their *combination*
   yields an accurate, shape-correct reconstruction.
 
-So this experiment directly demonstrates the headline claim: the combination
+So this experiment tests the main claim: the combination
 beats each component alone, because the two components carry *complementary*
 information (magnitude vs shape).
 
@@ -84,7 +84,7 @@ if _WEAKFORM_DIR not in sys.path:
 import run as weakform  # noqa: E402  (sibling experiment driver)
 
 # -----------------------------------------------------------------------------
-# Single source of truth for the shared configuration. Passed to BOTH the
+# Single source of truth for the shared configuration. Passed to both the
 # parent solve() (equality-only + both) and the inequality-only builder, so all
 # three arms share lengthscale, virtual grid, and evaluation grid.
 # -----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ def solve_inequality_only(rng, compute_constrained: bool = True) -> dict:
                 "points); a few minutes...",
                 flush=True,
             )
-            # Deterministic moment-based mean AND std in one R call. Because the
+            # Deterministic moment-based mean and std in one R call. Because the
             # "both" arm is the same (E,C) posterior as poisson_2d_weak_form,
             # the moment-based band matches that figure exactly (the old
             # sample-std estimate drifted between the two runs).
@@ -308,7 +308,7 @@ def _format_3way_table(eq_both: dict, ineq: dict) -> str:
         "(prior orthant prob; shape constraint vs zero-mean prior)",
         f"P(C | E)    [exact, R]      : "
         + ("        n/a" if np.isnan(e.get("p_ce", np.nan)) else f"{e['p_ce']:>11.4f}")
-        + "   (combination showcase)",
+        + "   (equality-posterior orthant prob)",
         f"P(C | E)    [MC, R-free]    : {e.get('p_ce_mc', float('nan')):>11.4f}",
     ]
     return "\n".join(lines)
@@ -502,13 +502,11 @@ def main(out_dir: str | None = None) -> None:
     ax_m.bar(xpos + w, bo_vals, w, color="#d62728", label="both")
     ax_m.set_xticks(xpos)
     ax_m.set_xticklabels(metrics)
-    ax_m.set_title("lower is better — both wins on every metric", fontsize=9)
+    ax_m.set_title("lower is better", fontsize=9)
     ax_m.legend(fontsize=7, frameon=False)
 
     fig.suptitle(
-        "3-way ablation on the free-boundary 2D Poisson problem — "
-        "equality fixes magnitude, inequality fixes shape, only both fixes "
-        "everything",
+        "3-way ablation on the free-boundary 2D Poisson problem",
         fontsize=11,
     )
     out_path = os.path.join(out_dir, "ablation.png")

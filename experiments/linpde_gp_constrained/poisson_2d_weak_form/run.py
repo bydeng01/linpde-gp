@@ -21,7 +21,7 @@ so that  u_true(0, ·) = u_true(·, 0) = 0,  u_true(1, 1) = 1,
          ∂_y u_true = (e^x - 1) e^y / (e - 1)² ≥ 0,
 and      f = -Δu_true = -(e^x (e^y - 1) + e^y (e^x - 1)) / (e - 1)².
 
-Equality side (COLLOCATION, not a tensor-product weak form)
+Equality side (collocation, not a tensor-product weak form)
 -----------------------------------------------------------
 The strong-form residual -Δu = f is enforced at an interior collocation grid;
 Dirichlet data u = u_true is imposed at boundary points. Every kernel-side
@@ -110,11 +110,11 @@ def _perimeter_points(n_per_axis: int) -> np.ndarray:
 
 
 def _two_edge_points(n_per_axis: int) -> np.ndarray:
-    """PARTIAL boundary data: only the two homogeneous edges x=0 and y=0
-    (where u_true = 0). The far edges x=1 and y=1 are LEFT FREE, so the
-    equality posterior is genuinely under-determined toward the (1,1) corner —
+    """Partial boundary data: only the two homogeneous edges x=0 and y=0
+    (where u_true = 0). The far edges x=1 and y=1 are left free, so the
+    equality posterior is under-determined toward the (1,1) corner —
     a GP reverts to its prior mean (0) away from data, producing a mean that
-    rises then falls back toward 0 near the free edges (i.e. NON-monotone).
+    rises then falls back toward 0 near the free edges (i.e. non-monotone).
     This is the regime in which the monotonicity inequality supplies the
     missing information and measurably corrects the mean.
     """
@@ -206,7 +206,7 @@ def solve(
     # over 2 axes -> d=32 keeps mtmvnorm tractable
     # (6×6 -> d=72 is ~5x slower).
     n_eval_axis: int = 30,  # 30×30 evaluation grid
-    bc_scheme: str = "two_edges",  # 'two_edges' (showcase) or 'full' (well-posed)
+    bc_scheme: str = "two_edges",  # 'two_edges' (partial BCs) or 'full' (well-posed)
     constrain_axes: tuple = (0, 1),  # monotonicity axes; (0,1) = both ∂_x,∂_y >= 0
     constr_likelihood: float = 1e-4,  # eps_v; two stacked derivative blocks are
     # ill-conditioned, so use a bit more slack.
@@ -218,8 +218,8 @@ def solve(
 ) -> dict:
     """Build equality + constrained posteriors and return arrays + diagnostics.
 
-    Default ('two_edges' + both-axis monotonicity) is the *combination
-    showcase*: Dirichlet data only on the homogeneous edges x=0, y=0, so the
+    Default ('two_edges' + both-axis monotonicity) is the partial-BC
+    setting: Dirichlet data only on the homogeneous edges x=0, y=0, so the
     equality posterior is under-determined toward the free (1,1) corner and is
     non-monotone (GP reversion to the prior mean). Adding ∂_x u >= 0 and
     ∂_y u >= 0 supplies the missing structure and corrects the mean. Use
@@ -270,8 +270,8 @@ def solve(
     # axes, independent of the R backend.
     p_ce_mc = mc_p_ce(posterior, Xv, rng, axes=tuple(constrain_axes))
 
-    # Evaluation grid + corner points. We predict the grid AND the corners in a
-    # SINGLE constrained call: each gp_constr.posterior_mean recomputes the
+    # Evaluation grid + corner points. We predict the grid and the corners in a
+    # Single constrained call: each gp_constr.posterior_mean recomputes the
     # (point-independent but expensive) truncated-MVN moments of the
     # len(axes)*n_v-dimensional constraint distribution, so calling it once and
     # slicing is far cheaper than separate corner calls.
@@ -328,7 +328,7 @@ def solve(
                 "  [R] constrained mean + std (truncated-MVN moments; slow step)...",
                 flush=True,
             )
-            # Deterministic moment-based mean AND std in a single R call: the
+            # Deterministic moment-based mean and std in a single R call: the
             # truncated-Gaussian posterior covariance gives a reproducible band
             # (no Monte-Carlo sampling noise), so the same (E,C) posterior
             # reports an identical band here and in the ablation figure.
@@ -386,7 +386,7 @@ def solve(
         diag[f"min_d{ax}_unc"] = _min_d(unc_mean, ax)
 
     # Corner diagnostics (from the precomputed slices — no extra R calls).
-    # With partial BCs the corner (1,1) lies on the FREE edges, so it is *not*
+    # With partial BCs the corner (1,1) lies on the free edges, so it is *not*
     # anchored — its large equality-only residual is the under-determination we
     # want, not a BC drift. anchor_corners must stay tight; free_corner (1,1)
     # is reported to show how much the inequality recovers it.
@@ -529,7 +529,7 @@ def main(out_dir: str | None = None) -> None:
         fh.write(table + "\n")
 
     # Export evaluation fields + diagnostics so the figure can be rendered
-    # (and re-styled) WITHOUT re-running the slow R solve. figure.py loads
+    # (and re-styled) without re-running the slow R solve. figure.py loads
     # fields.npz if present; this also lets the fields be inspected as plain
     # numpy arrays anywhere (no jax/probnum/R needed to plot).
     import json

@@ -12,16 +12,15 @@ Assembly choice
 ---------------
 L is built as a ``SumLinearFunctionOperator`` of three *named* operators ---
 ``WeightedLaplacian(-D)``, ``DirectionalDerivative(v)`` and
-``IdentityOperator(k)`` --- exactly the Helmholtz-operator pattern. This is NOT
-cosmetic: ``ExpQuad`` registers closed-form diffop handlers keyed on these named
+``IdentityOperator(k)`` --- exactly the Helmholtz-operator pattern.
+``ExpQuad`` registers closed-form diffop handlers keyed on these named
 operator classes (``ExpQuad_WeightedLaplacian_*``, ``ExpQuad_DirectionalDerivative_*``,
-``ExpQuad_Identity_*``), but NOT on bare ``PartialDerivative``. A single merged
+``ExpQuad_Identity_*``), but not on bare ``PartialDerivative``. A single merged
 ``LinearDifferentialOperator`` decomposes through ``to_sum()`` into
 ``PartialDerivative`` summands, for which the ExpQuad chain falls through to a
 ``NotImplemented`` first-order partial and raises. Keeping the advection term as
 ``DirectionalDerivative`` routes it to its registered handler, so every term of
-the double chain ``L_s L_t k`` stays closed form. No upstream handler is added;
-nothing is reimplemented locally beyond this assembly helper.
+the double chain ``L_s L_t k`` stays closed form.
 
 The builder returns a ``SumLinearFunctionOperator`` so it drops into
 ``make_pde_collocation_posterior(..., pde_op=L, pde_sign=1.0)``: the sign is

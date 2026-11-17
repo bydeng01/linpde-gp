@@ -1,8 +1,8 @@
 r"""Sweep the positivity constraint's value vs data quality (n_obs, sigma_obs).
 
-Headline claim: the positivity inequality's marginal value --- the held-out RMSE
+Hypothesis: the positivity inequality's marginal value --- the held-out RMSE
 reduction and the calibration (sub-zero tail) reduction it buys on top of the
-PDE + monitors --- GROWS as the data degrade (sparser / noisier), because the
+PDE + monitors --- grows as the data degrade (sparser / noisier), because the
 equality posterior then spends more probability mass below zero for positivity
 to reclaim. As the data alone determine c >= 0, the gain shrinks toward zero.
 
@@ -15,13 +15,13 @@ A *cross* through the (sigma_obs, n_obs) plane (not the full Cartesian grid):
 
 Each operating point repeats over SEEDS noise realisations (fixed Halton monitor
 locations, so the seed varies only the noise). Gains are reported as
-RATIO-OF-MEANS, 1 - mean(rmse_con)/mean(rmse_unc), a stable aggregate estimator
+ratio-of-means, 1 - mean(rmse_con)/mean(rmse_unc), a stable aggregate estimator
 (the per-seed ratio has a noisy denominator). ``--grid full`` runs the full
 Cartesian product.
 
 Modes
 -----
-  * default     : full pipeline; constrained arm via the gp_constr seam (R) when
+  * default     : full pipeline; constrained arm via gp_constr (R) when
                   available, else the R-free truncated-normal fallback (run.py).
   * ``--quick`` : equality side + MC P(C|E) only (no constrained solve).
 
@@ -52,7 +52,7 @@ SIGMA_VALUES = [0.05, 0.10, 0.15, 0.22, 0.30]  # observation-noise std
 NOBS_VALUES = [8, 11, 14, 20, 28]  # number of monitors
 SEEDS = [0, 1, 2, 3, 4]
 
-FIXED_NOBS = 14  # held fixed while sweeping sigma_obs (matches run.py headline)
+FIXED_NOBS = 14  # held fixed while sweeping sigma_obs (matches the run.py default)
 FIXED_SIGMA = 0.10  # held fixed while sweeping n_obs
 
 _FIELDS = [
@@ -158,7 +158,7 @@ def write_numbers_tex(rows, out_dir) -> None:
     sig_lo, sig_hi = sig_pts[0], sig_pts[-1]
     g_sig_lo = _rom(at(FIXED_NOBS, sig_lo), "rmse_held_E", "rmse_held_EC")
     g_sig_hi = _rom(at(FIXED_NOBS, sig_hi), "rmse_held_E", "rmse_held_EC")
-    # Calibration (sub-zero tail) gains -- the robust headline curve.
+    # Calibration (sub-zero tail) gains.
     t_sig_lo = _rom(at(FIXED_NOBS, sig_lo), "subzero_E", "subzero_EC")
     t_sig_hi = _rom(at(FIXED_NOBS, sig_hi), "subzero_E", "subzero_EC")
 

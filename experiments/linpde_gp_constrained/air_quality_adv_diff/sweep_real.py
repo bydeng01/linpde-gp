@@ -1,24 +1,24 @@
-r"""Pooled real-data sparsity sweep for the positivity constraint (publishable curve).
+r"""Pooled real-data sparsity sweep for the positivity constraint.
 
-Turns several real OpenAQ snapshots into a defensible, cross-validated real-data
+Turns several real OpenAQ snapshots into a cross-validated real-data
 result. For each snapshot we vary the monitor count and, for each count, average
 over random monitor subsets (each subset is one cross-validation fold, since
 run.solve holds out the first quarter of the passed monitors). Snapshots differ
-in day / city / pollutant AND in meteorology, so each one carries its OWN PDE
+in day / city / pollutant and in meteorology, so each one carries its own PDE
 coefficients -- wind direction, diffusivity D, decay k -- via a small config
-file. We then POOL every (snapshot, n_mon, fold) cell and report, as
-RATIO-OF-MEANS over the pool at each monitor count:
+file. We then pool every (snapshot, n_mon, fold) cell and report, as
+ratio-of-means over the pool at each monitor count:
 
   * sub-zero-tail (calibration) reduction of monitors+E+C over monitors+E,
   * held-out RMSE gain of monitors+E+C over monitors+E,
 
 each averaged across snapshots, with a per-snapshot breakdown and bootstrap error
-bars across snapshots+folds. A ZERO-CLIPPING BASELINE (clip the +E posterior mean
+bars across snapshots+folds. A zero-clipping baseline (clip the +E posterior mean
 at 0, keep its variance) is carried alongside: clipping repairs the mean but not
 the predictive sub-zero mass, whereas the constrained posterior repairs both.
 
 No ground truth on real data, so RMSE is held-out cross-validation only and the
-calibration (tail) reduction is the headline metric.
+calibration (tail) reduction is the main metric.
 
 Run from the repo root inside the container (needs the gp_constr R backend for
 the exact constrained arm; falls back to the R-free sampler otherwise):
@@ -39,8 +39,8 @@ snapshots.txt format -- one snapshot per line, comma-separated, '#' comments
     data/<snapshot_b>.csv,                    0.55, -1.40, 0.05, 0.30
     data/<snapshot_c>.csv,                    1.10,  0.30, , , , zero
 
-wind_east/wind_north is the advection vector (TOWARD which the wind blows, the
-opposite of the meteorological FROM convention). Empty optional fields fall back to
+wind_east/wind_north is the advection vector (toward which the wind blows, the
+opposite of the meteorological "from" convention). Empty optional fields fall back to
 the global defaults (--D / --k / --wind-mag / --source, in turn the synthetic
 regime). argparse needs the equals form for a negative global wind: --wind=-0.8,2.
 
@@ -144,7 +144,7 @@ def _apply_spec(base_params: dict, wind, wind_mag, D, k):
 
 def _src_fn(source: str):
     """S=0 (advection-diffusion-decay transport prior; the real-data default) or
-    the synthetic Gaussian plume (indefensible on real data; testing only)."""
+    the synthetic Gaussian plume (not meant for real data; testing only)."""
     if source == "zero":
         return lambda X: np.zeros(np.atleast_2d(X).shape[0])
     return lambda X: plume.source(X)
@@ -212,7 +212,7 @@ def _clip_baseline(data):
     """Zero-clip the monitors+E mean (variance unchanged); held RMSE + sub-zero tail.
 
     Returns (rmse_held_clip, subzero_clip). The clipped mean is max(m_E, 0); the
-    sub-zero tail uses the ORIGINAL +E std, so it reflects that clipping leaves
+    sub-zero tail uses the original +E std, so it reflects that clipping leaves
     predictive mass below zero (unlike the constrained posterior).
     """
     n = int(data["n_eval_axis"])
@@ -549,8 +549,8 @@ def main() -> None:
 
     # Pooled proper scoring rules + calibration (held-out): CRPS / NLL / interval
     # score as ratio-of-means gains of +E+C over +E (positive = better), coverage
-    # as the empirical 95% level (target 0.95). These are NOT tautological -- unlike
-    # the sub-zero tail, the constraint can win or lose here.
+    # as the empirical 95% level (target 0.95). Unlike the sub-zero tail, these
+    # scores can favour either arm.
     print(
         "\nPooled held-out scoring rules + calibration vs monitor count "
         "(gain% = +E+C over +E; cov target 0.95):"
@@ -586,7 +586,7 @@ def _snapshot_count(rows, Ns):
 
 
 def _common_range(rows, Ns):
-    """Densities reached by ALL snapshots (constant-composition sub-range)."""
+    """Densities reached by all snapshots (constant-composition sub-range)."""
     cnt = _snapshot_count(rows, Ns)
     mx = max(cnt.values())
     return [N for N in Ns if cnt[N] == mx], mx
@@ -683,7 +683,7 @@ def _write_tex(rows, Ns, snaps, out_dir) -> None:
 # -----------------------------------------------------------------------------
 # Figures: editable text, restrained palette (blue =
 # the proposed constrained method, neutrals for baselines/per-snapshot; green/red
-# reserved for directional cues, unused here), panel a as the hero, one shared
+# reserved for directional cues, unused here), panel a as the main panel, one shared
 # frameless legend strip, y-limits tightened to the data, SVG (primary) + PDF +
 # TIFF@600 (no PNG).
 # -----------------------------------------------------------------------------
@@ -777,7 +777,7 @@ def _composition_divider(axes, rows, Ns, label_ax):
 def _plot(rows, Ns, snaps, out_dir) -> None:
     """Pooled sparsity figure. To avoid drawing a line across a change in the pooled
     snapshot set (which produces a spurious jump where the sparser networks drop
-    out), each curve holds its composition FIXED: a bold 'all networks' curve over
+    out), each curve holds its composition fixed: a bold 'all networks' curve over
     the common range (every snapshot present) and a 'PM2.5 networks' curve over the
     full monitor range (only the snapshots that span it). No line crosses the
     divider; the two agree on their overlap."""
@@ -852,7 +852,7 @@ def _plot(rows, Ns, snaps, out_dir) -> None:
             _x, mc, _s = pool(Ns, full_snaps, ku, kcC)
             ax.plot(x2, mc, "--", color=C_B, lw=1.1, zorder=2)
             vals.append(mc)
-        # All networks (n=4), common range -- the composition-controlled headline.
+        # All networks (n=4), common range: the composition-controlled curve.
         x1, m1, s1 = pool(common, snaps, ku, kcE)
         ax.fill_between(x1, m1 - s1, m1 + s1, color=C_M, alpha=0.18, lw=0, zorder=4)
         ax.plot(
@@ -877,7 +877,7 @@ def _plot(rows, Ns, snaps, out_dir) -> None:
         1, 2, figsize=(5.8, 2.5), gridspec_kw={"width_ratios": [1.1, 1.0]}
     )
 
-    # Panel a (HERO): Gaussian moment-based sub-zero-tail proxy reduction.
+    # Panel a: Gaussian moment-based sub-zero-tail proxy reduction.
     va = draw(axa, "subzero_E", "subzero_EC", "subzero_clip", r"$Q_0$ reduction [%]")
     axa.set_ylim(min(0.0, float(np.nanmin(va))) - 4, float(np.nanmax(va)) + 14)
     axa.set_title("a", loc="left", fontweight="bold", fontsize=9)
@@ -994,7 +994,7 @@ def _plot(rows, Ns, snaps, out_dir) -> None:
 def _plot_calib(rows, Ns, out_dir) -> None:
     """Calibration figure (SVG/PDF/TIFF), both panels vs
     monitor count and fully recoverable from the sweep CSV: (a) held-out CRPS
-    ratio-of-means gain of +E+C over +E (and clipping) -- a PROPER score, so the
+    ratio-of-means gain of +E+C over +E (and clipping) -- a proper score, so the
     constraint can lose here; (b) empirical 95% coverage per arm against the 0.95
     target -- every arm undercovers on real held-out stations (the smooth prior is
     overconfident), and the constraint trades a little coverage for sharper bands."""
@@ -1011,7 +1011,7 @@ def _plot_calib(rows, Ns, out_dir) -> None:
         1, 2, figsize=(5.8, 2.5), gridspec_kw={"width_ratios": [1.0, 1.0]}
     )
 
-    # Panel a (HERO): held-out CRPS gain (+E+C vs +E), bootstrap band + clipping.
+    # Panel a: held-out CRPS gain (+E+C vs +E), bootstrap band + clipping.
     m = np.array(
         [
             _rom_pool([r for r in rows if r["n_mon"] == N], "crps_E", "crps_EC")

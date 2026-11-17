@@ -38,15 +38,15 @@ At 3x3 virtual grids on per-block interior boxes (XV_BOXES; d = 27 <= 48):
     truncation bias in the ITM wing);
   * calendar monotonicity:    d_T c >= 0.
 
-Butterfly convexity (d_KK C >= 0, i.e. d_xx c - d_x c >= 0) is NOT
+Butterfly convexity (d_KK C >= 0, i.e. d_xx c - d_x c >= 0) is not
 expressible through the wrapper (identity / first-order partials only;
-constrained_posterior.py:129) and is never imposed; it is REPORTED as an FD
+constrained_posterior.py:129) and is never imposed; it is reported as an FD
 diagnostic of every posterior mean. The PDE + calendar monotonicity partially
 induce it: at collocation points (sigma^2/2)(d_xx c - d_x c) = d_T c + r d_x c,
 so convexity holds wherever d_T c + r d_x c >= 0.
 
-Headline experiment (see ``sweep.py`` + ``figure.py``)
-------------------------------------------------------
+Main experiment (see ``sweep.py`` + ``figure.py``)
+--------------------------------------------------
 Four arms on the same prior and quotes --- quotes / quotes+E / quotes+C /
 quotes+E+C --- scored on held-out quotes in the extrapolation regions (wings
 |x| > ln 1.15 plus the long-maturity band T > 0.8). sweep.py traces the
@@ -101,9 +101,9 @@ X_LO, X_HI = np.log(0.7), np.log(1.3)
 T_LO, T_HI = 0.05, 1.0
 
 # Holdout geometry: the extrapolation regions are scored, not the bulk.
-# Training quotes are confined to the BULK (|x| <= X_BULK, T <= T_BULK); test
+# Training quotes are confined to the bulk (|x| <= X_BULK, T <= T_BULK); test
 # quotes live in the wings / long-maturity band. The bulk is strictly inside
-# the test thresholds so the virtual box below is genuinely extrapolated.
+# the test thresholds so the virtual box below lies in the extrapolation region.
 X_BULK = np.log(1.05)  # train: |x| <= X_BULK
 T_BULK = 0.55  # train: T <= T_BULK
 X_WING = np.log(1.15)  # test: |x| > X_WING
@@ -116,7 +116,7 @@ N_TEST = 40  # held-out quotes (fixed Halton, like the training set)
 # box [ln 0.75, ln 1.25] x [0.1, 0.9]: in the far wings and at
 # small T the no-arbitrage set is knife-edge around the truth (deep-ITM time
 # value -> 0 against the intrinsic bound, deep-OTM d_x c -> 0^-), so virtual
-# points there pin MC P(C|E) ~ 0 for ANY posterior and bias the truncated
+# points there pin MC P(C|E) ~ 0 for any posterior and bias the truncated
 # mean away from the boundary-hugging truth. Each block sits where it is
 # informative but not saturated: (x_lo, x_hi, T_lo, T_hi).
 XV_BOXES = {
@@ -130,7 +130,7 @@ N_V = 3  # 3x3 per block, d = 27 <= 48 (joint P(C|E) decays
 
 VIOL_TOL = 1e-4  # violation threshold on the eval grid (price scale 1)
 
-# Real-data headline (SPX chain): thin the densely-quoted SPX chain into the
+# Real data (SPX chain): thin the densely-quoted SPX chain into the
 # illiquid regime and add a quote-noise floor, so the equality posterior no
 # longer pins the surface and the model-free no-arbitrage constraints bite.
 # The dense chain (--dense) is the negative control.
@@ -682,7 +682,7 @@ def solve_bs(
     thin_n_obs
         Real data only. If given, subsample ``thin_n_obs`` training quotes from
         the bulk pool (seeded by ``obs_seed``) instead of using all of them.
-        This is the headline real-data knob: a fully quoted SPX chain pins the
+        This is the main real-data setting: a fully quoted SPX chain pins the
         surface so tightly that the inequalities are redundant (the dense
         negative control), whereas thinning to a sparse strike/maturity set
         reproduces the illiquid / stale-market regime in which the model-free
@@ -719,7 +719,7 @@ def solve_bs(
             sigma_obs = max(sigma_obs, float(sigma_obs_floor))
         if thin_n_obs is not None and thin_n_obs < len(Y_train):
             # Seeded space-filling-ish thinning: a fresh random subset per seed
-            # so the sweep averages over WHICH quotes survive, the real-data
+            # so the sweep averages over which quotes survive, the real-data
             # analogue of the synthetic noise seeds.
             idx = np.random.default_rng(2000 + obs_seed).choice(
                 len(Y_train), size=thin_n_obs, replace=False
@@ -831,7 +831,7 @@ def solve_bs(
             try:
                 if compute_band:
                     # Deterministic truncated-Gaussian moments (Agrell Cor. 6):
-                    # one R call yields mean AND std, with no MC / seed noise.
+                    # one R call yields mean and std, with no MC / seed noise.
                     # Replaces the earlier samples.std(ddof=1) estimate so the
                     # reported bands match the appendix's determinism claim.
                     mean, std = cwrap.posterior_moments(X_eval)
@@ -899,7 +899,7 @@ def solve_bs(
 def recovery_check() -> None:
     """Equality sanity: quotes+E with dense noiseless quotes recovers the truth.
 
-    12x9 noiseless quotes over the FULL domain (wings included) + the standard
+    12x9 noiseless quotes over the full domain (wings included) + the standard
     collocation block; the posterior mean must match the BS surface to
     RMSE < 1e-3 on the evaluation grid. R-free.
     """
@@ -985,7 +985,7 @@ def main(argv: list[str] | None = None) -> None:
         recovery_check()
         return
 
-    # Real-data flags. --thin N keeps N training quotes (the headline illiquid
+    # Real-data flags. --thin N keeps N training quotes (the main illiquid
     # regime; default SPX_THIN); --dense keeps the whole chain (the negative
     # control, where the data pin the surface and the inequalities are inert);
     # --noise F sets the sigma_obs floor (default SPX_NOISE_FLOOR).
@@ -1005,7 +1005,7 @@ def main(argv: list[str] | None = None) -> None:
             thin_n_obs = None if dense else _opt("--thin", int, SPX_THIN)
             sigma_obs_floor = None if dense else _opt("--noise", float, SPX_NOISE_FLOOR)
             print(
-                f"real data ({'DENSE control' if dense else 'thinned headline'}): "
+                f"real data ({'dense control' if dense else 'thinned'}): "
                 f"pool {data['n_train']} train / {data['n_test']} test, "
                 f"S0 = {data['S0']:.2f}, sigma = {data['sigma']:.4f}, "
                 f"r = {data['r']:.4f}, chain sigma_obs = {data['sigma_obs']:.5f}"
@@ -1022,10 +1022,10 @@ def main(argv: list[str] | None = None) -> None:
                 "synthetic Black-Scholes setup."
             )
 
-    # Headline operating point. Synthetic: sparse lightly noisy
+    # Default operating point. Synthetic: sparse lightly noisy
     # quotes in the bulk; wings + long-T are the extrapolation score regions
     # where u | E violates no-arbitrage. Real chain: the constant-
-    # sigma Dupire operator is misspecified, so it is a SOFT prior
+    # sigma Dupire operator is misspecified, so it is a soft prior
     # (sigma_pde > 0) while the inequalities stay exact; the chain is thinned
     # into the illiquid regime.
     sigma_pde = 0.0 if data is None else 1e-3

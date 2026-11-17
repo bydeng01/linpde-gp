@@ -5,7 +5,7 @@ Run inside the docker container:
     PYTHONPATH=src:gp_constr:src/linpde_gp_constrained \
       python experiments/linpde_gp_constrained/poisson_2d_weak_form/check_dispatch.py
 
-Expected output (closed form — NOT a JaxLambdaCovarianceFunction):
+Expected output (closed form — not a JaxLambdaCovarianceFunction):
 
     inner: <type> -> core ExpQuad_Identity_WeightedLaplacian
     outer: <type> -> core ExpQuad_WeightedLaplacian_WeightedLaplacian
@@ -15,7 +15,7 @@ Note: with a ``1.0 * ExpQuad`` amplitude (as in the demo) the result is a
 ``JaxScaledCovarianceFunction`` *wrapping* the closed form — the Laplacian
 dispatch pulls the scalar out and applies to the inner ExpQuad. That is still a
 closed form (its ``_evaluate`` is numpy, no JAX tracing); we unwrap the scalar
-wrapper(s) and check the *core* type. The genuine failure mode is a
+wrapper(s) and check the *core* type. The failure mode is a
 ``JaxLambdaCovarianceFunction`` core (the autodiff fallback), which would force a
 switch to a half-integer Matern prior.
 """

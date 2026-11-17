@@ -7,5 +7,5 @@ min ∂_x mean (full grid)    :     -0.2687      -0.0047      -0.0000
 min ∂_y mean (full grid)    :     -0.2687      -0.0010      -0.0000
 
 P(C)        [prior, MC]     :      0.0043   (prior orthant prob; shape constraint vs zero-mean prior)
-P(C | E)    [exact, R]      :      0.1061   (combination showcase)
+P(C | E)    [exact, R]      :      0.1061   (equality-posterior orthant prob)
 P(C | E)    [MC, R-free]    :      0.1081

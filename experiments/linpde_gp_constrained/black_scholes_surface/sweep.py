@@ -2,7 +2,7 @@
 Sweep the inequalities' held-out RMSE gain against quote count (n_obs) and
 quote noise (sigma_obs) for the arbitrage-constrained call-surface experiment.
 
-This produces the headline numbers for ``figure.py`` and
+This produces the numbers for ``figure.py`` and
 ``bs_numbers.tex``. Hypothesis (as in poisson_2d_data_assimilation):
 the no-arbitrage inequalities' marginal value over the Dupire-PDE equality
 posterior --- the reduction in held-out RMSE on the extrapolation regions ---
@@ -19,7 +19,7 @@ Cross through the (n_obs, sigma_obs) plane (full Cartesian product costs
 
 Each operating point is repeated over SEEDS noise realisations (quote sites
 are fixed nested Halton, so seeds vary the noise only) and gains are reported
-as RATIO-OF-MEANS, 1 - mean(rmse_con)/mean(rmse_unc) --- the per-seed ratio
+as ratio-of-means, 1 - mean(rmse_con)/mean(rmse_unc) --- the per-seed ratio
 divides by a noisy denominator and is too high-variance to plot (measured for
 the Poisson assimilation sweep; same estimator here).
 
@@ -239,7 +239,7 @@ def main() -> None:
     t0 = time.time()
     done = 0
     for axis, n_obs, sig in configs:
-        # The (expensive, rtmvnorm-backed) constrained band is computed ONLY
+        # The (expensive, rtmvnorm-backed) constrained band is computed only
         # at the table cell (FIXED_NOBS, FIXED_SIGMA); the gain curves need
         # the constrained mean alone.
         is_table_cell = n_obs == FIXED_NOBS and abs(sig - FIXED_SIGMA) < 1e-12

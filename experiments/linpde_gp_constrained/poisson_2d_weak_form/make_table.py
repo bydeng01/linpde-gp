@@ -1,6 +1,6 @@
 """
-Emit the LaTeX metrics table (the replacement for the old figure panel ``h``)
-for the 2D Poisson *partial-BC* combination showcase.
+Emit the LaTeX metrics table for the 2D Poisson problem with partial boundary
+data.
 
 The numbers are read from ``diagnostics.json`` (written by ``run.py``), so the
 table is guaranteed to match ``figure_poisson_2d_partialBC`` and never drifts

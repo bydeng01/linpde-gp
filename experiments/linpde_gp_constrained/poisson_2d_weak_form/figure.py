@@ -1,27 +1,26 @@
 """
-Publication figure for the 2D Poisson *combination showcase* with incomplete
+Publication figure for the 2D Poisson problem with incomplete
 (partial) boundary information.
 
-Main message:
-    When boundary information is incomplete, the PDE-equality posterior is
-    under-determined and non-monotone near the free corner; adding monotonicity
-    inequality information restores an accurate, shape-correct solution and
-    sharply lowers predictive uncertainty. Equality and inequality information
-    are complementary --- neither alone suffices.
+When boundary information is incomplete, the PDE-equality posterior is
+under-determined and non-monotone near the free corner; adding monotonicity
+inequality information restores an accurate, shape-correct solution and
+sharply lowers predictive uncertainty. Equality and inequality information
+are complementary --- neither alone suffices.
 
 Main-paper layout (4 panels). The signed-error maps, the residual-uncertainty
-map, and the metrics now live in the supplement (figure_full_7panel.py) and the
-in-text table (table_metrics.tex); only the load-bearing panels are kept here:
+map and the metrics are in the supplementary figure (figure_full_7panel.py)
+and the metrics table (table_metrics.tex):
     a  truth u* with the problem setup overlaid (partial boundary data on
        x=0/y=0, PDE collocation, monotonicity virtual points)
     b  equality only  u|E      (reverts toward 0 near the free corner (1,1))
     c  + inequality   u|(E,C)  (recovered)
     d  diagonal slice u(s,s) with 1.96-sigma bands: truth vs equality-only vs
-       combined --- the MECHANISM (non-monotone dip removed, band shrinks,
+       combined --- the mechanism (non-monotone dip removed, band shrinks,
        truth inside the combined band)
 
 Rendered from fields.npz + diagnostics.json (written by run.py), so the figure
-can be re-styled WITHOUT re-running the slow R solve.
+can be re-styled without re-running the slow R solve.
 """
 
 from __future__ import annotations
@@ -64,7 +63,7 @@ mpl.rcParams.update(
 
 C_TRUTH = "#272727"
 C_EQ = "#767676"  # equality-only (deficient baseline)
-C_CON = "#0F4D92"  # combined (E,C) posterior (hero)
+C_CON = "#0F4D92"  # combined (E,C) posterior
 C_GAIN = "#2E9E44"  # improvement cue only
 C_BC = "#B64342"  # boundary data
 C_XV = "#FFD700"  # virtual points

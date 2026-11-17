@@ -9,7 +9,7 @@
 #   2. Truth + FD convergence check      plume.py
 #   3. Offline London sample             fetch_data.py --sample
 #   4. Dense-recovery check              run.py --recovery-check
-#   5. Synthetic headline snapshot       run.py        (fields.npz, diagnostics.json)
+#   5. Synthetic snapshot                run.py        (fields.npz, diagnostics.json)
 #   6. --data run on the sample          run.py --data (suffixed *_openaq outputs)
 #   7. Sweep + LaTeX macros              sweep.py      (sweep CSV, aq_numbers.tex)
 #   8. Publication figure                figure.py     (svg/pdf/tiff, wide + _column)
@@ -19,7 +19,7 @@
 #     cd /app && bash experiments/linpde_gp_constrained/air_quality_adv_diff/reproduce.sh
 #
 # Requires: linpde-gp + probnum + jax + scipy throughout; additionally
-# rpy2 + R packages mvtnorm/tmvtnorm/TruncatedNormal/truncnorm for the EXACT
+# rpy2 + R packages mvtnorm/tmvtnorm/TruncatedNormal/truncnorm for the exact
 # constrained arm and exact P(C|E). Without R the constrained arm falls back to
 # the experiment-local truncated-normal sampler (run.py) and every check except
 # the exact P(C|E) still passes.
@@ -47,7 +47,7 @@ python "$EXP/fetch_data.py" --sample
 echo; echo "[4/8] Recovery check -- dense low-noise recovery (RMSE < 1e-3)"
 python "$EXP/run.py" --recovery-check
 
-echo; echo "[5/8] Synthetic headline snapshot -- run.py"
+echo; echo "[5/8] Synthetic snapshot -- run.py"
 python "$EXP/run.py"
 
 echo; echo "[6/8] --data run on the offline sample -- run.py --data"
@@ -56,7 +56,7 @@ python "$EXP/run.py" --data "$DATA"
 echo; echo "[7/8] Sweep + LaTeX macros -- sweep.py (slow; constrained arm)"
 python "$EXP/sweep.py"
 
-echo; echo "[8/8] Headline figure -- figure.py"
+echo; echo "[8/8] Publication figure -- figure.py"
 python "$EXP/figure.py"
 
 echo; echo "============================================================"

@@ -38,7 +38,7 @@ import sys
 CITY_BBOX = {
     "london": (-0.25, 51.42, 0.05, 51.56),
     "maryland": (-79.49, 37.91, -75.05, 39.72),  # whole state
-    "baltimore": (-76.71, 39.20, -76.53, 39.37),  # city scale (steady-state defensible)
+    "baltimore": (-76.71, 39.20, -76.53, 39.37),  # city scale (steady state applies)
     "dc_metro": (-77.20, 38.79, -76.85, 39.00),  # Washington DC / MD suburbs
 }
 

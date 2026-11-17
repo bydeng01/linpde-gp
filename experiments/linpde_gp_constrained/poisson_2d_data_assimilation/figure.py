@@ -1,30 +1,17 @@
 """
 Publication figure for the noisy/sparse data-assimilation experiment.
 
-Main message:
-    Conditioning the PDE + noisy-scattered-data posterior on monotonicity lowers
-    the reconstruction RMSE, and the improvement grows as the data degrade ---
-    more observation noise or fewer observations --- so the shape constraint is
-    most valuable exactly where the data are least informative.
+Conditioning the PDE + noisy-scattered-data posterior on monotonicity lowers
+the reconstruction RMSE, and the improvement grows as the data degrade ---
+more observation noise or fewer observations --- so the shape constraint is
+most valuable exactly where the data are least informative.
 
 Layout: two coupled trend panels.
 
-Why paired RMSE curves rather than a single "relative gain" curve
------------------------------------------------------------------
-The per-realisation relative gain 1 - RMSE(con)/RMSE(unc) divides by a noisy
-denominator and is therefore extremely high-variance (its ±1 std spans zero and
-the curve is non-monotone). The *seed-averaged RMSE* of each posterior is, by
-contrast, clean and monotone: the constrained curve sits below the unconstrained
-one at every operating point, and the gap widens as the data degrade. We
-therefore plot the two seed-averaged RMSE curves with ±1 std ribbons; the shaded
-gap between them is the inequality's value, and we annotate the relative
-reduction computed as a ratio of the seed-averaged RMSEs (a stable estimator).
-
-That same ratio-of-means estimator is what the right-hand axis draws as a
-curve. The objection above is to the *per-realisation* gain, whose noisy
-denominator makes it unusable; the ratio of seed-averaged RMSEs is stable, so
-the reader gets the trend in relative terms without a spurious ribbon. Left and
-right axes therefore show the same quantity, absolute and relative.
+The per-realisation gain 1 - RMSE(con)/RMSE(unc) has a noisy denominator, so
+the figure plots the seed-averaged RMSE of each posterior with ±1 std ribbons.
+The right axis shows the same gap in relative terms, as the ratio of the
+seed-averaged RMSEs.
 
 Panels
 ------
@@ -34,8 +21,8 @@ Panels
 Both panels share a left y-axis, and a right y-axis on the same 0-40 % range, so
 the two effects are directly comparable.
 
-The gap annotation is a one-way arrow drawn from the baseline curve down to the
-constrained curve: the glyph asserts a reduction rather than a neutral distance.
+The ratio-of-means gain at the most-degraded operating point is annotated with
+a one-way arrow from the baseline curve to the constrained curve.
 
 Input:
     poisson_2d_data_assimilation_sweep.csv  (sweep.py; SEEDS realisations).
@@ -217,9 +204,8 @@ def _panel(
         label="+ monotonicity",
     )
 
-    # Annotate the ratio-of-means gain at the most-degraded operating point.
-    # One-way arrow, baseline -> constrained, so the glyph itself reads as a
-    # downward move in error rather than a neutral two-sided distance.
+    # Annotate the ratio-of-means gain at the most-degraded operating point,
+    # with a one-way arrow from the baseline curve to the constrained curve.
     i = annot_idx
     xa = x[i]
     ymid = 0.5 * (mu[i] + mc[i])
@@ -347,7 +333,7 @@ def plot(rows, fig_base, layout="wide", gain_axis=True):
     else:
         fig, (axa, axb) = plt.subplots(1, 2, figsize=(6.2 if gain_axis else 5.6, 2.5))
 
-    # shared y-limit for honest cross-panel comparison; the extra headroom keeps
+    # shared y-limit so the panels are comparable; the extra headroom keeps
     # the right-axis gain curve out of the +/-1 std ribbons.
     ytop = 1.08 * max(np.nanmax(mua + sua), np.nanmax(mub + sub))
     if gain_axis:
