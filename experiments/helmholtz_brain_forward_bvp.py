@@ -13,39 +13,42 @@ The forward problem is
 solved component-by-component (c in {x, y, z}) on the bounding box of the
 brain mask in MRE space.
 
-What this script delivers
--------------------------
+Overview
+--------
 1. **Empirical model-mismatch diagnostic** (always computed; does not require
    GP-PDE regression).
 
    For the measured displacement field this is
        r_c(x) = (Delta u_c^meas)(x) + k^2(x) * u_c^meas(x)
    computed via a 7-point finite-difference Laplacian, and we report
-   |r| / |k^2 * u| (matching ``data/.../scripts/helmholtz_residual_demo.py``).
+   |r| / |k^2 * u|.
    The magnitude of |r|/|k^2 u| measures *where* the simplifying assumption
    (locally homogeneous shear modulus, near-incompressibility) breaks down on
    this data.
 
-2. **GP forward solve** (Re and Im separately), using Matern 5/2 in 3D
-   via the closed-form Laplacian-Laplacian handlers in the variable-
-   coefficient Helmholtz extension. We solve two scalar BVPs:
+2. **GP forward solve**, using Matern 5/2 in 3D via the closed-form
+   Laplacian-Laplacian handlers in the variable-coefficient Helmholtz
+   extension. By default the full complex operator
+   (``HelmholtzReal2Operator.from_coefficient_field``) is solved on a
+   2-component (Re, Im) GP; ``--prior icm/lmc`` couples the two channels in
+   the prior. ``--legacy-real-only`` instead solves two scalar BVPs:
 
    * one for u_c^Re with operator L_R := Delta + Re(k^2), data Re(u^meas),
    * one for u_c^Im with operator L_R                  , data Im(u^meas),
 
-   and recombine. The off-diagonal coupling Im(k^2) (the dissipation) is
-   ignored in the operator; this is a controlled approximation that holds
-   when |Im k^2| << |Re k^2|, which is roughly true for in-vivo brain tissue
-   at MRE frequencies (loss tangent ~0.2-0.4). A fully coupled real-2
-   representation would use ``HelmholtzReal2Operator.from_coefficient_field``;
-   wiring up the 2-component GP is left as future work.
+   and recombines them. This ignores the off-diagonal coupling Im(k^2) (the
+   dissipation), which is valid only when |Im k^2| << |Re k^2|;
+   for in-vivo brain tissue at MRE frequencies the loss tangent is ~0.2-0.4.
 
 3. **Two figure types**:
 
-   * ``helmholtz_brain_<subject>_<f>Hz_comp<c>_main.png``: 3x3 grid
-     (rows: Re/Im/|.|; cols: measured, predicted, posterior std).
-   * ``helmholtz_brain_<subject>_<f>Hz_comp<c>_mismatch.png``: 1x3
-     (posterior std, |r|/|k^2 u|, scatter of std vs |r|/|k^2 u|).
+   * ``helmholtz_brain_<subject>_<f>Hz_comp<c>[_<obs>][_nopde]_main.png``:
+     3x3 grid (rows: Re/Im/|.|; cols: measured, predicted, posterior std).
+   * ``helmholtz_brain_<subject>_<f>Hz_comp<c>[_<obs>][_nopde]_mismatch.png``:
+     1x3 (posterior std, |r|/|k^2 u|, scatter of std vs |r|/|k^2 u|).
+
+   With ``--dump-eval-npz`` the per-point evaluation record is also written
+   to ``..._eval.npz``.
 
 Usage
 -----
@@ -202,10 +205,10 @@ def build_real_k2_field_from_grid(
     spacing_mm: np.ndarray,
     fill_value: float = 0.0,
 ) -> pn.functions.Function:
-    """Wrap a 3D voxelized REAL k^2 volume as a continuous pn.functions.Function.
+    """Wrap a 3D voxelized real k^2 volume as a continuous pn.functions.Function.
 
     Nearest-voxel lookup with a configurable fill value outside the brain mask.
-    Coordinates are in METERS (consistent with the Laplacian dimensions in
+    Coordinates are in meters (consistent with the Laplacian dimensions in
     1/m^2).
     """
     spacing_m = spacing_mm * 1e-3
@@ -243,7 +246,7 @@ def build_complex_k2_field_from_grid(
     consumes the *full* complex k^2(x), splitting it into alpha = Re k^2 and
     beta = Im k^2 internally.
 
-    Nearest-voxel lookup; coordinates in METERS (matching the Laplacian
+    Nearest-voxel lookup; coordinates in meters (matching the Laplacian
     dimensions in 1/m^2).
     """
     spacing_m = spacing_mm * 1e-3
@@ -276,12 +279,31 @@ def build_complex_k2_field_from_grid(
 # ---------------------------------------------------------------------------
 
 
-def _build_index_sets(mask, n_shell, n_interior, rng):
+def _build_index_sets(mask, n_shell, n_interior, rng, n_eval=0, eval_seed=12345):
     shell = mask & ~binary_erosion(mask, iterations=2)
     interior = binary_erosion(mask, iterations=3)
 
     shell_idx = np.argwhere(shell)
     interior_idx = np.argwhere(interior)
+
+    # Held-out evaluation set, drawn first and from its own generator so that it
+    # is the same for every (n_shell, n_interior) and disjoint from the
+    # collocation points. With n_eval = 0 nothing is withheld and the metrics
+    # are computed on the collocation set.
+    eval_idx = None
+    if n_eval > 0:
+        if interior_idx.shape[0] <= n_eval:
+            raise ValueError(
+                f"n_eval={n_eval} must be smaller than the "
+                f"{interior_idx.shape[0]} interior voxels available"
+            )
+        take = np.random.default_rng(eval_seed).choice(
+            interior_idx.shape[0], size=n_eval, replace=False
+        )
+        eval_idx = interior_idx[take]
+        keep = np.ones(interior_idx.shape[0], dtype=bool)
+        keep[take] = False
+        interior_idx = interior_idx[keep]
 
     if shell_idx.shape[0] > n_shell:
         sub = rng.choice(shell_idx.shape[0], size=n_shell, replace=False)
@@ -289,7 +311,7 @@ def _build_index_sets(mask, n_shell, n_interior, rng):
     if interior_idx.shape[0] > n_interior:
         sub = rng.choice(interior_idx.shape[0], size=n_interior, replace=False)
         interior_idx = interior_idx[sub]
-    return shell_idx, interior_idx
+    return shell_idx, interior_idx, eval_idx
 
 
 def _solve_real_bvp(
@@ -326,14 +348,10 @@ def _solve_real_bvp(
     # that pde_noise_rel is dimensionally meaningful. The jitter is added on
     # top to keep the conditional Gram PD.
     bvp_var = np.asarray(bc_post.var(X_pde)).flatten()
-    # NOTE: do not floor the mean variance, as in
-    #   trace_avg = max(float(np.mean(bvp_var)), 1.0)
-    # which would silently clamp pde_noise to pde_noise_rel * 1.0 whenever the
-    # BC-conditioned variance is small. That is wrong when output_scale is
-    # tuned away from 1.0 (e.g. for the curl observable, ~2e-4): the floor
-    # makes pde_noise enormous relative to the prior variance, which kills
-    # the PDE constraint. We use the actual mean variance and rely on
-    # cov_jitter_rel for PD safety.
+    # The mean variance is not floored: with output_scale far from 1.0 (e.g.
+    # ~2e-4 for the curl observable) a floor would make pde_noise large
+    # relative to the prior variance and switch off the PDE constraint.
+    # cov_jitter_rel keeps the Gram PD.
     trace_avg = float(np.mean(bvp_var))
     pde_noise = pde_noise_rel * trace_avg + cov_jitter_rel * trace_avg
     post = bc_post.condition_on_observations(
@@ -374,7 +392,7 @@ def gp_forward_solve(
     rng = np.random.default_rng(seed)
     spacing_m = np.array(spacing_mm) * 1e-3
 
-    shell_idx, interior_idx = _build_index_sets(mask, n_shell, n_interior, rng)
+    shell_idx, interior_idx, _ = _build_index_sets(mask, n_shell, n_interior, rng)
     print(f"  shell idx     : {shell_idx.shape[0]}")
     print(f"  interior idx  : {interior_idx.shape[0]}")
 
@@ -386,9 +404,9 @@ def gp_forward_solve(
 
     Y_bc_complex = u_meas[shell_idx[:, 0], shell_idx[:, 1], shell_idx[:, 2], component]
 
-    # --- Build operator with the REAL part of k^2 (controlled approximation;
-    #     see module docstring). Im k^2 is ignored in the operator; we only
-    #     use it in the data-side residual diagnostic.
+    # --- Build the operator with Re k^2 only (see module docstring). Im k^2 is
+    #     ignored in the operator and used only in the data-side residual
+    #     diagnostic.
     k2_real = build_real_k2_field_from_grid(
         k2_volume.real,
         origin_mm=np.zeros(3),
@@ -481,7 +499,7 @@ def gp_forward_solve(
 
 
 # ---------------------------------------------------------------------------
-# 2-component forward solve against the FULL complex Helmholtz block
+# 2-component forward solve against the full complex Helmholtz block
 # ---------------------------------------------------------------------------
 
 
@@ -568,6 +586,7 @@ def _solve_real2_bvp(
     bc_noise: float,
     pde_noise_rel: float,
     cov_jitter_rel: float,
+    no_pde: bool = False,
     multi_cov=None,
 ):
     """Condition a 2-component GP on Dirichlet BC + homogeneous Helmholtz PDE.
@@ -607,6 +626,12 @@ def _solve_real2_bvp(
         bc_noise * np.eye(2 * n_bc),
     )
     bc_post = prior.condition_on_observations(Y_bc, X=X_bc, b=bc_b)
+
+    if no_pde:
+        # Condition on the Dirichlet data only (no PDE residuals). X_pde is
+        # unused here; the caller still draws interior_idx, so the evaluation
+        # points match the PDE-constrained solve at the same seed.
+        return bc_post, {"trace_avg": None, "pde_noise": None}
 
     # Scale PDE noise to the BVP-conditioned variance so pde_noise_rel is
     # dimensionally meaningful, mirroring the scalar path.
@@ -651,6 +676,9 @@ def gp_forward_solve_real2(
     prior_kind: str = "iid",
     coreg_corr=None,
     lmc_lengthscales_mm=None,
+    no_pde: bool = False,
+    n_eval: int = 0,
+    eval_seed: int = 12345,
 ):
     """Forward solve using the full complex Helmholtz block and a 2-component GP.
 
@@ -661,9 +689,13 @@ def gp_forward_solve_real2(
     rng = np.random.default_rng(seed)
     spacing_m = np.array(spacing_mm) * 1e-3
 
-    shell_idx, interior_idx = _build_index_sets(mask, n_shell, n_interior, rng)
+    shell_idx, interior_idx, eval_idx = _build_index_sets(
+        mask, n_shell, n_interior, rng, n_eval=n_eval, eval_seed=eval_seed
+    )
     print(f"  shell idx     : {shell_idx.shape[0]}")
     print(f"  interior idx  : {interior_idx.shape[0]}")
+    if eval_idx is not None:
+        print(f"  held-out eval : {eval_idx.shape[0]} (disjoint from collocation)")
 
     def voxel_to_meters(idx_arr):
         return idx_arr.astype(np.float64) * spacing_m
@@ -673,7 +705,7 @@ def gp_forward_solve_real2(
 
     Y_bc_complex = u_meas[shell_idx[:, 0], shell_idx[:, 1], shell_idx[:, 2], component]
 
-    # Operator with the FULL complex k^2.
+    # Operator with the full complex k^2.
     k2_field_complex = build_complex_k2_field_from_grid(
         k2_volume_complex,
         origin_mm=np.zeros(3),
@@ -716,6 +748,8 @@ def gp_forward_solve_real2(
             else ""
         )
     )
+    if no_pde:
+        print("  PDE residuals : disabled (--no-pde)")
 
     t0 = time.time()
     try:
@@ -729,10 +763,17 @@ def gp_forward_solve_real2(
             bc_noise=bc_noise,
             pde_noise_rel=pde_noise_rel,
             cov_jitter_rel=cov_jitter_rel,
+            no_pde=no_pde,
             multi_cov=multi_cov,
         )
         t_solve = time.time() - t0
-        print(f"  Real2 BVP OK in {t_solve:.1f} s, pde_noise={info['pde_noise']:.3e}")
+        if info["pde_noise"] is None:
+            print(f"  Real2 Dirichlet-only solve OK in {t_solve:.1f} s")
+        else:
+            print(
+                f"  Real2 BVP OK in {t_solve:.1f} s, "
+                f"pde_noise={info['pde_noise']:.3e}"
+            )
     except (ValueError, RuntimeError, np.linalg.LinAlgError) as exc:
         print(f"  Real2 BVP FAILED: {type(exc).__name__}: {exc}")
         return {
@@ -741,6 +782,7 @@ def gp_forward_solve_real2(
             "error": str(exc),
             "shell_idx": shell_idx,
             "interior_idx": interior_idx,
+            "eval_idx": eval_idx,
         }
 
     return {
@@ -749,6 +791,7 @@ def gp_forward_solve_real2(
         "post": post,
         "shell_idx": shell_idx,
         "interior_idx": interior_idx,
+        "eval_idx": eval_idx,
         "elapsed": time.time() - t0,
         "info": info,
     }
@@ -926,13 +969,13 @@ def _add_scale_bar(ax, n_cols, mm_per_col, bar_mm=20.0):
 def save_main_figure(
     out_path: Path,
     u_meas_c: np.ndarray,  # complex, (X,Y,Z)
-    u_pred_c: np.ndarray,  # complex, (X,Y,Z); legacy sparse-overlay path
-    std_c: np.ndarray,  # real, (X,Y,Z); Re-channel std, legacy path
+    u_pred_c: np.ndarray,  # complex, (X,Y,Z); sparse-overlay path
+    std_c: np.ndarray,  # real, (X,Y,Z); Re-channel std, sparse-overlay path
     interior: np.ndarray,
     z_slice: int,
     title: str,
     *,
-    std_c_im: np.ndarray | None = None,  # real, (X,Y,Z); Im-channel std, legacy path
+    std_c_im: np.ndarray | None = None,  # real, (X,Y,Z); Im-channel std
     dense_slice_pred_R: np.ndarray | None = None,
     dense_slice_pred_I: np.ndarray | None = None,
     dense_slice_std: np.ndarray | None = None,
@@ -942,12 +985,12 @@ def save_main_figure(
     cbar_label_std: str = "s.d.",
     draw_suptitle: bool = True,
 ):
-    """Publication-quality reconstruction figure.
+    """Reconstruction figure.
 
     Layout: rows {Re, Im, |.|} x columns {measured, predicted}, each row
-    sharing ONE colour scale across measured and predicted (set from the
+    sharing one colour scale across measured and predicted (set from the
     measured/reference field) so the GP posterior-mean amplitude shrinkage is
-    shown honestly rather than hidden by per-panel autoscaling. The right of
+    visible rather than hidden by per-panel autoscaling. The right of
     the grid carries the posterior s.d.: one panel for the Re channel (top row)
     and one for the Im channel (middle row), both on a single shared
     uncertainty scale with one colorbar. The magnitude row (|.|) has no native
@@ -958,15 +1001,15 @@ def save_main_figure(
 
     Column headers ("Measured" / "Predicted" / "Posterior s.d.") and left row
     labels (Re / Im / |.|) replace per-panel titles. Output is written as PNG
-    (300 dpi) plus editable-text SVG and PDF for journal submission.
+    (300 dpi) plus editable-text SVG and PDF.
 
     If ``dense_slice_*`` arrays are provided (each shape ``(X, Y)``, NaN outside
     the brain mask, predictions evaluated densely on every interior voxel of the
-    displayed slice), they replace the sparse subsample-overlay visualization.
+    displayed slice), they are used instead of the sparse subsample overlay.
 
     ``spacing_mm`` (the per-axis voxel size, e.g. ``data["zooms_mm"]``) enables a
     scale bar; ``cbar_label_signal`` / ``cbar_label_std`` set colorbar units;
-    ``draw_suptitle=False`` suppresses the on-figure title for the paper version.
+    ``draw_suptitle=False`` suppresses the on-figure title.
     """
     take = lambda f: _take_axial(f, z_slice)
 
@@ -1050,7 +1093,7 @@ def save_main_figure(
             meas_v = np.where(interior_slice & np.isfinite(meas), meas, np.nan)
             pred_v = np.where(interior_slice & np.isfinite(pred), pred, np.nan)
 
-            # One shared scale per row, anchored to the MEASURED (reference)
+            # One shared scale per row, anchored to the measured (reference)
             # field so the predicted panel is shown on the same axis.
             if cmap == "RdBu_r":
                 vmax = np.nanpercentile(np.abs(meas_v), 99)
@@ -1098,8 +1141,7 @@ def save_main_figure(
         # and one for the Im channel (middle row), on a single shared
         # uncertainty scale with one colorbar. The magnitude row has no native
         # posterior s.d. (|u| is nonlinear in the two GP outputs, so the solver
-        # does not produce one), so that cell carries a short note instead of a
-        # misleading propagated estimate.
+        # does not produce one), so that cell carries a short note.
         std_R_v = np.where(interior_slice & np.isfinite(std_R), std_R, np.nan)
         std_I_v = np.where(interior_slice & np.isfinite(std_I), std_I, np.nan)
         finite_std = np.concatenate(
@@ -1341,6 +1383,9 @@ def run_one_case(args, subject: str, freq: int, component: int):
             prior_kind=args.prior,
             coreg_corr=args.coreg_corr,
             lmc_lengthscales_mm=args.lmc_lengthscales,
+            no_pde=args.no_pde,
+            n_eval=args.n_eval,
+            eval_seed=args.eval_seed,
         )
     if res["status"] != "ok":
         print(f"  GP forward solve FAILED ({res.get('phase')})")
@@ -1354,8 +1399,12 @@ def run_one_case(args, subject: str, freq: int, component: int):
         }
 
     spacing_m = np.array(data["zooms_mm"]) * 1e-3
-    interior_idx = res["interior_idx"]
-    X_eval = interior_idx.astype(np.float64) * spacing_m
+    # Metrics, figure maps and the dumped record all use the held-out set when
+    # --n-eval is given, and the collocation set otherwise.
+    eval_idx = res.get("eval_idx")
+    if eval_idx is None:
+        eval_idx = res["interior_idx"]
+    X_eval = eval_idx.astype(np.float64) * spacing_m
 
     if res["mode"] == "real_only":
         mean_R = np.asarray(res["post_R"].mean(X_eval)).flatten()
@@ -1386,10 +1435,10 @@ def run_one_case(args, subject: str, freq: int, component: int):
         raise RuntimeError(f"Unknown solve mode: {res.get('mode')}")
 
     u_true_R = data["u"][..., component].real[
-        interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]
+        eval_idx[:, 0], eval_idx[:, 1], eval_idx[:, 2]
     ]
     u_true_I = data["u"][..., component].imag[
-        interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]
+        eval_idx[:, 0], eval_idx[:, 1], eval_idx[:, 2]
     ]
     mag_pred = np.sqrt(mean_R**2 + mean_I**2)
     mag_true = np.sqrt(u_true_R**2 + u_true_I**2)
@@ -1417,16 +1466,12 @@ def run_one_case(args, subject: str, freq: int, component: int):
     )
     std_full = np.full(data["u"].shape[:3], np.nan, dtype=np.float64)
     std_I_full = np.full(data["u"].shape[:3], np.nan, dtype=np.float64)
-    u_pred_full[interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]] = (
-        mean_R + 1j * mean_I
-    )
-    std_full[interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]] = std_R
-    std_I_full[interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]] = std_I
+    u_pred_full[eval_idx[:, 0], eval_idx[:, 1], eval_idx[:, 2]] = mean_R + 1j * mean_I
+    std_full[eval_idx[:, 0], eval_idx[:, 1], eval_idx[:, 2]] = std_R
+    std_I_full[eval_idx[:, 0], eval_idx[:, 1], eval_idx[:, 2]] = std_I
 
     # std vs |f^emp|: voxel-wise Pearson over the subsample, in the interior
-    rel_at_eval = rel_residual[
-        interior_idx[:, 0], interior_idx[:, 1], interior_idx[:, 2]
-    ]
+    rel_at_eval = rel_residual[eval_idx[:, 0], eval_idx[:, 1], eval_idx[:, 2]]
     finite_pair = np.isfinite(std_R) & np.isfinite(rel_at_eval) & (rel_at_eval > 0)
     if finite_pair.sum() > 5:
         pearson_std_resid = float(
@@ -1440,15 +1485,49 @@ def run_one_case(args, subject: str, freq: int, component: int):
     z_slice = data["u"].shape[2] // 2
     cn = COMPONENT_NAME[component]
     obs_tag = "" if obs == "disp" else f"_{obs}"
+    pde_tag = "_nopde" if args.no_pde else ""
     fig_main = (
-        args.out_dir / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}_main.png"
+        args.out_dir
+        / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}{pde_tag}_main.png"
     )
     fig_mis = (
         args.out_dir
-        / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}_mismatch.png"
+        / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}{pde_tag}_mismatch.png"
     )
-    # Short, professional on-figure title (suppress entirely for the paper
-    # version via --no-suptitle; full metadata belongs in the figure caption).
+
+    if args.dump_eval_npz:
+        # Per-point evaluation record for offline analysis without a re-solve.
+        # shell_idx is included so the depth of each evaluation point below
+        # the Dirichlet surface can be computed.
+        npz_path = (
+            args.out_dir
+            / f"helmholtz_brain_{subject}_{freq}Hz_comp{cn}{obs_tag}{pde_tag}_eval.npz"
+        )
+        np.savez_compressed(
+            npz_path,
+            eval_idx=eval_idx,
+            interior_idx=res["interior_idx"],
+            shell_idx=res["shell_idx"],
+            spacing_mm=np.asarray(data["zooms_mm"], dtype=np.float64),
+            mean_R=mean_R,
+            mean_I=mean_I,
+            std_R=std_R,
+            std_I=std_I,
+            true_R=u_true_R,
+            true_I=u_true_I,
+            rel_residual_at_eval=rel_at_eval,
+            subject=subject,
+            freq=freq,
+            component=component,
+            observable=obs,
+            prior=args.prior,
+            lengthscale_mm=args.lengthscale_mm,
+            lmc_lengthscales=str(args.lmc_lengthscales),
+            coreg_corr=str(args.coreg_corr),
+            no_pde=bool(args.no_pde),
+        )
+        print(f"  saved {npz_path.name}")
+    # Short on-figure title; --no-suptitle removes it.
     title = f"GP wavefield reconstruction — {subject}, {freq} Hz, comp {cn} ({obs})"
     sig_label = "displacement (m)" if obs == "disp" else r"curl $\nabla\times u$"
 
@@ -1555,7 +1634,7 @@ def main():
         "--observable",
         default="disp",
         choices=["disp", "curl"],
-        help="Which vector field to fit: 'disp' (legacy, the "
+        help="Which vector field to fit: 'disp' (default, the "
         "measured displacement u) or 'curl' (the curl-"
         "filtered field q = ∇×u). Both satisfy the same "
         "scalar Helmholtz equation (Δ + k^2(x)) f = 0 under "
@@ -1605,6 +1684,37 @@ def main():
         help="PDE noise as a fraction of trace(K)/N",
     )
     ap.add_argument(
+        "--n-eval",
+        type=int,
+        default=0,
+        help="Size of a held-out interior evaluation set, drawn from its own "
+        "generator and excluded from the collocation points. The same set is "
+        "used for every --n-interior. Default 0 evaluates on the collocation "
+        "set.",
+    )
+    ap.add_argument(
+        "--eval-seed",
+        type=int,
+        default=12345,
+        help="Seed for the held-out evaluation set (see --n-eval).",
+    )
+    ap.add_argument(
+        "--dump-eval-npz",
+        action="store_true",
+        help="Write the per-evaluation-point record (indices, posterior "
+        "mean and std, measured field, empirical residual, and the "
+        "Dirichlet point set) to "
+        "<out-dir>/helmholtz_brain_<subject>_<f>Hz_comp<c>[_<obs>][_nopde]"
+        "_eval.npz, for offline analysis.",
+    )
+    ap.add_argument(
+        "--no-pde",
+        action="store_true",
+        help="Condition on the Dirichlet shell observations only and skip "
+        "the interior PDE residuals. The interior and evaluation points are "
+        "the same as in the default solve.",
+    )
+    ap.add_argument(
         "--cov-jitter-rel",
         type=float,
         default=1e-7,
@@ -1623,8 +1733,8 @@ def main():
         "griddata; ~3-5 s for an 8 k-voxel slice at N ~ 2 k) "
         "instead of the full chunked back-substitution "
         "(~70 s). Mean is rendered densely either way. Use "
-        "this for sweeps; drop it for publication-quality "
-        "headline figures where you want the exact std map.",
+        "this for sweeps; drop it when the exact std map is "
+        "needed.",
     )
     ap.add_argument(
         "--std-subsample",
@@ -1639,10 +1749,7 @@ def main():
     ap.add_argument(
         "--no-suptitle",
         action="store_true",
-        help="Suppress the on-figure title in the main figure. Use "
-        "for the paper version, where the subject id, "
-        "frequency, component and observable belong in the "
-        "figure caption rather than on the panel.",
+        help="Suppress the on-figure title in the main figure.",
     )
     ap.add_argument(
         "--prior",
@@ -1679,7 +1786,7 @@ def main():
         action="store_true",
         help="Legacy Re-only path: solve Re and Im as two scalar "
         "BVPs against (Delta + Re k^2) and drop Im k^2. The "
-        "default solves the FULL complex Helmholtz block via "
+        "default solves the full complex Helmholtz block via "
         "HelmholtzReal2Operator on a 2-component GP prior "
         "built from IndependentMultiOutputCovarianceFunction.",
     )
@@ -1703,6 +1810,12 @@ def main():
     )
     args = ap.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
+
+    if args.no_pde and args.legacy_real_only:
+        ap.error("--no-pde is implemented for the default real2 solve only")
+
+    if args.n_eval and args.legacy_real_only:
+        ap.error("--n-eval is implemented for the default real2 solve only")
 
     if args.legacy_real_only and args.prior != "iid":
         print(
