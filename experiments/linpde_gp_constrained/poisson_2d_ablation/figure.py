@@ -435,7 +435,6 @@ def main():
             kw["pil_kwargs"] = {"compression": "tiff_lzw"}  # journals cap TIFF size
         fig.savefig(out, **kw)
         print(f"Saved {out}")
-    # Also a quick raster for on-screen QA.
     fig.savefig(
         os.path.join(_THIS_DIR, "figure_ablation_3way.png"),
         dpi=300,

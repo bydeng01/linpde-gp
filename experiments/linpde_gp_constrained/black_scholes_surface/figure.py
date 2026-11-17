@@ -40,7 +40,7 @@ Run from the repo root inside the container (after run.py + sweep.py):
       python experiments/linpde_gp_constrained/black_scholes_surface/figure.py
 
 Outputs (next to this script):
-    figure_black_scholes_surface.svg / .pdf / .tiff   (+ _preview.png)
+    figure_black_scholes_surface.svg / .pdf / .tiff
     figure_black_scholes_surface_column.*             (3.3 in single column)
 """
 
@@ -730,9 +730,8 @@ def plot(fields, diag, rows, fig_base, layout="wide"):
     fig.savefig(f"{fig_base}.svg", bbox_inches="tight")
     fig.savefig(f"{fig_base}.pdf", bbox_inches="tight")
     fig.savefig(f"{fig_base}.tiff", dpi=600, bbox_inches="tight")
-    fig.savefig(f"{fig_base}_preview.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
-    print(f"Saved: {fig_base}.svg / .pdf / .tiff (+ _preview.png)")
+    print(f"Saved: {fig_base}.svg / .pdf / .tiff")
 
 
 def _load_rows(csv_path: str) -> list[dict]:

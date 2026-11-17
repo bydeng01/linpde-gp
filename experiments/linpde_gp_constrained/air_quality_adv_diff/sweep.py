@@ -17,14 +17,13 @@ Each operating point repeats over SEEDS noise realisations (fixed Halton monitor
 locations, so the seed varies only the noise). Gains are reported as
 RATIO-OF-MEANS, 1 - mean(rmse_con)/mean(rmse_unc), a stable aggregate estimator
 (the per-seed ratio has a noisy denominator). ``--grid full`` runs the full
-Cartesian product for the optional gain heatmap.
+Cartesian product.
 
 Modes
 -----
   * default     : full pipeline; constrained arm via the gp_constr seam (R) when
                   available, else the R-free truncated-normal fallback (run.py).
-  * ``--quick`` : equality side + MC P(C|E) only (no constrained solve); use it
-                  to scout the regime before the full sweep.
+  * ``--quick`` : equality side + MC P(C|E) only (no constrained solve).
 
 Output: ``air_quality_adv_diff_sweep.csv`` + LaTeX macros ``aq_numbers.tex``.
 
@@ -311,10 +310,6 @@ def main() -> None:
         _avg("grid", "sigma_obs")
         _avg("grid", "n_obs")
 
-    print(
-        "\nHypothesis check: held-RMSE and tail-reduction gains should INCREASE "
-        "with sigma_obs and DECREASE with n_obs."
-    )
     write_numbers_tex(rows, out_dir)
 
 

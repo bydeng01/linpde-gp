@@ -45,7 +45,7 @@ Run from the repo root inside the container (after sweep.py):
       python experiments/linpde_gp_constrained/poisson_2d_data_assimilation/figure.py
 
 Outputs (next to this script):
-    figure_poisson_2d_data_assimilation.svg / .pdf / .tiff   (+ _preview.png for QA)
+    figure_poisson_2d_data_assimilation.svg / .pdf / .tiff
 """
 
 from __future__ import annotations
@@ -402,9 +402,8 @@ def plot(rows, fig_base, layout="wide", gain_axis=True):
     fig.savefig(f"{fig_base}.svg", bbox_inches="tight")
     fig.savefig(f"{fig_base}.pdf", bbox_inches="tight")
     fig.savefig(f"{fig_base}.tiff", dpi=600, bbox_inches="tight")
-    fig.savefig(f"{fig_base}_preview.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
-    print(f"Saved: {fig_base}.svg / .pdf / .tiff (+ _preview.png)")
+    print(f"Saved: {fig_base}.svg / .pdf / .tiff")
 
 
 def main(arg: str | None = None) -> None:

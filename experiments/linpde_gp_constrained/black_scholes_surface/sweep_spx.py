@@ -26,7 +26,7 @@ constrained solve):
     PYTHONPATH=src:gp_constr:src/linpde_gp_constrained \\
       python experiments/linpde_gp_constrained/black_scholes_surface/sweep_spx.py \\
         --data data/spx_chain_<date>.csv
-    # R-free regime scout (no constrained column):
+    # R-free run (no constrained column):
     PYTHONPATH=... python .../sweep_spx.py --data <csv> --quick
 
 Output: ``black_scholes_spx_sweep.csv`` + ``bs_spx_numbers.tex`` in this
@@ -313,12 +313,6 @@ def main() -> None:
     print(
         "\ngain_rom = ratio-of-means (1 - mean rc / mean ru); gain_med = median "
         "per-seed relative gain; pos_frac = fraction of seeds with gain > 0."
-    )
-    print(
-        "Hypothesis: gain DECREASES toward the dense control as n_obs grows "
-        "(constraints matter most where quotes are sparse). With more seeds, "
-        "watch whether gain_med tracks gain_rom (robust effect) or stays ~0 "
-        "while gain_rom is carried by a few high-error seeds (tail-clamping)."
     )
 
     if not quick:

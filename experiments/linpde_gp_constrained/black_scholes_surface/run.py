@@ -133,9 +133,7 @@ VIOL_TOL = 1e-4  # violation threshold on the eval grid (price scale 1)
 # Real-data headline (SPX chain): thin the densely-quoted SPX chain into the
 # illiquid regime and add a quote-noise floor, so the equality posterior no
 # longer pins the surface and the model-free no-arbitrage constraints bite.
-# The dense chain (--dense) is the negative control. Values from the R-free
-# rejection scout on the 2026-06-13 chain:
-# thin 15-20 quotes at floor 0.02 predicts a ~25-40% held-out RMSE gain.
+# The dense chain (--dense) is the negative control.
 SPX_THIN = 20
 SPX_NOISE_FLOOR = 0.02
 
@@ -696,8 +694,8 @@ def solve_bs(
         spreads are ~2e-4 in normalized price; a floor mimics wider / staler
         quotes without re-fetching. ``None`` keeps the chain value.
     compute_constrained
-        False = R-free quick path (equality arms + MC P(C|E) only), used by
-        ``sweep.py --quick`` for regime scouting before any R solve.
+        False = R-free path (equality arms + MC P(C|E) only), used by
+        ``sweep.py --quick``.
     compute_band
         False skips the (expensive, rtmvnorm-backed) constrained sample draw;
         the constrained mean (mtmvnorm) is still computed, so RMSE gains are

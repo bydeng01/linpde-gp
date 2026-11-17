@@ -123,7 +123,7 @@ Notes per experiment:
   real-data outputs.
 - **Poisson with partial boundary data.** `figure.py` draws the four-panel main figure,
   `figure_full_7panel.py` the seven-panel supplementary figure and `make_table.py` the metrics
-  table. `sweep.py` is an R-free tuning sweep.
+  table.
 
 Random seeds are fixed in every script. Figure scripts write a PDF, which is tracked, plus
 SVG/TIFF/PNG copies, which git ignores.

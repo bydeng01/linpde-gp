@@ -27,8 +27,8 @@ Modes
 -----
   * default        : full pipeline (needs gp_constr's R backend). Writes
                      ``black_scholes_sweep.csv`` + ``bs_numbers.tex``.
-  * ``--quick``    : R-free. Equality arms + MC P(C|E) only; regime scouting
-                     before committing to the R sweep. CSV suffix ``_quick``.
+  * ``--quick``    : R-free. Equality arms + MC P(C|E) only. CSV suffix
+                     ``_quick``.
 
 Run from the repo root inside the container:
 
@@ -287,11 +287,6 @@ def main() -> None:
 
     _avg("nobs", "n_obs")
     _avg("sigma", "sigma_obs")
-    print(
-        "\nHypothesis check: gain_rom should DECREASE with n_obs and "
-        "INCREASE with sigma_obs (the inequalities matter most where the "
-        "quotes pin the surface least)."
-    )
 
     if not quick:
         write_numbers_tex(rows, out_dir)

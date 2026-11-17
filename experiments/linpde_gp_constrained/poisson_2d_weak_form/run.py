@@ -166,8 +166,7 @@ def mc_p_ce(
     covariance built from the kernel adapter's mixed derivatives
     ``Cov(∂_a u(X_v), ∂_b u(X_v)) = Kij(X_v, X_v, a, b)``. We sample and count
     the fraction of draws with every component non-negative — reproducing
-    gp_constr's prior-predictive ``constrprob_Xv`` without rpy2 / R, so the
-    equality side can be tuned offline.
+    gp_constr's prior-predictive ``constrprob_Xv`` without rpy2 / R.
     """
     from linpde_gp_constrained.kernel_adapter import LinPDEKernelAdapter
 
@@ -214,9 +213,7 @@ def solve(
     sigma_bc: float = 1e-6,
     n_samples: int = 150,
     Xv_lo: float = 0.2,  # virtual grid on the interior [Xv_lo, Xv_hi]².
-    Xv_hi: float = 0.8,  # Pulled in from [0.1,0.9] to lift P(C|E) off
-    # the 0.05 floor (~0.11) for a less borderline
-    # paper number; see sweep.py.
+    Xv_hi: float = 0.8,
     compute_constrained: bool = True,
 ) -> dict:
     """Build equality + constrained posteriors and return arrays + diagnostics.
@@ -269,9 +266,8 @@ def solve(
         posterior, constraints, constr_likelihood=constr_likelihood
     )
 
-    # R-free Monte-Carlo estimate of the JOINT P(C|E) over the constrained
-    # axes — tunes the under-determination so the inequality genuinely bites
-    # (target (0.05, 0.95)), independent of the R backend.
+    # R-free Monte-Carlo estimate of the joint P(C|E) over the constrained
+    # axes, independent of the R backend.
     p_ce_mc = mc_p_ce(posterior, Xv, rng, axes=tuple(constrain_axes))
 
     # Evaluation grid + corner points. We predict the grid AND the corners in a
@@ -310,7 +306,7 @@ def solve(
     unc_cov = 0.5 * (unc_cov + unc_cov.T)
     unc_std = np.sqrt(np.clip(np.diag(unc_cov), 0.0, None))
 
-    # --- Constrained posterior (needs R). Skipped entirely in sweep mode.
+    # --- Constrained posterior (needs R). Skipped if compute_constrained=False.
     constrained_ok = False
     constrained_error = None
     con_mean = np.full(n_eval, np.nan)

@@ -24,8 +24,8 @@ Run from the repo root inside the container (after sweep_spx.py):
     PYTHONPATH=src:gp_constr:src/linpde_gp_constrained \\
       python experiments/linpde_gp_constrained/black_scholes_surface/figure_spx.py
 
-Outputs: figure_black_scholes_spx.svg / .pdf / .tiff (+ _preview.png),
-and a _column variant at 3.3 in.
+Outputs: figure_black_scholes_spx.svg / .pdf / .tiff, and a _column variant
+at 3.3 in.
 """
 
 from __future__ import annotations
@@ -316,9 +316,8 @@ def plot(rows, dense, fig_base, layout="wide"):
     fig.savefig(f"{fig_base}.svg", bbox_inches="tight")
     fig.savefig(f"{fig_base}.pdf", bbox_inches="tight")
     fig.savefig(f"{fig_base}.tiff", dpi=600, bbox_inches="tight")
-    fig.savefig(f"{fig_base}_preview.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
-    print(f"Saved: {fig_base}.svg / .pdf / .tiff (+ _preview.png)")
+    print(f"Saved: {fig_base}.svg / .pdf / .tiff")
 
 
 def main(out_dir=None):

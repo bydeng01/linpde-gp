@@ -21,8 +21,7 @@ the cost:
 
 Each operating point is repeated over SEEDS observation realisations so the
 gain can be reported with a mean +/- std band. Pass ``--grid full`` for the
-full Cartesian product (feeds the optional gain heatmap in figure.py) at
-correspondingly higher R cost.
+full Cartesian product at correspondingly higher R cost.
 
 Modes
 -----
@@ -34,8 +33,7 @@ Modes
                      inequality then mostly trims the band (weak/negative mean
                      gain). CSV: ``..._sweep_uniform.csv``.
   * ``--quick``    : R-free. Computes only the unconstrained RMSE and the MC
-                     P(C|E). Use it to characterise the regime / pick FIXED_* and
-                     the value ranges before committing to the (slow) R sweep.
+                     P(C|E).
 
 Output
 ------
@@ -47,7 +45,7 @@ Run from the repo root inside the container:
       python experiments/linpde_gp_constrained/poisson_2d_data_assimilation/sweep.py
     # fast, no R:
     PYTHONPATH=... python .../sweep.py --quick
-    # full grid for the heatmap:
+    # full Cartesian grid:
     PYTHONPATH=... python .../sweep.py --grid full
 """
 
@@ -429,11 +427,6 @@ def main() -> None:
         # For the full grid, summarise gain by each axis marginally.
         _avg("grid", "sigma_obs")
         _avg("grid", "n_obs")
-
-    print(
-        "\nHypothesis check: gain_rel should INCREASE with sigma_obs and "
-        "DECREASE with n_obs (the inequality helps more as data degrade)."
-    )
 
     # Refresh the LaTeX macros for the section (headline starved sweep only, so
     # the --uniform contrast does not overwrite them).

@@ -187,8 +187,7 @@ def mc_p_ce(
     covariance built from the kernel adapter's mixed derivatives
     ``Cov(d_a u(X_v), d_b u(X_v)) = Kij(X_v, X_v, a, b)``. We sample and count
     the fraction of draws with every component non-negative --- reproducing
-    gp_constr's prior-predictive ``constrprob_Xv`` without rpy2 / R, so the
-    equality side can be tuned offline.
+    gp_constr's prior-predictive ``constrprob_Xv`` without rpy2 / R.
     """
     from linpde_gp_constrained.kernel_adapter import LinPDEKernelAdapter
 
@@ -248,7 +247,7 @@ def solve_assimilation(
         in ``sweep.py`` to average the RMSE gain over data realisations.
     compute_constrained
         If False, only the equality posterior + R-free MC P(C|E) are computed
-        (no R needed). Used by ``sweep.py --quick`` for fast regime scouting.
+        (no R needed). Used by ``sweep.py --quick``.
     compute_band
         If False, skip the (expensive, rtmvnorm-backed) constrained sample draw
         used for the credible-band width. The constrained *mean* (mtmvnorm) is
@@ -489,22 +488,12 @@ def main(out_dir: str | None = None) -> None:
         out_dir = os.path.dirname(os.path.abspath(__file__))
     os.makedirs(out_dir, exist_ok=True)
 
-    # A single, deliberately information-poor operating point for the snapshot
-    # figure: few, noisy observations so the inequality clearly bites. The
-    # quantitative story (gain vs sigma_obs and vs n_obs) lives in sweep.py +
-    # figure.py.
-    #
-    # NOTE on regime: with FULL-domain uniform data the smooth PDE + data
-    # already recover u well, so the scale-free monotonicity constraint mainly
-    # trims the credible band and may leave the mean RMSE ~unchanged or slightly
-    # higher (the truncated-Gaussian mean biases away from an already-accurate
-    # mean). Set obs_hi < 1 to leave the (1,1) corner DATA-STARVED — that is the
-    # regime in which the inequality corrects the MEAN (the partial-BC showcase
-    # under noise). The snapshot below uses the starved-corner config so run.png
-    # visibly shows the combination advantage; sweep.py controls the headline.
-    # n_obs=16, sigma_obs=0.1 is the operating point with the strongest clean
-    # mean gain in the sigma sweep (~25% seed-averaged); obs_hi=0.85 starves the
-    # corner. Halton locations (default) make this reproducible.
+    # Single snapshot at the sweep's fixed point (n_obs=16, sigma_obs=0.1);
+    # sweep.py + figure.py cover the full range of sigma_obs and n_obs.
+    # obs_hi=0.85 leaves the (1,1) corner without data. With observations over
+    # the full domain, the PDE and data already recover u well, and the
+    # monotonicity constraint mainly narrows the credible band (see
+    # sweep.py --uniform). Halton locations (default) make this reproducible.
     data = solve_assimilation(
         n_obs=16,
         sigma_obs=0.10,

@@ -6,19 +6,18 @@
 # Runs, in order (all in the STARVED-corner headline regime, the default —
 # observations scattered with a data-free (1,1) corner, the partial-BC showcase
 # under noise; pass --uniform to sweep.py for the full-domain contrast):
-#   1. R-free quick sweep (regime characterisation: rmse_unc, MC P(C|E))
-#   2. single-snapshot demo  run.py        (run.png + comparison.txt)
-#   3. full R-backed sweep   sweep.py       (gain CSV, the headline numbers)
-#   4. publication figure    figure.py      (svg/pdf/tiff gain curves)
+#   1. single-snapshot demo  run.py        (run.png + comparison.txt)
+#   2. full R-backed sweep   sweep.py       (gain CSV, the headline numbers)
+#   3. publication figure    figure.py      (svg/pdf/tiff gain curves)
 #
 # Run from the repo root inside the container (the repo is mounted at /app):
 #
 #     cd /app && bash experiments/linpde_gp_constrained/poisson_2d_data_assimilation/reproduce.sh
 #
-# Requires: linpde-gp + probnum + jax + scipy for steps 1-2 (equality side and
+# Requires: linpde-gp + probnum + jax + scipy for step 1 (equality side and
 # the R-free MC P(C|E)); additionally rpy2 + R packages
 # mvtnorm/tmvtnorm/TruncatedNormal/truncnorm for the constrained mean in
-# steps 2-3 and the gain curves in step 4.
+# steps 1-2 and the gain curves in step 3.
 
 set -euo pipefail
 
@@ -32,25 +31,19 @@ export PYTHONPATH="src:gp_constr:src/linpde_gp_constrained:${PYTHONPATH:-}"
 EXP="experiments/linpde_gp_constrained/poisson_2d_data_assimilation"
 
 echo "============================================================"
-echo "[1/4] R-free quick sweep — regime characterisation"
-echo "============================================================"
-python "$EXP/sweep.py" --quick
-
-echo
-echo "============================================================"
-echo "[2/4] Single-snapshot demo — run.py (run.png + comparison.txt)"
+echo "[1/3] Single-snapshot demo — run.py (run.png + comparison.txt)"
 echo "============================================================"
 python "$EXP/run.py"
 
 echo
 echo "============================================================"
-echo "[3/4] Full R-backed sweep — sweep.py (gain CSV; the slow step)"
+echo "[2/3] Full R-backed sweep — sweep.py (gain CSV; the slow step)"
 echo "============================================================"
 python "$EXP/sweep.py"
 
 echo
 echo "============================================================"
-echo "[4/4] Headline figure — figure.py (svg/pdf/tiff)"
+echo "[3/3] Headline figure — figure.py (svg/pdf/tiff)"
 echo "============================================================"
 python "$EXP/figure.py"
 
